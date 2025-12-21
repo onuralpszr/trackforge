@@ -9,4 +9,8 @@ name = "trackforge"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = "0.18.1"
+pyo3 = { version = "0.18.1", features = ["extension-module"], optional = true }
+
+[features]
+default = []
+python = ["dep:pyo3"]
