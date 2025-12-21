@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 image = "0.25.9"
-pyo3 = { version = "0.18.1", features = ["extension-module"], optional = true }
+pyo3 = { version = "0.27.2", features = ["extension-module"], optional = true }
 
 [features]
 default = []
