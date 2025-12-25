@@ -1,0 +1,40 @@
+name: Codecov
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache build artifacts
+        uses: Swatinem/rust-cache@v2.8.2
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2.65.2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Coverage
+        run: cargo llvm-cov --features python --workspace --lcov --output-path lcov.info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5.5.2
+        with:
+          files: ./lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: trackforge
