@@ -70,3 +70,14 @@ docs/_build/
 
 # Pyenv
 .python-version
+
+# weights
+*.pt
+*.onnx
+
+# Videos and Images
+*.mp4
+*.avi
+*.jpg
+*.png
+*.jpeg
