@@ -81,3 +81,7 @@ docs/_build/
 *.jpg
 *.png
 *.jpeg
+
+# mypycache
+.mypy_cache/
+.dmypy.json
