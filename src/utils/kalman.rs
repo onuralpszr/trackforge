@@ -5,6 +5,9 @@ pub type MeasurementVector = SVector<f32, 4>; // [x, y, a, h]
 pub type CovarianceMatrix = SMatrix<f32, 8, 8>;
 pub type MeasurementMatrix = SMatrix<f32, 4, 8>;
 
+/// A standard Kalman Filter implementation for bounding box tracking.
+///
+/// Ref: "Simple Online and Realtime Tracking with a Deep Association Metric" (DeepSORT)
 #[derive(Debug, Clone)]
 pub struct KalmanFilter {
     motion_mat: SMatrix<f32, 8, 8>,
@@ -14,6 +17,7 @@ pub struct KalmanFilter {
 }
 
 impl KalmanFilter {
+    /// Create a new Kalman Filter instance.
     pub fn new(std_weight_position: f32, std_weight_velocity: f32) -> Self {
         let mut motion_mat = SMatrix::<f32, 8, 8>::identity();
         for i in 0..4 {
@@ -33,6 +37,13 @@ impl KalmanFilter {
         }
     }
 
+    /// Initiate the Kalman Filter state from a measurement.
+    ///
+    /// # Arguments
+    /// * `measurement` - The initial measurement vector `[x, y, a, h]`.
+    ///
+    /// # Returns
+    /// A tuple containing the initial Mean vector and Covariance matrix.
     pub fn initiate(&self, measurement: &MeasurementVector) -> (StateVector, CovarianceMatrix) {
         let mut mean = StateVector::zeros();
         for i in 0..4 {

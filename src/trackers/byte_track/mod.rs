@@ -466,12 +466,28 @@ pub struct PyByteTrack {
 impl PyByteTrack {
     #[new]
     #[pyo3(signature = (track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6))]
+    /// Initialize the ByteTrack tracker.
+    ///
+    /// Args:
+    ///     track_thresh (float, optional): High confidence detection threshold. Defaults to 0.5.
+    ///     track_buffer (int, optional): Number of frames to keep lost tracks alive. Defaults to 30.
+    ///     match_thresh (float, optional): IoU matching threshold. Defaults to 0.8.
+    ///     det_thresh (float, optional): Initialization threshold. Defaults to 0.6.
     fn new(track_thresh: f32, track_buffer: usize, match_thresh: f32, det_thresh: f32) -> Self {
         Self {
             inner: ByteTrack::new(track_thresh, track_buffer, match_thresh, det_thresh),
         }
     }
 
+    /// Update the tracker with detections from the current frame.
+    ///
+    /// Args:
+    ///     output_results (list): A list of detections, where each detection is a tuple of
+    ///         ([x, y, w, h], score, class_id).
+    ///
+    /// Returns:
+    ///     list: A list of active tracks, where each track is a tuple of
+    ///         (track_id, [x, y, w, h], score, class_id).
     fn update(
         &mut self,
         output_results: Vec<([f32; 4], f32, i64)>,
