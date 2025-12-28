@@ -15,7 +15,7 @@
 [![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
 [![Dependabot Updates](https://github.com/onuralpszr/trackforge/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/dependabot/dependabot-updates)
 [![Security audit](https://github.com/onuralpszr/trackforge/actions/workflows/security-audit.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/security-audit.yml)
-[![MSRV](https://img.shields.io/badge/rustc-1.60+-ab6000.svg)](https://blog.rust-lang.org/2022/04/07/Rust-1.60.0.html)
+[![MSRV](https://img.shields.io/badge/rustc-1.85+-ab6000.svg)](https://blog.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 
@@ -30,6 +30,20 @@
 - 🐍 **Python Bindings**: Seamless integration with the Python ecosystem using `pyo3`.
 - 🛠 **Unified API**: Consistent interface for tracking tasks across both languages.
 - 📸 **ByteTrack**: Robust multi-object tracking using Kalman filters and IoU matching.
+
+## Roadmap
+
+- [ ] **DeepSORT**: Integration with Re-ID models.
+- [ ] **SORT**: Classic simple online and realtime tracking.
+- [ ] **BoT-SORT**: Improvement over ByteTrack with camera motion compensation.
+
+## GPU Support & Architecture
+
+Trackforge transforms detections into tracks. It is designed to be the high-speed CPU "glue" in your pipeline. 
+
+- **Detectors (GPU)**: Your object detector (YOLOv8, Yolanas, etc.) runs on the GPU to produce bounding boxes.
+- **Trackforge (CPU)**: Receives these boxes and associates them on the CPU. Algorithms like ByteTrack are extremely efficient (less than 1ms per frame) and do not typically strictly require GPU acceleration, avoiding complex device transfers for the association step.
+- **Future**: We may explore GPU-based association for massive-scale batch processing if data is already on-device.
 
 ## Installation
 

@@ -1,8 +1,9 @@
 [package]
 name = "trackforge"
-version = "0.1.4"
-edition = "2021"
+version = "0.1.5"
+edition = "2024"
 description = "A unified, high-performance computer vision tracking library."
+rust-version = "1.85"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/onuralpszr/trackforge"
@@ -28,3 +29,11 @@ python = ["dep:pyo3"]
 [[example]]
 name = "byte_track_demo"
 path = "examples/rust/byte_track_demo.rs"
+
+[dev-dependencies]
+# Testing dependencies
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

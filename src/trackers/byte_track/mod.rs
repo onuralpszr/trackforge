@@ -141,7 +141,31 @@ impl STrack {
 
 /// ByteTrack tracker implementation.
 ///
-/// Use `ByteTrack::new()` to initialize and `ByteTrack::update()` to process frames.
+/// **ByteTrack** is a simple, fast and strong multi-object tracker.
+///
+/// ## Example
+///
+/// ```rust
+/// use trackforge::trackers::byte_track::ByteTrack;
+///
+/// // Initialize tracker
+/// let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+///
+/// // Simulated detections: (tlwh_box, score, class_id)
+/// let detections = vec![
+///     ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+///     ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
+/// ];
+///
+/// // Update tracker
+/// let tracks = tracker.update(detections);
+///
+/// for track in tracks {
+///     println!("Track ID: {}, Box: {:?}", track.track_id, track.tlwh);
+/// }
+/// ```
+///
+/// ## Abstract
 pub struct ByteTrack {
     tracked_stracks: Vec<STrack>,
     lost_stracks: Vec<STrack>,
@@ -550,8 +574,8 @@ mod tests {
         // Frame 2: Low conf (below track_thresh 0.6, but above implicit low thresh)
         // Note: Code uses 0.5 as low thresh in matches
         let d2 = ([12.0, 12.0, 50.0, 50.0], 0.4, 0); // 0.4 < 0.6 but maybe matched?
-                                                     // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
-                                                     // In my code: `self.linear_assignment(&dists, 0.5)`
+        // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
+        // In my code: `self.linear_assignment(&dists, 0.5)`
 
         let output2 = tracker.update(vec![d2]);
         // If 0.4 < 0.5 (low thresh), it might be ignored if detections are filtered out before matching?

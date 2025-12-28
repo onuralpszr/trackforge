@@ -20,3 +20,4 @@ classifiers = [
 
 [tool.maturin]
 features = ["python"]
+include = ["trackforge.pyi"]

@@ -38,6 +38,7 @@ pub mod utils;
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+/// The Python module for Trackforge.
 #[cfg(feature = "python")]
 #[pymodule]
 fn trackforge(m: &Bound<'_, PyModule>) -> PyResult<()> {

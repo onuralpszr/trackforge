@@ -91,3 +91,7 @@ docs/_build/
 
 # Codeconv
 lcov.info
+
+# docs 
+site/
+docs/api/

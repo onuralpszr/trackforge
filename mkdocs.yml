@@ -1,0 +1,56 @@
+site_name: Trackforge
+site_description: A unified, high-performance computer vision tracking library.
+repo_url: https://github.com/onuralpszr/trackforge
+repo_name: onuralpszr/trackforge
+
+theme:
+  name: material
+  logo: logo.png
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+  palette:
+    # Light mode
+    - scheme: default
+      primary: white
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_source: true
+            show_root_heading: true
+            docstring_style: google
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: .
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Examples: examples.md
+  - Python API: reference/python.md
+  - Rust API: api/

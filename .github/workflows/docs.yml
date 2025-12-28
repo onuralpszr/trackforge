@@ -1,0 +1,53 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install zensical "mkdocstrings[python]" maturin
+          cargo install cargo-docs-md
+
+      - name: Build Python package
+        run: maturin develop
+
+      - name: Generate Rustdoc JSON
+        run: cargo +nightly doc --no-deps
+        env:
+          RUSTDOCFLAGS: "-Z unstable-options --output-format json"
+
+      - name: Convert Rustdoc to Markdown
+        run: |
+          mkdir -p docs/api
+          cargo docs-md -p target/doc/trackforge.json -o docs/api --full-method-docs
+          python3 scripts/fix_docs.py
+
+      - name: Build Zensical site
+        run: zensical build --clean
+
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
