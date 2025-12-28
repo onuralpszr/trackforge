@@ -72,10 +72,12 @@ mod tests {
     #[test]
     fn test_iou_contained() {
         let box1 = [0.0, 0.0, 100.0, 100.0];
-        let box2 = [25.0, 25.0, 50.0, 50.0]; // area 2500
-                                             // intersection is box2 (2500)
-                                             // union is box1 (10000)
-                                             // iou = 0.25
+        let box2 = [25.0, 25.0, 50.0, 50.0];
+
+        // area 2500
+        // intersection is box2 (2500)
+        // union is box1 (10000)
+        // iou = 0.25
         let val = iou(&box1, &box2);
         assert_eq!(val, 0.25);
     }
