@@ -1,7 +1,7 @@
 <p align="center">
     <picture>
-        <source srcset="assets/track-forge-light-transparent.png" media="(prefers-color-scheme: dark)" />
-        <source srcset="assets/track-forge-dark-transparent.png" media="(prefers-color-scheme: light)" />
+        <source srcset="assets/track-forge-dark-transparent.png" media="(prefers-color-scheme: dark)" />
+        <source srcset="assets/track-forge-light-transparent.png" media="(prefers-color-scheme: light)" />
         <img src="assets/track-forge-dark-transparent.png" alt="Trackforge logo" width="auto" />
     </picture>
 </p>
