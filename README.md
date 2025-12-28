@@ -1,4 +1,10 @@
-# Trackforge
+<p align="center">
+    <picture>
+        <source srcset="assets/track-forge-light-transparent.png" media="(prefers-color-scheme: dark)" />
+        <source srcset="assets/track-forge-dark-transparent.png" media="(prefers-color-scheme: light)" />
+        <img src="assets/track-forge-dark-transparent.png" alt="Trackforge logo" width="auto" />
+    </picture>
+</p>
 
 [![Crates.io](https://img.shields.io/crates/v/trackforge.svg)](https://crates.io/crates/trackforge)
 [![PyPI](https://img.shields.io/pypi/v/trackforge.svg)](https://pypi.org/project/trackforge/)
