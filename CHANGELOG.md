@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.1.5] - 2025-12-30
 
 ### 🚀 Features
 
@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - *(docs)* 🐞 update logo path and size to show proper logo by @onuralpszr
+
+### ⚙️ Miscellaneous Tasks
+
+- 👷 change doc action use uv and check in PRs #19 by @onuralpszr
 ## [0.1.4] - 2025-12-26
 
 ### ⚙️ Miscellaneous Tasks
