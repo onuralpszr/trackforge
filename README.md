@@ -52,7 +52,6 @@ Trackforge transforms detections into tracks. It is designed to be the high-spee
 ```bash
 pip install trackforge
 ```
-*(Note: Released on PyPI soon. For now, build from source).*
 
 ### Rust
 
@@ -60,7 +59,7 @@ Add `trackforge` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-trackforge = "0.1.1" # Check crates.io for latest version
+trackforge = "0.1.5" # Check crates.io for latest version
 ```
 
 ## Usage
