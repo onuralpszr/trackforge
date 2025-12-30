@@ -1,4 +1,4 @@
-name: Docs
+name: Build and Deploy Docs
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  deploy:
+  build-docs-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
