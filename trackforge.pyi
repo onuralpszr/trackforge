@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 
-__all__ = ["ByteTrack"]
+__all__ = ["ByteTrack", "Sort"]
 
 
 class ByteTrack:
@@ -73,3 +73,68 @@ class ByteTrack:
                 (track_id, [x, y, w, h], score, class_id).
         """
         ...
+
+
+class Sort:
+    """
+    SORT (Simple Online and Realtime Tracking) tracker implementation.
+
+    A simple yet effective multi-object tracker using Kalman filtering and IoU matching.
+
+    **Usage Example:**
+
+    ```python
+    from trackforge import Sort
+
+    # Initialize tracker with default parameters
+    tracker = Sort(max_age=1, min_hits=3, iou_threshold=0.3)
+
+    # Simulated detections: [x, y, w, h]
+    # Format: (box, score, class_id)
+    detections = [
+        ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+        ([200.0, 200.0, 60.0, 120.0], 0.85, 0)
+    ]
+
+    # Update tracker
+    tracks = tracker.update(detections)
+
+    # Process confirmed tracks
+    for track in tracks:
+        track_id, box, score, class_id = track
+        print(f"Track ID: {track_id}, Box: {box}")
+    ```
+    """
+
+    def __init__(
+        self,
+        max_age: int = 1,
+        min_hits: int = 3,
+        iou_threshold: float = 0.3,
+    ) -> None:
+        """
+        Initialize the SORT tracker.
+
+        Args:
+            max_age (int, optional): Maximum frames to keep track without detection. Defaults to 1.
+            min_hits (int, optional): Minimum hits before track is confirmed. Defaults to 3.
+            iou_threshold (float, optional): IoU threshold for matching. Defaults to 0.3.
+        """
+        ...
+
+    def update(
+        self, detections: List[Tuple[List[float], float, int]]
+    ) -> List[Tuple[int, List[float], float, int]]:
+        """
+        Update the tracker with detections from the current frame.
+
+        Args:
+            detections (list): A list of detections, where each detection is a tuple of
+                ([x, y, w, h], score, class_id).
+
+        Returns:
+            list: A list of confirmed tracks, where each track is a tuple of
+                (track_id, [x, y, w, h], score, class_id).
+        """
+        ...
+
