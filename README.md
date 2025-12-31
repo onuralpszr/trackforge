@@ -34,7 +34,7 @@
 ## Roadmap
 
 - [ ] **DeepSORT**: Integration with Re-ID models.
-- [ ] **SORT**: Classic simple online and realtime tracking.
+- [x] **SORT**: Classic simple online and realtime tracking.
 - [ ] **BoT-SORT**: Improvement over ByteTrack with camera motion compensation.
 
 ## GPU Support & Architecture
