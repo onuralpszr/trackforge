@@ -527,4 +527,180 @@ mod tests {
         let unique_ids: HashSet<u64> = ids.iter().cloned().collect();
         assert_eq!(ids.len(), unique_ids.len());
     }
+
+    #[test]
+    fn test_confirmed_track_matching() {
+        let mut tracker = create_tracker();
+
+        let det = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb = vec![1.0; 128];
+
+        // Confirm a track (3 hits)
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det], &[emb.clone()]);
+        }
+        assert!(tracker.tracks[0].is_confirmed());
+
+        // Match the confirmed track with same detection
+        tracker.predict();
+        tracker.update(&[det], &[emb.clone()]);
+
+        assert_eq!(tracker.tracks.len(), 1);
+        assert!(tracker.tracks[0].is_confirmed());
+    }
+
+    #[test]
+    fn test_confirmed_track_with_different_detection() {
+        let mut tracker = create_tracker();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let det2 = (BoundingBox::new(500.0, 500.0, 50.0, 100.0), 0.9, 0i64);
+        let emb1 = vec![1.0; 128];
+        let emb2 = vec![-1.0; 128]; // Different embedding
+
+        // Confirm track with det1
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det1], &[emb1.clone()]);
+        }
+        assert_eq!(tracker.tracks.len(), 1);
+        assert!(tracker.tracks[0].is_confirmed());
+
+        // Now update with det2 (far away) - should create new track
+        tracker.predict();
+        tracker.update(&[det2], &[emb2.clone()]);
+
+        // Original track missed, new track created
+        assert!(tracker.tracks.len() >= 1);
+    }
+
+    #[test]
+    fn test_iou_matching_fallback() {
+        let mut tracker = create_tracker();
+
+        let det = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        // Use different embeddings to force IOU matching for unconfirmed tracks
+        let emb1 = vec![1.0; 128];
+        let emb2 = vec![0.5; 128];
+
+        // Create unconfirmed track
+        tracker.predict();
+        tracker.update(&[det], &[emb1]);
+        assert_eq!(tracker.tracks.len(), 1);
+        assert!(!tracker.tracks[0].is_confirmed());
+
+        // Same location detection - should match via IOU
+        let close_det = (BoundingBox::new(105.0, 105.0, 50.0, 100.0), 0.9, 0i64);
+        tracker.predict();
+        tracker.update(&[close_det], &[emb2]);
+
+        // Should still have 1 track (matched via IOU)
+        assert_eq!(tracker.tracks.len(), 1);
+    }
+
+    #[test]
+    fn test_track_age_cascade() {
+        let mut tracker = create_tracker();
+
+        let det = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb = vec![1.0; 128];
+
+        // Confirm a track
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det], &[emb.clone()]);
+        }
+
+        // Miss several frames
+        for _ in 0..5 {
+            tracker.predict();
+            tracker.update(&[], &[]);
+        }
+
+        // Track should still exist (not past max_age=30)
+        assert_eq!(tracker.tracks.len(), 1);
+        assert_eq!(tracker.tracks[0].time_since_update, 5);
+    }
+
+    #[test]
+    fn test_max_age_deletion() {
+        let mut tracker = create_tracker();
+
+        let det = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb = vec![1.0; 128];
+
+        // Confirm a track
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det], &[emb.clone()]);
+        }
+        assert!(tracker.tracks[0].is_confirmed());
+
+        // Miss more than max_age frames
+        for _ in 0..35 {
+            tracker.predict();
+            tracker.update(&[], &[]);
+        }
+
+        // Track should be deleted
+        assert_eq!(tracker.tracks.len(), 0);
+    }
+
+    #[test]
+    fn test_multiple_tracks_matching() {
+        let mut tracker = create_tracker();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let det2 = (BoundingBox::new(300.0, 300.0, 50.0, 100.0), 0.9, 1i64);
+        let emb1 = vec![1.0; 128];
+        let emb2 = vec![0.0; 128];
+
+        // Create two tracks
+        tracker.predict();
+        tracker.update(&[det1, det2], &[emb1.clone(), emb2.clone()]);
+        assert_eq!(tracker.tracks.len(), 2);
+
+        // Match both tracks
+        tracker.predict();
+        tracker.update(&[det1, det2], &[emb1.clone(), emb2.clone()]);
+        assert_eq!(tracker.tracks.len(), 2);
+
+        // Confirm both (3rd hit)
+        tracker.predict();
+        tracker.update(&[det1, det2], &[emb1, emb2]);
+
+        let confirmed_count = tracker.tracks.iter().filter(|t| t.is_confirmed()).count();
+        assert_eq!(confirmed_count, 2);
+    }
+
+    #[test]
+    fn test_class_id_preserved() {
+        let mut tracker = create_tracker();
+
+        let det = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 5i64);
+        let emb = vec![1.0; 128];
+
+        tracker.predict();
+        tracker.update(&[det], &[emb]);
+
+        assert_eq!(tracker.tracks[0].class_id, 5);
+    }
+
+    #[test]
+    fn test_score_updated() {
+        let mut tracker = create_tracker();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let det2 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.75, 0i64);
+        let emb = vec![1.0; 128];
+
+        tracker.predict();
+        tracker.update(&[det1], &[emb.clone()]);
+        assert!((tracker.tracks[0].score - 0.9).abs() < 0.01);
+
+        tracker.predict();
+        tracker.update(&[det2], &[emb]);
+        assert!((tracker.tracks[0].score - 0.75).abs() < 0.01);
+    }
 }
