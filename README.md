@@ -33,9 +33,29 @@
 
 ## Roadmap
 
-- [x] **DeepSORT**: Integration with Re-ID models.
-- [x] **SORT**: Classic simple online and realtime tracking.
-- [ ] **BoT-SORT**: Improvement over ByteTrack with camera motion compensation.
+## TODO — Multi-Object Tracking (MOT)
+
+### Core Trackers
+- [x] SORT — Simple Online and Realtime Tracking
+- [ ] Norfair — Lightweight distance-based tracking
+
+### Appearance-Based (Re-ID)
+- [x] DeepSORT — SORT + appearance embeddings
+- [ ] StrongSORT — Improved DeepSORT with stronger Re-ID
+- [ ] StrongSORT++ — StrongSORT with camera motion compensation
+
+### Detection-Driven Trackers
+- [ ] ByteTrack — High/low confidence detection association
+- [ ] BoT-SORT — ByteTrack + Re-ID + camera motion compensation
+
+### Joint Detection & Tracking
+- [ ] FairMOT — Unified detection and Re-ID network
+- [ ] CenterTrack — Motion-aware detection-based tracking
+
+### Transformer-Based Trackers
+- [ ] OC-SORT — Observation-centric SORT
+- [ ] TrackFormer — Transformer-based MOT
+- [ ] MOTR — End-to-end transformer tracking
 
 ## GPU Support & Architecture
 
