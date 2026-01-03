@@ -563,7 +563,7 @@
 (ONNX, PyTorch via Python, etc.).</p>
 <h4 id="required-methods">Required Methods</h4>
 <ul>
-<li><code>fn extract(&amp;self, image: &amp;DynamicImage, bboxes: &amp;[BoundingBox]) -&gt; Result&lt;Vec&lt;Vec&lt;f32&gt;&gt;, Box&lt;dyn Error&gt;&gt;</code></li>
+<li><code>fn extract(&amp;mut self, image: &amp;DynamicImage, bboxes: &amp;[BoundingBox]) -&gt; Result&lt;Vec&lt;Vec&lt;f32&gt;&gt;, Box&lt;dyn Error&gt;&gt;</code></li>
 </ul>
 <p>Extract features for a list of bounding boxes from a given image.</p>
 
