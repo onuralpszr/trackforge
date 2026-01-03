@@ -1,5 +1,4 @@
 use crate::trackers::deepsort::nn_matching::{Metric, NearestNeighborDistanceMetric};
-use crate::trackers::deepsort::track::Track;
 use crate::trackers::deepsort::tracker::DeepSortTracker;
 use crate::types::BoundingBox;
 use pyo3::prelude::*;
