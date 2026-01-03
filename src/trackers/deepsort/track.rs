@@ -28,6 +28,7 @@ pub struct Track {
 }
 
 impl Track {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         mean: StateVector,
         covariance: CovarianceMatrix,

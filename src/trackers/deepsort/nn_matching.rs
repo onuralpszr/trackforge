@@ -62,8 +62,8 @@ impl NearestNeighborDistanceMetric {
     /// Compute the distance matrix between tracks and detections.
     ///
     /// # Arguments
-    /// * `features` - A map of detection indices to their feature vectors.
-    ///                (Usually we pass a list of features corresponding to detections).
+    /// * `features` - A map of detection indices to their feature vectors
+    ///   (usually we pass a list of features corresponding to detections).
     /// * `targets` - List of track IDs to compare against.
     ///
     /// # Returns
@@ -78,8 +78,8 @@ impl NearestNeighborDistanceMetric {
                     // keeping 0.0 or MAX? If no samples, distance is undefined or max.
                     // Usually tracks passed here should have samples.
                     // Let's set to max distance to avoid matching.
-                    for j in 0..features.len() {
-                        cost_matrix[i][j] = f32::MAX;
+                    for cell in cost_matrix[i].iter_mut() {
+                        *cell = f32::MAX;
                     }
                     continue;
                 }
