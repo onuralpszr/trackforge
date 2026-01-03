@@ -40,10 +40,10 @@ impl NearestNeighborDistanceMetric {
     /// # Arguments
     /// * `features` - Map from track_id to a list of new features.
     /// * `active_targets` - List of track IDs that are currently active (confirmed).
-    ///                      Sample galleries for inactive targets will be removed.
+    ///   Sample galleries for inactive targets will be removed.
     pub fn partial_fit(&mut self, features: &[(u64, Vec<f32>)], active_targets: &[u64]) {
         for (track_id, feature) in features {
-            let sample_list = self.samples.entry(*track_id).or_insert_with(Vec::new);
+            let sample_list = self.samples.entry(*track_id).or_default();
             sample_list.push(feature.clone());
             if let Some(b) = self.budget {
                 if sample_list.len() > b {

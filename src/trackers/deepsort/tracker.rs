@@ -317,9 +317,9 @@ fn min_cost_matching(
     let mut unmatched_cols: HashSet<usize> = (0..cols).collect();
 
     let mut costs = Vec::new();
-    for r in 0..rows {
-        for c in 0..cols {
-            costs.push((cost_matrix[r][c], r, c));
+    for (r, row) in cost_matrix.iter().enumerate() {
+        for (c, &cost) in row.iter().enumerate() {
+            costs.push((cost, r, c));
         }
     }
 

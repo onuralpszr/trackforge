@@ -107,9 +107,7 @@ impl Track {
     }
 
     pub fn mark_missed(&mut self) {
-        if self.state == TrackState::Tentative {
-            self.state = TrackState::Deleted;
-        } else if self.time_since_update > self._max_age {
+        if self.state == TrackState::Tentative || self.time_since_update > self._max_age {
             self.state = TrackState::Deleted;
         }
     }

@@ -1,7 +1,7 @@
 use image::DynamicImage;
 use opencv::{
-    core::{Mat, Point, Rect, Scalar, Size, Vec3b},
-    highgui, imgproc,
+    core::{Mat, Point, Rect, Scalar, Size},
+    imgproc,
     prelude::*,
     videoio::{self, VideoCapture, VideoWriter},
 };

@@ -142,8 +142,8 @@ impl KalmanFilter {
     /// * `mean` - The current state mean.
     /// * `covariance` - The current state covariance.
     /// * `measurements` - A list of measurements to compare against.
-    /// * `only_position` - If true, only use the position (x, y) components (not implemented here, simpler KF assumes full measurement).
-    ///                     For this implementation, we use the full measurement vector [x, y, a, h].
+    /// * `only_position` - If true, only use the position (x, y) components (not implemented).
+    ///   For this implementation, we use the full measurement vector [x, y, a, h].
     ///
     /// # Returns
     /// A vector of distances, one for each measurement.
