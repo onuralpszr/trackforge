@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2026-01-07
+
+### 🐛 Bug Fixes
+
+- *(docs)* 🐛 fix logo paths in README.md for light/dark themes
 ## [0.1.7] - 2026-01-07
 
 ### 🚀 Features
