@@ -49,7 +49,7 @@
 - [ ] StrongSORT++ — StrongSORT with camera motion compensation
 
 ### Detection-Driven Trackers
-- [ ] ByteTrack — High/low confidence detection association
+- [x] ByteTrack — High/low confidence detection association
 - [ ] BoT-SORT — ByteTrack + Re-ID + camera motion compensation
 
 ### Joint Detection & Tracking
