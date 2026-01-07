@@ -683,9 +683,57 @@
 <p><span id="kalmanfilter-predict"></span>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">StateVector</span><span class="p">,</span><span class="w"> </span><span class="n">covariance</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">CovarianceMatrix</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">StateVector</span><span class="p">,</span><span class="w"> </span><span class="n">CovarianceMatrix</span><span class="p">)</span>
 </span></code></pre></div></p>
+<p>Predict the next state of the Kalman Filter.</p>
+<p># Arguments</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mean</code></td>
+<td>The current state mean vector.</td>
+</tr>
+<tr>
+<td><code>covariance</code></td>
+<td>The current state covariance matrix.</td>
+</tr>
+</tbody>
+</table>
+<p># Returns</p>
+<p>A tuple containing the predicted Mean vector and Covariance matrix.</p>
 <p><span id="kalmanfilter-update"></span>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">StateVector</span><span class="p">,</span><span class="w"> </span><span class="n">covariance</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">CovarianceMatrix</span><span class="p">,</span><span class="w"> </span><span class="n">measurement</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">MeasurementVector</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">StateVector</span><span class="p">,</span><span class="w"> </span><span class="n">CovarianceMatrix</span><span class="p">)</span>
 </span></code></pre></div></p>
+<p>Update the Kalman Filter state with a new measurement.</p>
+<p># Arguments</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mean</code></td>
+<td>The predicted state mean vector.</td>
+</tr>
+<tr>
+<td><code>covariance</code></td>
+<td>The predicted state covariance matrix.</td>
+</tr>
+<tr>
+<td><code>measurement</code></td>
+<td>The new measurement vector <code>[x, y, a, h]</code>.</td>
+</tr>
+</tbody>
+</table>
+<p># Returns</p>
+<p>A tuple containing the updated Mean vector and Covariance matrix.</p>
 <p><span id="kalmanfilter-gating-distance"></span>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">gating_distance</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">StateVector</span><span class="p">,</span><span class="w"> </span><span class="n">covariance</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">CovarianceMatrix</span><span class="p">,</span><span class="w"> </span><span class="n">measurements</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="p">[</span><span class="n">MeasurementVector</span><span class="p">])</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">f32</span><span class="o">&gt;</span>
 </span></code></pre></div></p>
