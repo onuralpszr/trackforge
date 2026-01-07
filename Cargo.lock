@@ -2471,7 +2471,7 @@ dependencies = [
 
 [[package]]
 name = "trackforge"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "image",
  "nalgebra 0.34.1",

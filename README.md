@@ -1,8 +1,8 @@
 <p align="center">
     <picture>
         <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-dark-transparent.png" media="(prefers-color-scheme: dark)" />
-        <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-transparent.png" media="(prefers-color-scheme: light)" />
-        <img src="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-transparent.png" alt="Trackforge logo" width="auto" />
+        <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-light-transparent.png" media="(prefers-color-scheme: light)" />
+        <img src="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-light-transparent.png" alt="Trackforge logo" width="auto" />
     </picture>
 </p>
 
