@@ -46,7 +46,7 @@ path = "examples/deepsort_simple.rs"
 # Testing dependencies
 
 [dependencies.ndarray]
-version = "0.17.1"
+version = "0.17.2"
 optional = true
 
 [dependencies.opencv]
