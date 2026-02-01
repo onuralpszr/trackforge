@@ -15,9 +15,12 @@ pub use tracker::DeepSortTracker;
 
 use crate::traits::AppearanceExtractor;
 use crate::types::BoundingBox;
+use alloc::boxed::Box;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::error::Error;
 use image::DynamicImage;
 use nn_matching::NearestNeighborDistanceMetric;
-use std::error::Error;
 
 /// Deep SORT tracker implementation.
 ///
@@ -89,7 +92,7 @@ impl<E: AppearanceExtractor> DeepSort<E> {
             .tracker
             .tracks
             .iter()
-            .filter(|t| t.is_confirmed() && t.time_since_update == 0) // Only active matched tracks? Or all active confirmed? Sort returns all confirmed active in recent update.
+            .filter(|t: &&Track| t.is_confirmed() && t.time_since_update == 0) // Only active matched tracks? Or all active confirmed? Sort returns all confirmed active in recent update.
             // Usually we return tracks present in current frame.
             // sort.rs: filter(|t| t.is_confirmed() && t.time_since_update == 0)
             .cloned()

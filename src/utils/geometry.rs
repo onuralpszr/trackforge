@@ -1,4 +1,6 @@
+use alloc::vec;
 /// Calculate Intersection over Union (IoU) between two bounding boxes.
+use alloc::vec::Vec;
 ///
 /// # Arguments
 /// * `box1` - First bounding box in TLWH format.

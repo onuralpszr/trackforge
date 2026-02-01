@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use nalgebra::{SMatrix, SVector};
 
 pub type StateVector = SVector<f32, 8>; // [x, y, a, h, vx, vy, va, vh]
@@ -212,7 +213,7 @@ mod tests {
     #[test]
     fn test_kf_initiate() {
         let kf = KalmanFilter::default();
-        let measurement = MeasurementVector::from_vec(vec![10.0, 20.0, 1.5, 50.0]); // x, y, a, h
+        let measurement = MeasurementVector::new(10.0, 20.0, 1.5, 50.0); // x, y, a, h
         let (mean, cov) = kf.initiate(&measurement);
 
         assert_eq!(mean[0], 10.0);
@@ -230,7 +231,7 @@ mod tests {
     #[test]
     fn test_kf_predict() {
         let kf = KalmanFilter::default();
-        let measurement = MeasurementVector::from_vec(vec![0.0, 0.0, 1.0, 10.0]);
+        let measurement = MeasurementVector::new(0.0, 0.0, 1.0, 10.0);
         let (mean, cov) = kf.initiate(&measurement);
 
         // Predict next step
@@ -246,14 +247,14 @@ mod tests {
     #[test]
     fn test_kf_update() {
         let kf = KalmanFilter::default();
-        let m1 = MeasurementVector::from_vec(vec![0.0, 0.0, 1.0, 10.0]);
+        let m1 = MeasurementVector::new(0.0, 0.0, 1.0, 10.0);
         let (mean1, cov1) = kf.initiate(&m1);
 
         // Predict
         let (mean_pred, cov_pred) = kf.predict(&mean1, &cov1);
 
         // Update with new measurement moving right
-        let m2 = MeasurementVector::from_vec(vec![10.0, 0.0, 1.0, 10.0]);
+        let m2 = MeasurementVector::new(10.0, 0.0, 1.0, 10.0);
         let (mean_upd, cov_upd) = kf.update(&mean_pred, &cov_pred, &m2);
 
         // Mean should move towards measurement
@@ -267,7 +268,7 @@ mod tests {
     #[test]
     fn test_kf_gating_distance() {
         let kf = KalmanFilter::default();
-        let measurement = MeasurementVector::from_vec(vec![100.0, 100.0, 1.0, 50.0]);
+        let measurement = MeasurementVector::new(100.0, 100.0, 1.0, 50.0);
         let (mean, cov) = kf.initiate(&measurement);
 
         // Test with same measurement - should have low distance
@@ -280,7 +281,7 @@ mod tests {
         );
 
         // Test with far measurement - should have high distance
-        let far = vec![MeasurementVector::from_vec(vec![500.0, 500.0, 2.0, 100.0])];
+        let far = vec![MeasurementVector::new(500.0, 500.0, 2.0, 100.0)];
         let far_distances = kf.gating_distance(&mean, &cov, &far);
         assert!(
             far_distances[0] > distances[0],
@@ -289,9 +290,9 @@ mod tests {
 
         // Test with multiple measurements
         let multiple = vec![
-            MeasurementVector::from_vec(vec![100.0, 100.0, 1.0, 50.0]),
-            MeasurementVector::from_vec(vec![110.0, 110.0, 1.0, 50.0]),
-            MeasurementVector::from_vec(vec![200.0, 200.0, 1.0, 50.0]),
+            MeasurementVector::new(100.0, 100.0, 1.0, 50.0),
+            MeasurementVector::new(110.0, 110.0, 1.0, 50.0),
+            MeasurementVector::new(200.0, 200.0, 1.0, 50.0),
         ];
         let multi_distances = kf.gating_distance(&mean, &cov, &multiple);
         assert_eq!(multi_distances.len(), 3);
@@ -303,7 +304,7 @@ mod tests {
     fn test_kf_new_custom_weights() {
         // Test custom weight parameters
         let kf = KalmanFilter::new(0.1, 0.05);
-        let measurement = MeasurementVector::from_vec(vec![50.0, 50.0, 1.0, 25.0]);
+        let measurement = MeasurementVector::new(50.0, 50.0, 1.0, 25.0);
         let (mean, cov) = kf.initiate(&measurement);
 
         assert_eq!(mean[0], 50.0);

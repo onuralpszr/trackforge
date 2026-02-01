@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use alloc::vec;
+use alloc::vec::Vec;
+use hashbrown::HashMap;
+use nalgebra::ComplexField;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Metric {
@@ -115,9 +118,9 @@ impl NearestNeighborDistanceMetric {
 fn euclidean_distance(a: &[f32], b: &[f32]) -> f32 {
     let mut sum = 0.0;
     for (x, y) in a.iter().zip(b.iter()) {
-        sum += (x - y).powi(2);
+        sum += ComplexField::powi(*x - *y, 2);
     }
-    sum.sqrt()
+    ComplexField::sqrt(sum)
 }
 
 fn cosine_distance(a: &[f32], b: &[f32]) -> f32 {
@@ -125,8 +128,8 @@ fn cosine_distance(a: &[f32], b: &[f32]) -> f32 {
     // Assuming normalized features, it's just 1 - a . b
     // But let's be safe and compute norms.
     let dot: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
-    let norm_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
-    let norm_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
+    let norm_a: f32 = ComplexField::sqrt(a.iter().map(|x| x * x).sum::<f32>());
+    let norm_b: f32 = ComplexField::sqrt(b.iter().map(|x| x * x).sum::<f32>());
 
     let cosine_sim = if norm_a > 1e-6 && norm_b > 1e-6 {
         dot / (norm_a * norm_b)

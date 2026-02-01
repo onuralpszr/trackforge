@@ -1,4 +1,6 @@
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
+use alloc::vec;
+use alloc::vec::Vec;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum TrackState {
@@ -61,7 +63,7 @@ impl Track {
         let y = tlwh[1] + tlwh[3] / 2.0;
         let a = tlwh[2] / tlwh[3].max(1e-6);
         let h = tlwh[3];
-        MeasurementVector::from_vec(vec![x, y, a, h])
+        MeasurementVector::new(x, y, a, h)
     }
 
     /// Convert (x, y, a, h) to TLWH
