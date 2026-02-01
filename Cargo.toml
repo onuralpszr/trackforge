@@ -19,19 +19,22 @@ name = "trackforge"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-image = "0.25.9"
-nalgebra = "0.34.1"
+image = { version = "0.25.9", default-features = false }
+nalgebra = { version = "0.34.1", default-features = false, features = ["libm", "alloc"] } # libm needed for no_std math
 thiserror = "2.0.7"
+hashbrown = "0.15.2"
 pyo3 = { version = "0.27.2", features = ["extension-module"], optional = true }
 
 [features]
-default = []
-python = ["dep:pyo3"]
-advanced_examples = ["dep:ndarray", "dep:opencv", "dep:ort", "dep:usls"]
+default = ["std"]
+std = ["nalgebra/std", "nalgebra/default", "image/default"]
+python = ["dep:pyo3", "std"] # Python requires std
+advanced_examples = ["dep:ndarray", "dep:opencv", "dep:ort", "dep:usls", "std"]
 
 [[example]]
 name = "byte_track_demo"
 path = "examples/rust/byte_track_demo.rs"
+required-features = ["std"]
 
 [[example]]
 name = "deepsort_ort"
@@ -41,6 +44,7 @@ required-features = ["advanced_examples"]
 [[example]]
 name = "deepsort_simple"
 path = "examples/deepsort_simple.rs"
+required-features = ["std"]
 
 [dev-dependencies]
 # Testing dependencies

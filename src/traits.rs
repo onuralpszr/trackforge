@@ -1,6 +1,8 @@
 use crate::types::BoundingBox;
+use alloc::boxed::Box;
+use alloc::vec::Vec;
+use core::error::Error;
 use image::DynamicImage;
-use std::error::Error;
 
 /// Trait for extracting appearance features (embeddings) from images.
 ///
