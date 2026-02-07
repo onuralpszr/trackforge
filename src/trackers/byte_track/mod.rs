@@ -1,6 +1,8 @@
 #![doc = include_str!("README.md")]
 
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
+use alloc::vec;
+use alloc::vec::Vec;
 
 // Define STrack
 /// A Single Track (STrack) representing a tracked object.
@@ -121,7 +123,8 @@ impl STrack {
         let y = tlwh[1] + tlwh[3] / 2.0;
         let a = tlwh[2] / tlwh[3];
         let h = tlwh[3];
-        MeasurementVector::from_vec(vec![x, y, a, h])
+        let measurement = MeasurementVector::new(x, y, a, h);
+        measurement
     }
 
     fn tlwh_from_xyah(&self, xyah: &StateVector) -> ([f32; 4], f32) {
@@ -133,7 +136,7 @@ impl STrack {
     }
 
     fn next_id() -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
+        use core::sync::atomic::{AtomicU64, Ordering};
         static NEXT_ID: AtomicU64 = AtomicU64::new(1);
         NEXT_ID.fetch_add(1, Ordering::Relaxed)
     }
@@ -412,7 +415,7 @@ impl ByteTrack {
         cost_matrix: &[Vec<f32>],
         thresh: f32,
     ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-        use std::collections::HashSet;
+        use hashbrown::HashSet;
 
         if cost_matrix.is_empty() {
             return (Vec::new(), Vec::new(), Vec::new());
@@ -453,7 +456,7 @@ impl ByteTrack {
             }
         }
         // sort by cost
-        costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+        costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(core::cmp::Ordering::Equal));
 
         for (cost, r, c) in costs {
             if cost > thresh {

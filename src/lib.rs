@@ -1,4 +1,6 @@
 //! Trackforge is a unified, high-performance computer vision tracking library, implemented in Rust and exposed as a Python package.
+#![cfg_attr(not(feature = "std"), no_std)]
+
 //!
 //! It provides state-of-the-art tracking algorithms like **ByteTrack**, optimized for speed and ease of use in both Rust and Python environments.
 //!
@@ -29,6 +31,8 @@
 //!     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
 //! }
 //! ```
+
+extern crate alloc;
 
 pub mod trackers;
 pub mod traits;

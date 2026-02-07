@@ -1,7 +1,9 @@
 use crate::trackers::deepsort::nn_matching::NearestNeighborDistanceMetric;
 use crate::trackers::deepsort::track::Track;
 use crate::utils::kalman::{KalmanFilter, MeasurementVector};
-use std::collections::HashSet;
+use alloc::vec::Vec;
+use core::cmp::Ordering;
+use hashbrown::HashSet;
 
 #[derive(Debug, Clone)]
 pub struct DeepSortTracker {
@@ -71,7 +73,7 @@ impl DeepSortTracker {
         }
 
         // Remove deleted tracks
-        self.tracks.retain(|t| !t.is_deleted());
+        self.tracks.retain(|t: &Track| !t.is_deleted());
     }
 
     pub fn initiate_track(
@@ -98,7 +100,7 @@ impl DeepSortTracker {
     }
 
     fn next_id(&self) -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
+        use core::sync::atomic::{AtomicU64, Ordering};
         static NEXT_ID: AtomicU64 = AtomicU64::new(1);
         NEXT_ID.fetch_add(1, Ordering::Relaxed)
     }
@@ -324,7 +326,7 @@ fn min_cost_matching(
     }
 
     // Sort by cost
-    costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(Ordering::Equal));
 
     for (cost, r, c) in costs {
         if cost > threshold {

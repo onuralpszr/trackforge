@@ -1,7 +1,8 @@
 #![doc = include_str!("README.md")]
 
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
-use std::collections::HashSet;
+use alloc::vec::Vec;
+use hashbrown::HashSet;
 
 /// Track state enumeration for SORT.
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -100,7 +101,8 @@ impl SortTrack {
         let y = tlwh[1] + tlwh[3] / 2.0;
         let a = tlwh[2] / tlwh[3].max(1e-6);
         let h = tlwh[3];
-        MeasurementVector::from_vec(vec![x, y, a, h])
+        let measurement = MeasurementVector::new(x, y, a, h);
+        measurement
     }
 
     fn xyah_to_tlwh(state: &StateVector) -> [f32; 4] {
@@ -112,7 +114,7 @@ impl SortTrack {
     }
 
     fn next_id() -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
+        use core::sync::atomic::{AtomicU64, Ordering};
         static NEXT_ID: AtomicU64 = AtomicU64::new(1);
         NEXT_ID.fetch_add(1, Ordering::Relaxed)
     }
@@ -258,7 +260,7 @@ impl Sort {
         // Convert IoU to cost (1 - IoU)
         let cost_matrix: Vec<Vec<f32>> = ious
             .iter()
-            .map(|row| row.iter().map(|&iou| 1.0 - iou).collect())
+            .map(|row: &Vec<f32>| row.iter().map(|&iou| 1.0 - iou).collect())
             .collect();
 
         // Greedy matching (same as ByteTrack for now)
@@ -292,7 +294,7 @@ impl Sort {
         }
 
         // Sort by cost (ascending)
-        costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+        costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(core::cmp::Ordering::Equal));
 
         // Greedy matching
         for (cost, trk_idx, det_idx) in costs {
