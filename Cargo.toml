@@ -22,7 +22,7 @@ crate-type = ["cdylib", "rlib"]
 image = "0.25.9"
 nalgebra = "0.34.1"
 thiserror = "2.0.18"
-pyo3 = { version = "0.28.0", features = ["extension-module"], optional = true }
+pyo3 = { version = "0.28.2", features = ["extension-module"], optional = true }
 
 [features]
 default = []
