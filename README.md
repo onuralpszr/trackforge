@@ -8,9 +8,9 @@
 
 
 
-[![Crates.io](https://img.shields.io/crates/v/trackforge.svg)](https://crates.io/crates/trackforge)
+
 [![PyPI](https://img.shields.io/pypi/v/trackforge.svg)](https://pypi.org/project/trackforge/)
-[![docs.rs](https://img.shields.io/docsrs/trackforge)](https://docs.rs/trackforge)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/trackforge)
 [![codecov](https://codecov.io/gh/onuralpszr/trackforge/branch/main/graph/badge.svg?token=DHMFYRLJW1)](https://codecov.io/gh/onuralpszr/trackforge)
 [![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
 [![Dependabot Updates](https://github.com/onuralpszr/trackforge/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/dependabot/dependabot-updates)
@@ -19,7 +19,10 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/onuralpszr/trackforge.svg?style=flat&logo=github)](https://github.com/onuralpszr/trackforge/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/onuralpszr/trackforge.svg?style=flat&logo=github)](https://github.com/onuralpszr/trackforge/network)
+[![Crates.io](https://img.shields.io/crates/v/trackforge.svg)](https://crates.io/crates/trackforge)
+[![docs.rs](https://img.shields.io/docsrs/trackforge)](https://docs.rs/trackforge)
 [![Crates.io Downloads](https://img.shields.io/crates/d/trackforge)](https://crates.io/crates/trackforge)
+
 
 
 
