@@ -11,6 +11,7 @@ pub struct DeepSortTracker {
     pub tracks: Vec<Track>,
     pub kf: KalmanFilter,
     pub max_iou_distance: f32, // typically 0.7 for DeepSort
+    pub next_id: u64,
 }
 
 impl DeepSortTracker {
@@ -27,6 +28,7 @@ impl DeepSortTracker {
             tracks: Vec::new(),
             kf: KalmanFilter::default(),
             max_iou_distance,
+            next_id: 1,
         }
     }
 
@@ -97,10 +99,10 @@ impl DeepSortTracker {
         self.tracks.push(track);
     }
 
-    fn next_id(&self) -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
-        static NEXT_ID: AtomicU64 = AtomicU64::new(1);
-        NEXT_ID.fetch_add(1, Ordering::Relaxed)
+    fn next_id(&mut self) -> u64 {
+        let id = self.next_id;
+        self.next_id += 1;
+        id
     }
 
     fn _match(

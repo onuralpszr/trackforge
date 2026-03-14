@@ -57,12 +57,12 @@ impl STrack {
         }
     }
 
-    pub fn activate(&mut self, kf: &KalmanFilter, frame_id: usize) {
+    pub fn activate(&mut self, kf: &KalmanFilter, frame_id: usize, track_id: u64) {
         self.frame_id = frame_id;
         self.start_frame = frame_id;
         self.state = TrackState::Tracked;
         self.is_activated = true;
-        self.track_id = Self::next_id();
+        self.track_id = track_id;
         self.tracklet_len = 0;
 
         let measurement = self.tlwh_to_xyah(self.tlwh);
@@ -71,7 +71,7 @@ impl STrack {
         self.covariance = covariance;
     }
 
-    pub fn re_activate(&mut self, new_track: STrack, frame_id: usize, new_id: bool) {
+    pub fn re_activate(&mut self, new_track: STrack, frame_id: usize, new_track_id: Option<u64>) {
         let kf = KalmanFilter::default(); // Should ideally pass shared KF
         let measurement = self.tlwh_to_xyah(new_track.tlwh);
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
@@ -85,8 +85,8 @@ impl STrack {
         self.score = new_track.score;
         self.tlwh = new_track.tlwh; // Use new detection box
 
-        if new_id {
-            self.track_id = Self::next_id();
+        if let Some(id) = new_track_id {
+            self.track_id = id;
         }
     }
 
@@ -131,12 +131,6 @@ impl STrack {
         let y = xyah[1] - h / 2.0;
         ([x, y, w, h], 0.0) // ret confidence unused for now
     }
-
-    fn next_id() -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
-        static NEXT_ID: AtomicU64 = AtomicU64::new(1);
-        NEXT_ID.fetch_add(1, Ordering::Relaxed)
-    }
 }
 
 /// ByteTrack tracker implementation.
@@ -175,6 +169,7 @@ pub struct ByteTrack {
     match_thresh: f32,
     det_thresh: f32, // For splitting detections into high/low
     kalman_filter: KalmanFilter,
+    next_id: u64,
 }
 
 impl ByteTrack {
@@ -196,6 +191,7 @@ impl ByteTrack {
             match_thresh,
             det_thresh,
             kalman_filter: KalmanFilter::default(),
+            next_id: 1,
         }
     }
 
@@ -273,7 +269,7 @@ impl ByteTrack {
                 track.update(det.clone(), self.frame_id);
                 activated_stracks.push(track.clone());
             } else {
-                track.re_activate(det.clone(), self.frame_id, false);
+                track.re_activate(det.clone(), self.frame_id, None);
                 refind_stracks.push(track.clone());
             }
         }
@@ -316,7 +312,7 @@ impl ByteTrack {
                 track.update(det.clone(), self.frame_id);
                 activated_stracks.push(track.clone());
             } else {
-                track.re_activate(det.clone(), self.frame_id, false);
+                track.re_activate(det.clone(), self.frame_id, None);
                 refind_stracks.push(track.clone());
             }
         }
@@ -338,7 +334,9 @@ impl ByteTrack {
                 continue;
             }
             let mut new_track = det.clone();
-            new_track.activate(&self.kalman_filter, self.frame_id);
+            let id = self.next_id;
+            self.next_id += 1;
+            new_track.activate(&self.kalman_filter, self.frame_id, id);
             activated_stracks.push(new_track);
         }
 
