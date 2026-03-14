@@ -10,6 +10,15 @@ All notable changes to this project will be documented in this file.
 - 📝 Update trackforge version in README.md by @onuralpszr
 - 📝 add DeepSORT to Trackforge description by @onuralpszr
 
+### ⚙️ Miscellaneous Tasks
+
+- *(changelog)* Update changelog for version 0.1.9 release
+- *(audit)* Remove target configuration section from audit.toml
+- *(Cargo.toml)* 📦 update rust-version to 1.87
+- 🧹 cargo advisory-db added to .gitignore
+- *(Cargo.toml)* 📦 update opencv to 0.98.1 and usls to 0.1.11
+- *(Cargo.lock)* 📦 update cargo lock file
+
 ### Release
 
 - 📦 bump version to 0.1.9
