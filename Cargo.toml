@@ -50,7 +50,7 @@ version = "0.17.2"
 optional = true
 
 [dependencies.opencv]
-version = "0.98.0"
+version = "0.98.1"
 optional = true
 
 [dependencies.ort]
@@ -59,7 +59,7 @@ features = ["ndarray"]
 optional = true
 
 [dependencies.usls]
-version = "0.1.10"
+version = "0.1.11"
 features = ["rtdetr"]
 optional = true
 
