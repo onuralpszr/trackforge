@@ -572,8 +572,8 @@ mod tests {
         // Frame 2: Low conf (below track_thresh 0.6, but above implicit low thresh)
         // Note: Code uses 0.5 as low thresh in matches
         let d2 = ([12.0, 12.0, 50.0, 50.0], 0.4, 0); // 0.4 < 0.6 but maybe matched?
-                                                     // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
-                                                     // In my code: `self.linear_assignment(&dists, 0.5)`
+        // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
+        // In my code: `self.linear_assignment(&dists, 0.5)`
 
         let output2 = tracker.update(vec![d2]);
         // If 0.4 < 0.5 (low thresh), it might be ignored if detections are filtered out before matching?
