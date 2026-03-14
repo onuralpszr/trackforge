@@ -478,4 +478,33 @@ mod tests {
         // Check different track IDs
         assert_ne!(tracks[0].track_id, tracks[1].track_id);
     }
+
+    #[test]
+    fn test_sort_instance_isolation() {
+        let mut tracker1 = Sort::new(1, 1, 0.3);
+        let mut tracker2 = Sort::new(1, 1, 0.3);
+
+        let det1 = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+        let tracks1 = tracker1.update(det1);
+        assert_eq!(tracks1.len(), 1);
+        assert_eq!(tracks1[0].track_id, 1);
+
+        let det2 = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+        let tracks2 = tracker2.update(det2);
+        assert_eq!(tracks2.len(), 1);
+        assert_eq!(tracks2[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_sort_id_sequential() {
+        let mut tracker = Sort::new(1, 1, 0.3);
+
+        let det1 = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+        let tracks1 = tracker.update(det1);
+        assert_eq!(tracks1[0].track_id, 1);
+
+        let det2 = vec![([200.0, 200.0, 50.0, 100.0], 0.9, 1)];
+        let tracks2 = tracker.update(det2);
+        assert_eq!(tracks2[0].track_id, 2);
+    }
 }

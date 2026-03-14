@@ -705,4 +705,52 @@ mod tests {
         tracker.update(&[det2], &[emb]);
         assert!((tracker.tracks[0].score - 0.75).abs() < 0.01);
     }
+
+    fn create_tracker_with_id() -> DeepSortTracker {
+        let metric = NearestNeighborDistanceMetric::new(Metric::Cosine, 0.3, Some(100));
+        DeepSortTracker::new(metric, 30, 3, 0.7)
+    }
+
+    #[test]
+    fn test_deepsort_instance_isolation() {
+        let mut tracker1 = create_tracker_with_id();
+        let mut tracker2 = create_tracker_with_id();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb1 = vec![1.0; 128];
+
+        tracker1.predict();
+        tracker1.update(&[det1], &[emb1]);
+        assert_eq!(tracker1.tracks[0].track_id, 1);
+
+        let det2 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb2 = vec![1.0; 128];
+
+        tracker2.predict();
+        tracker2.update(&[det2], &[emb2]);
+        assert_eq!(tracker2.tracks[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_deepsort_id_sequential() {
+        let mut tracker = create_tracker();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb1 = vec![1.0; 128];
+
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det1], &[emb1.clone()]);
+        }
+        assert_eq!(tracker.tracks[0].track_id, 1);
+
+        let det2 = (BoundingBox::new(300.0, 300.0, 50.0, 100.0), 0.9, 1i64);
+        let emb2 = vec![0.0; 128];
+
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det2], &[emb2.clone()]);
+        }
+        assert_eq!(tracker.tracks[1].track_id, 2);
+    }
 }

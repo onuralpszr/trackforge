@@ -572,8 +572,8 @@ mod tests {
         // Frame 2: Low conf (below track_thresh 0.6, but above implicit low thresh)
         // Note: Code uses 0.5 as low thresh in matches
         let d2 = ([12.0, 12.0, 50.0, 50.0], 0.4, 0); // 0.4 < 0.6 but maybe matched?
-        // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
-        // In my code: `self.linear_assignment(&dists, 0.5)`
+                                                     // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
+                                                     // In my code: `self.linear_assignment(&dists, 0.5)`
 
         let output2 = tracker.update(vec![d2]);
         // If 0.4 < 0.5 (low thresh), it might be ignored if detections are filtered out before matching?
@@ -591,5 +591,34 @@ mod tests {
         // Ideally it should match.
         assert_eq!(output2.len(), 1, "Expected 1 track, got {}", output2.len());
         assert_eq!(output2[0].track_id, id);
+    }
+
+    #[test]
+    fn test_bytetrack_instance_isolation() {
+        let mut tracker1 = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let mut tracker2 = ByteTrack::new(0.5, 30, 0.8, 0.6);
+
+        let det1 = vec![([100.0, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+        let tracks1 = tracker1.update(det1);
+        assert_eq!(tracks1.len(), 1);
+        assert_eq!(tracks1[0].track_id, 1);
+
+        let det2 = vec![([100.0, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+        let tracks2 = tracker2.update(det2);
+        assert_eq!(tracks2.len(), 1);
+        assert_eq!(tracks2[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_bytetrack_id_sequential() {
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+
+        let det1 = vec![([100.0, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+        let tracks1 = tracker.update(det1);
+        assert_eq!(tracks1[0].track_id, 1);
+
+        let det2 = vec![([200.0, 200.0, 50.0, 100.0], 0.9_f32, 1_i64)];
+        let tracks2 = tracker.update(det2);
+        assert_eq!(tracks2[0].track_id, 2);
     }
 }
