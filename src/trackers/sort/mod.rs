@@ -41,7 +41,13 @@ pub struct SortTrack {
 
 impl SortTrack {
     /// Create a new track from a detection.
-    pub fn new(tlwh: [f32; 4], score: f32, class_id: i64, kf: &KalmanFilter) -> Self {
+    pub fn new(
+        tlwh: [f32; 4],
+        score: f32,
+        class_id: i64,
+        kf: &KalmanFilter,
+        track_id: u64,
+    ) -> Self {
         let measurement = Self::tlwh_to_xyah(&tlwh);
         let (mean, covariance) = kf.initiate(&measurement);
 
@@ -49,7 +55,7 @@ impl SortTrack {
             tlwh,
             score,
             class_id,
-            track_id: Self::next_id(),
+            track_id,
             state: SortTrackState::Tentative,
             hits: 1,
             time_since_update: 0,
@@ -110,12 +116,6 @@ impl SortTrack {
         let y = state[1] - h / 2.0;
         [x, y, w, h]
     }
-
-    fn next_id() -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
-        static NEXT_ID: AtomicU64 = AtomicU64::new(1);
-        NEXT_ID.fetch_add(1, Ordering::Relaxed)
-    }
 }
 
 /// Internal detection representation.
@@ -155,6 +155,7 @@ pub struct Sort {
     min_hits: usize,
     iou_threshold: f32,
     kalman_filter: KalmanFilter,
+    next_id: u64,
 }
 
 impl Sort {
@@ -172,6 +173,7 @@ impl Sort {
             min_hits,
             iou_threshold,
             kalman_filter: KalmanFilter::default(),
+            next_id: 1,
         }
     }
 
@@ -211,7 +213,14 @@ impl Sort {
         // Step 4: Create new tracks for unmatched detections
         for det_idx in unmatched_dets {
             let det = &detections[det_idx];
-            let new_track = SortTrack::new(det.tlwh, det.score, det.class_id, &self.kalman_filter);
+            let new_track = SortTrack::new(
+                det.tlwh,
+                det.score,
+                det.class_id,
+                &self.kalman_filter,
+                self.next_id,
+            );
+            self.next_id += 1;
             self.tracks.push(new_track);
         }
 
@@ -374,7 +383,7 @@ mod tests {
     #[test]
     fn test_sort_track_creation() {
         let kf = KalmanFilter::default();
-        let track = SortTrack::new([10.0, 20.0, 30.0, 40.0], 0.9, 1, &kf);
+        let track = SortTrack::new([10.0, 20.0, 30.0, 40.0], 0.9, 1, &kf, 1);
 
         assert_eq!(track.tlwh, [10.0, 20.0, 30.0, 40.0]);
         assert_eq!(track.score, 0.9);
@@ -468,5 +477,34 @@ mod tests {
 
         // Check different track IDs
         assert_ne!(tracks[0].track_id, tracks[1].track_id);
+    }
+
+    #[test]
+    fn test_sort_instance_isolation() {
+        let mut tracker1 = Sort::new(1, 1, 0.3);
+        let mut tracker2 = Sort::new(1, 1, 0.3);
+
+        let det1 = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+        let tracks1 = tracker1.update(det1);
+        assert_eq!(tracks1.len(), 1);
+        assert_eq!(tracks1[0].track_id, 1);
+
+        let det2 = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+        let tracks2 = tracker2.update(det2);
+        assert_eq!(tracks2.len(), 1);
+        assert_eq!(tracks2[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_sort_id_sequential() {
+        let mut tracker = Sort::new(1, 1, 0.3);
+
+        let det1 = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+        let tracks1 = tracker.update(det1);
+        assert_eq!(tracks1[0].track_id, 1);
+
+        let det2 = vec![([200.0, 200.0, 50.0, 100.0], 0.9, 1)];
+        let tracks2 = tracker.update(det2);
+        assert_eq!(tracks2[0].track_id, 2);
     }
 }

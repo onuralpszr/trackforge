@@ -95,3 +95,6 @@ lcov.info
 # docs 
 site/
 docs/api/
+
+# cargo audit
+~/.cargo/advisory-db

@@ -11,6 +11,7 @@ pub struct DeepSortTracker {
     pub tracks: Vec<Track>,
     pub kf: KalmanFilter,
     pub max_iou_distance: f32, // typically 0.7 for DeepSort
+    pub next_id: u64,
 }
 
 impl DeepSortTracker {
@@ -27,6 +28,7 @@ impl DeepSortTracker {
             tracks: Vec::new(),
             kf: KalmanFilter::default(),
             max_iou_distance,
+            next_id: 1,
         }
     }
 
@@ -97,10 +99,10 @@ impl DeepSortTracker {
         self.tracks.push(track);
     }
 
-    fn next_id(&self) -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
-        static NEXT_ID: AtomicU64 = AtomicU64::new(1);
-        NEXT_ID.fetch_add(1, Ordering::Relaxed)
+    fn next_id(&mut self) -> u64 {
+        let id = self.next_id;
+        self.next_id += 1;
+        id
     }
 
     fn _match(
@@ -702,5 +704,53 @@ mod tests {
         tracker.predict();
         tracker.update(&[det2], &[emb]);
         assert!((tracker.tracks[0].score - 0.75).abs() < 0.01);
+    }
+
+    fn create_tracker_with_id() -> DeepSortTracker {
+        let metric = NearestNeighborDistanceMetric::new(Metric::Cosine, 0.3, Some(100));
+        DeepSortTracker::new(metric, 30, 3, 0.7)
+    }
+
+    #[test]
+    fn test_deepsort_instance_isolation() {
+        let mut tracker1 = create_tracker_with_id();
+        let mut tracker2 = create_tracker_with_id();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb1 = vec![1.0; 128];
+
+        tracker1.predict();
+        tracker1.update(&[det1], &[emb1]);
+        assert_eq!(tracker1.tracks[0].track_id, 1);
+
+        let det2 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb2 = vec![1.0; 128];
+
+        tracker2.predict();
+        tracker2.update(&[det2], &[emb2]);
+        assert_eq!(tracker2.tracks[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_deepsort_id_sequential() {
+        let mut tracker = create_tracker();
+
+        let det1 = (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0i64);
+        let emb1 = vec![1.0; 128];
+
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det1], &[emb1.clone()]);
+        }
+        assert_eq!(tracker.tracks[0].track_id, 1);
+
+        let det2 = (BoundingBox::new(300.0, 300.0, 50.0, 100.0), 0.9, 1i64);
+        let emb2 = vec![0.0; 128];
+
+        for _ in 0..3 {
+            tracker.predict();
+            tracker.update(&[det2], &[emb2.clone()]);
+        }
+        assert_eq!(tracker.tracks[1].track_id, 2);
     }
 }

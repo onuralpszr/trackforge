@@ -2,11 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2026-03-14
+
+### 📚 Documentation
+
+- 📝 update ByteTrack status to completed by @onuralpszr
+- 📝 Update trackforge version in README.md by @onuralpszr
+- 📝 add DeepSORT to Trackforge description by @onuralpszr
+
+### ⚙️ Miscellaneous Tasks
+
+- *(changelog)* Update changelog for version 0.1.9 release
+- *(audit)* Remove target configuration section from audit.toml
+- *(Cargo.toml)* 📦 update rust-version to 1.87
+- 🧹 cargo advisory-db added to .gitignore
+- *(Cargo.toml)* 📦 update opencv to 0.98.1 and usls to 0.1.11
+- *(Cargo.lock)* 📦 update cargo lock file
+
+### Release
+
+- 📦 bump version to 0.1.9
 ## [0.1.8] - 2026-01-07
 
 ### 🐛 Bug Fixes
 
-- *(docs)* 🐛 fix logo paths in README.md for light/dark themes
+- *(docs)* 🐛 fix logo paths in README.md for light/dark themes by @onuralpszr
 ## [0.1.7] - 2026-01-07
 
 ### 🚀 Features
