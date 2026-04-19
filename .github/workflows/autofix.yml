@@ -20,7 +20,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2.9.1
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
 
