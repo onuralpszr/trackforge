@@ -29,7 +29,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install tools
-        uses: taiki-e/install-action@v2.75.7
+        uses: taiki-e/install-action@v2.75.18
         with:
           tool: prek,typos-cli,taplo-cli
 
