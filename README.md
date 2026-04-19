@@ -48,8 +48,7 @@ Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detec
 association on the CPU — no costly device transfers needed. Algorithms like ByteTrack run in under
 1ms per frame.
 
-> [!IMPORTANT]
-> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
+> [!IMPORTANT] > **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
 
 ## Installation
 
