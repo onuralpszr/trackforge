@@ -36,7 +36,10 @@ repos:
       - id: fmt
         args: [--all, --]
       - id: clippy
-        args: [--all-targets, --all-features, --, -D, warnings]
+        # Note: skips `advanced_examples` feature — it pulls opencv/ort which
+        # require LLVM + libclang system packages and makes this hook
+        # unusable on a fresh dev box or in CI without extra setup.
+        args: [--all-targets, --features, python, --, -D, warnings]
 
   # --- TOML formatter ---------------------------------------------------
   - repo: https://github.com/ComPWA/taplo-pre-commit
