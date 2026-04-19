@@ -6,71 +6,52 @@
     </picture>
 </p>
 
+**Trackforge** is a unified, high-performance computer vision tracking library implemented in Rust with Python bindings. It provides real-time multi-object tracking algorithms, optimized for speed and designed as the CPU "glue" between GPU-based object detectors and your tracking pipeline.
 
+<p align="center">
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge.svg" alt="PyPI version" /></a>
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/v/trackforge.svg" alt="Crates.io version" /></a>
+    <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/docsrs/trackforge" alt="docs.rs" /></a>
+    <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge" alt="PyPI downloads" /></a>
+    <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://codecov.io/gh/onuralpszr/trackforge/branch/main/graph/badge.svg?token=DHMFYRLJW1" alt="Coverage" /></a>
+    <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg" alt="CI" /></a>
+    <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+</p>
 
+## Supported Trackers
 
-[![PyPI](https://img.shields.io/pypi/v/trackforge.svg)](https://pypi.org/project/trackforge/)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/trackforge)
-[![codecov](https://codecov.io/gh/onuralpszr/trackforge/branch/main/graph/badge.svg?token=DHMFYRLJW1)](https://codecov.io/gh/onuralpszr/trackforge)
-[![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
-[![Dependabot Updates](https://github.com/onuralpszr/trackforge/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/dependabot/dependabot-updates)
-[![Security audit](https://github.com/onuralpszr/trackforge/actions/workflows/security-audit.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/security-audit.yml)
-![Crates.io MSRV](https://img.shields.io/crates/msrv/trackforge)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![GitHub stars](https://img.shields.io/github/stars/onuralpszr/trackforge.svg?style=flat&logo=github)](https://github.com/onuralpszr/trackforge/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/onuralpszr/trackforge.svg?style=flat&logo=github)](https://github.com/onuralpszr/trackforge/network)
-[![Crates.io](https://img.shields.io/crates/v/trackforge.svg)](https://crates.io/crates/trackforge)
-[![docs.rs](https://img.shields.io/docsrs/trackforge)](https://docs.rs/trackforge)
-[![Crates.io Downloads](https://img.shields.io/crates/d/trackforge)](https://crates.io/crates/trackforge)
-
-
-
-
-> [!IMPORTANT]
-> **This project is currently under active development.** APIs and features are subject to change.
-
-**Trackforge** is a unified, high-performance computer vision tracking library, implemented in Rust and exposed as a Python package. It provides state-of-the-art tracking algorithms like **ByteTrack**,**DeepSORT** optimized for speed and ease of use in both Rust and Python environments.
+| Tracker                                       | Type                         | Appearance (Re-ID) | Language      | Status         |
+| --------------------------------------------- | ---------------------------- | ------------------ | ------------- | -------------- |
+| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association | No                 | Python & Rust | ✅ Implemented |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance        | Yes (pluggable)    | Python & Rust | ✅ Implemented |
+| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter          | No                 | Python & Rust | ✅ Implemented |
 
 ## Features
 
-- 🚀 **High Performance**: Native Rust implementation for maximum speed and memory safety.
-- 🐍 **Python Bindings**: Seamless integration with the Python ecosystem using `pyo3`.
-- 🛠 **Unified API**: Consistent interface for tracking tasks across both languages.
-- 📸 **ByteTrack**: Robust multi-object tracking using Kalman filters and IoU matching.
+- 🚀 **Native Rust Core** — Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
+- 🐍 **Python Bindings** — First-class `pip install trackforge` support via PyO3
+- 🎯 **Multi-Algorithm** — ByteTrack, DeepSORT, and SORT with a unified API
+- 🔌 **Pluggable Re-ID** — DeepSORT's appearance extractor is a trait; plug in any feature model
+- 📐 **Generic Kalman Filter** — Configurable position/velocity weighting, gating distance computation
 
-## Roadmap
+## Architecture
 
-## TODO — Multi-Object Tracking (MOT)
+```text
+┌──────────────┐         ┌───────────────┐
+│   GPU Detectors│ ─────▶ │  Trackforge   │
+│  (YOLO, RT-  │ bounding │  (CPU)        │
+│   DETR, etc.)│  boxes  │  Association  │
+└──────────────┘         └───────────────┘
+                                   │
+                            ┌──────▼──────┐
+                            │  Tracks     │
+                            │  (IDs, boxes)│
+                            └─────────────┘
+```
 
-### Core Trackers
-- [x] SORT — Simple Online and Realtime Tracking
-- [ ] Norfair — Lightweight distance-based tracking
+Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detectors and handles association on the CPU — no costly device transfers needed. Algorithms like ByteTrack run in under 1ms per frame.
 
-### Appearance-Based (Re-ID)
-- [x] DeepSORT — SORT + appearance embeddings
-- [ ] StrongSORT — Improved DeepSORT with stronger Re-ID
-- [ ] StrongSORT++ — StrongSORT with camera motion compensation
-
-### Detection-Driven Trackers
-- [x] ByteTrack — High/low confidence detection association
-- [ ] BoT-SORT — ByteTrack + Re-ID + camera motion compensation
-
-### Joint Detection & Tracking
-- [ ] FairMOT — Unified detection and Re-ID network
-- [ ] CenterTrack — Motion-aware detection-based tracking
-
-### Transformer-Based Trackers
-- [ ] OC-SORT — Observation-centric SORT
-- [ ] TrackFormer — Transformer-based MOT
-- [ ] MOTR — End-to-end transformer tracking
-
-## GPU Support & Architecture
-
-Trackforge transforms detections into tracks. It is designed to be the high-speed CPU "glue" in your pipeline. 
-
-- **Detectors (GPU)**: Your object detector (YOLOv8, Yolanas, etc.) runs on the GPU to produce bounding boxes.
-- **Trackforge (CPU)**: Receives these boxes and associates them on the CPU. Algorithms like ByteTrack are extremely efficient (less than 1ms per frame) and do not typically strictly require GPU acceleration, avoiding complex device transfers for the association step.
-- **Future**: We may explore GPU-based association for massive-scale batch processing if data is already on-device.
+> [!IMPORTANT] > **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
 
 ## Installation
 
@@ -82,124 +63,211 @@ pip install trackforge
 
 ### Rust
 
-Add `trackforge` to your `Cargo.toml`:
+Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-trackforge = "0.1.9" # Check crates.io for latest version
+trackforge = "0.1.9"
 ```
 
-## Usage
+To build the Python bindings from source (e.g. via `maturin develop`), enable the `python` feature:
 
-### 🐍 Python
+```toml
+[dependencies]
+trackforge = { version = "0.1.9", features = ["python"] }
+```
 
-#### ByteTrack
+## Quick Start
+
+### Python - ByteTrack
 
 ```python
-import trackforge
+from trackforge import ByteTrack
 
-# (tlwh, score, class_id)
-detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+tracker = ByteTrack(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6)
 
-tracker = trackforge.ByteTrack(0.5, 30, 0.8, 0.6)
+# Format: ([x, y, w, h], confidence, class_id)
+detections = [
+    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
+]
+
 tracks = tracker.update(detections)
 
-for t in tracks:
-    print(f"ID: {t[0]}, Box: {t[1]}")
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
-#### DeepSORT
-
-DeepSORT requires appearance embeddings (re-id features) alongside detection boxes.
+### Python - DeepSORT
 
 ```python
-import trackforge
-import numpy as np
+from trackforge import DeepSort
 
-# detections: [(tlwh, score, class_id), ...]
+tracker = DeepSort(
+    max_age=30,
+    n_init=3,
+    max_iou_distance=0.7,
+    max_cosine_distance=0.2,
+    nn_budget=100,
+)
+
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3, ...]]  # appearance feature vectors
 
-# embeddings: List of feature vectors (float32 list) corresponding to detections
-embeddings = [[0.1, 0.2, 0.3, ...]] # Example embedding vector
-
-tracker = trackforge.DeepSort(max_age=30, n_init=3, max_iou_distance=0.7, max_cosine_distance=0.2, nn_budget=100)
 tracks = tracker.update(detections, embeddings)
 
-for t in tracks:
-		# output adds confidence: (track_id, tlwh, confidence, class_id)
-    print(f"ID: {t.track_id}, Box: {t.tlwh}")
+for track in tracks:
+    print(f"ID: {track.track_id}, Box: {track.tlwh}, Score: {track.score}")
 ```
 
-See `examples/python/deepsort_demo.py` for a full example using `ultralytics` YOLO and `torchvision` ResNet.
-
-### 🦀 Rust
-
-#### ByteTrack
+### Rust — ByteTrack
 
 ```rust
 use trackforge::trackers::byte_track::ByteTrack;
 
 fn main() -> anyhow::Result<()> {
-    // Initialize ByteTrack
     let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
 
-    // Detections: Vec<([f32; 4], f32, i64)>
     let detections = vec![
         ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+        ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
     ];
 
-    // Update
     let tracks = tracker.update(detections);
 
     for t in tracks {
         println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
     }
+
     Ok(())
 }
 ```
 
-#### DeepSORT
+## Examples
 
-See `examples/deepsort_ort.rs` for a full example integrating with `ort` (ONNX Runtime) for Re-ID and `usls` for detection.
+Complete working examples are included in the repository:
 
-```rust
-// Minimal setup
-use trackforge::trackers::deepsort::DeepSort;
-use trackforge::traits::AppearanceExtractor;
+### Python Examples
 
-struct MyExtractor;
-impl AppearanceExtractor for MyExtractor {
-    // Implement extract ...
-}
+| Example                                                     | Description                                | Requirements                          |
+| ----------------------------------------------------------- | ------------------------------------------ | ------------------------------------- |
+| [ByteTrack + YOLO](examples/python/byte_track_demo.py)      | ByteTrack with Ultralytics YOLO11 on video | `ultralytics`, `opencv-python`        |
+| [DeepSORT + YOLO](examples/python/deepsort_demo.py)         | DeepSORT with YOLO + ResNet18 embeddings   | `ultralytics`, `torch`, `torchvision` |
+| [SORT + RT-DETR](examples/python/sort_rtdetr_demo.py)       | SORT with Hugging Face RT-DETR             | `transformers`, `torch`               |
+| [SORT + YOLO](examples/python/sort_yolo_demo.py)            | SORT with Ultralytics YOLO                 | `ultralytics`, `opencv-python`        |
+| [Tracker Comparison](examples/python/tracker_comparison.py) | side-by-side tracker benchmark             | varies                                |
 
-let extractor = MyExtractor;
-let mut tracker = DeepSort::new(extractor, ...);
+Run a Python example:
+
+```bash
+python examples/python/byte_track_demo.py
 ```
+
+### Rust Examples
+
+| Example                                            | Description                               | Feature Flag        |
+| -------------------------------------------------- | ----------------------------------------- | ------------------- |
+| [ByteTrack Demo](examples/rust/byte_track_demo.rs) | Basic ByteTrack with simulated detections | none                |
+| [DeepSORT (simple)](examples/deepsort_simple.rs)   | DeepSORT with a mock appearance extractor | none                |
+| [DeepSORT + ONNX](examples/deepsort_ort.rs)        | DeepSORT with RT-DETR + ONNX Re-ID        | `advanced_examples` |
+
+Run a Rust example:
+
+```bash
+cargo run --example byte_track_demo
+cargo run --example deepsort_simple
+cargo run --example deepsort_ort --features advanced_examples
+```
+
+## API Reference
+
+- [Python API](https://onuralpszr.github.io/trackforge/reference/python.html) — Full PyO3 class reference
+- [Rust API](https://docs.rs/trackforge) — Generated rustdoc
+
+## Parameters
+
+### ByteTrack
+
+| Parameter      | Type  | Default | Description                                     |
+| -------------- | ----- | ------- | ----------------------------------------------- |
+| `track_thresh` | float | 0.5     | High confidence detection threshold             |
+| `track_buffer` | int   | 30      | Frames to keep lost tracks alive                |
+| `match_thresh` | float | 0.8     | IoU threshold for matching                      |
+| `det_thresh`   | float | 0.6     | Minimum detection confidence for initialization |
+
+### DeepSORT
+
+| Parameter             | Type  | Default | Description                                      |
+| --------------------- | ----- | ------- | ------------------------------------------------ |
+| `max_age`             | int   | 70      | Max frames to keep a track without detection     |
+| `n_init`              | int   | 3       | Consecutive detections needed to confirm a track |
+| `max_iou_distance`    | float | 0.7     | Max IoU distance for association                 |
+| `max_cosine_distance` | float | 0.2     | Max cosine distance for Re-ID matching           |
+| `nn_budget`           | int   | 100     | Max appearance feature library size per track    |
+
+### SORT
+
+| Parameter       | Type  | Default | Description                                  |
+| --------------- | ----- | ------- | -------------------------------------------- |
+| `max_age`       | int   | 1       | Max frames to keep a track without detection |
+| `min_hits`      | int   | 3       | Minimum hits before a track is confirmed     |
+| `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
 
 ## Development
 
-This project uses `maturin` to manage the Rust/Python interop.
-
 ### Prerequisites
 
-- Rust & Cargo
+- Rust 1.87+ (MSRV)
 - Python 3.8+
-- `maturin`: `pip install maturin`
+- [`maturin`](https://github.com/pyo3/maturin) for Python bindings
 
 ### Build
 
 ```bash
-# Build Python bindings
+# Build Python bindings in development mode
 maturin develop
 
 # Run Rust tests
 cargo test
+
+# Format code
+cargo fmt
+```
+
+### Run Python Examples
+
+```bash
+# After `maturin develop`:
+python examples/python/deepsort_demo.py --video your_video.mp4
 ```
 
 ## Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+- For major changes, open an issue first to discuss what you would like to change.
+- PRs should pass CI: `cargo fmt`, `cargo clippy -- -D warnings`, `cargo test`.
+- Use [Commitizen](https://commitizen-tools.github.io/commitizen/) for commit messages: `cz commit`.
+
+## Roadmap
+
+### Completed
+
+- [x] SORT
+- [x] ByteTrack
+- [x] DeepSORT
+- [x] Python bindings & PyPI package
+- [x] Rust & Python examples
+
+### Planned
+
+- [ ] Norfair — Lightweight distance-based tracking
+- [ ] StrongSORT — Improved DeepSORT with stronger Re-ID
+- [ ] StrongSORT++ — With camera motion compensation
+- [ ] BoT-SORT — ByteTrack + Re-ID + camera motion compensation
+- [ ] Joint detection & tracking (FairMOT, CenterTrack)
+- [ ] Transformer-based trackers (TrackFormer, MOTR)
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.

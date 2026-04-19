@@ -1,4 +1,3 @@
-
 <p align="center">
     <picture>
         <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-dark.png" media="(prefers-color-scheme: dark)" />
@@ -6,7 +5,6 @@
         <img src="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-transparent.png" alt="Trackforge logo" width="auto" />
     </picture>
 </p>
-
 
 **Trackforge** is a unified, high-performance computer vision tracking library built with Rust and exposed to Python. It implements state-of-the-art algorithms like **ByteTrack** with generic Kalman Filters.
 

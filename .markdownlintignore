@@ -1,0 +1,6 @@
+target/
+site/
+docs/api/
+CHANGELOG.md
+node_modules/
+.venv/

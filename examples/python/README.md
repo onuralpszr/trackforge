@@ -20,13 +20,13 @@ pip install torch torchvision
 
 ## Examples
 
-| Example | Description | Tracker | Detector | Input | Output |
-|---------|-------------|---------|----------|-------|--------|
-| [`byte_track_demo.py`](byte_track_demo.py) | ByteTrack multi-object tracking | `ByteTrack` | YOLO11n | `test_video.mp4` | `output_tracking.mp4` |
-| [`sort_yolo_demo.py`](sort_yolo_demo.py) | SORT tracking with YOLO | `Sort` | YOLO11n | `people.mp4` | `output_sort_yolo.mp4` |
-| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py) | SORT tracking with RT-DETR | `Sort` | RT-DETR (Transformers) | `people.mp4` | `output_sort_rtdetr.mp4` |
-| [`deepsort_demo.py`](deepsort_demo.py) | Deep SORT with appearance features | `DeepSort` | YOLO11n + ResNet18 | `people.mp4` | `output_deepsort.mp4` |
-| [`tracker_comparison.py`](tracker_comparison.py) | Side-by-side ByteTrack vs SORT | Both | YOLO11n | `people.mp4` | `output_comparison.mp4` |
+| Example                                          | Description                        | Tracker     | Detector               | Input            | Output                   |
+| ------------------------------------------------ | ---------------------------------- | ----------- | ---------------------- | ---------------- | ------------------------ |
+| [`byte_track_demo.py`](byte_track_demo.py)       | ByteTrack multi-object tracking    | `ByteTrack` | YOLO11n                | `test_video.mp4` | `output_tracking.mp4`    |
+| [`sort_yolo_demo.py`](sort_yolo_demo.py)         | SORT tracking with YOLO            | `Sort`      | YOLO11n                | `people.mp4`     | `output_sort_yolo.mp4`   |
+| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py)     | SORT tracking with RT-DETR         | `Sort`      | RT-DETR (Transformers) | `people.mp4`     | `output_sort_rtdetr.mp4` |
+| [`deepsort_demo.py`](deepsort_demo.py)           | Deep SORT with appearance features | `DeepSort`  | YOLO11n + ResNet18     | `people.mp4`     | `output_deepsort.mp4`    |
+| [`tracker_comparison.py`](tracker_comparison.py) | Side-by-side ByteTrack vs SORT     | Both        | YOLO11n                | `people.mp4`     | `output_comparison.mp4`  |
 
 ## Quick Start
 
@@ -94,30 +94,30 @@ for track in tracks:
 
 ### ByteTrack
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `track_thresh` | float | 0.5 | High confidence detection threshold |
-| `track_buffer` | int | 30 | Frames to keep lost tracks alive |
-| `match_thresh` | float | 0.8 | IoU threshold for matching |
-| `det_thresh` | float | 0.6 | Threshold for new track initialization |
+| Parameter      | Type  | Default | Description                            |
+| -------------- | ----- | ------- | -------------------------------------- |
+| `track_thresh` | float | 0.5     | High confidence detection threshold    |
+| `track_buffer` | int   | 30      | Frames to keep lost tracks alive       |
+| `match_thresh` | float | 0.8     | IoU threshold for matching             |
+| `det_thresh`   | float | 0.6     | Threshold for new track initialization |
 
 ### Sort
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_age` | int | 1 | Max frames without detection before deletion |
-| `min_hits` | int | 3 | Min consecutive hits to confirm track |
-| `iou_threshold` | float | 0.3 | IoU threshold for matching |
+| Parameter       | Type  | Default | Description                                  |
+| --------------- | ----- | ------- | -------------------------------------------- |
+| `max_age`       | int   | 1       | Max frames without detection before deletion |
+| `min_hits`      | int   | 3       | Min consecutive hits to confirm track        |
+| `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
 
 ### DeepSort
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_age` | int | 70 | Max frames without detection before deletion |
-| `n_init` | int | 3 | Min consecutive hits to confirm track |
-| `max_iou_distance` | float | 0.7 | Max IoU distance for cascade matching |
-| `max_cosine_distance` | float | 0.2 | Max cosine distance for appearance matching |
-| `nn_budget` | int | 100 | Max appearance features stored per track |
+| Parameter             | Type  | Default | Description                                  |
+| --------------------- | ----- | ------- | -------------------------------------------- |
+| `max_age`             | int   | 70      | Max frames without detection before deletion |
+| `n_init`              | int   | 3       | Min consecutive hits to confirm track        |
+| `max_iou_distance`    | float | 0.7     | Max IoU distance for cascade matching        |
+| `max_cosine_distance` | float | 0.2     | Max cosine distance for appearance matching  |
+| `nn_budget`           | int   | 100     | Max appearance features stored per track     |
 
 ## Output Format
 
@@ -144,4 +144,3 @@ track.tlwh      # Bounding box [x, y, w, h]
 track.score     # Detection confidence
 track.class_id  # Object class ID
 ```
-

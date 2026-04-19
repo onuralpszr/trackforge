@@ -11,9 +11,10 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 unmaintained = "workspace"
 yanked = "warn"
 ignore = [
-    # Add advisory IDs or package exceptions to ignore here with justification
-    # Example: "RUSTSEC-2021-0124", # reason for ignoring
-    # Ignore unmaintained transitive crates we accept for now
+    # core2 0.4.0 is yanked but still reachable transitively via
+    # image -> ravif -> rav1e -> bitstream-io. Upstream fix has not
+    # shipped yet; no security impact, just a yank warning.
+    { crate = "core2@0.4.0", reason = "yanked; waiting on bitstream-io/rav1e to bump upstream" },
 ]
 
 # This section is considered when running `cargo deny check licenses`

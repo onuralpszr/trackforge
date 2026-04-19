@@ -1,0 +1,30 @@
+[files]
+extend-exclude = [
+    "target/",
+    "site/",
+    "docs/api/",
+    "CHANGELOG.md",
+    "Cargo.lock",
+    "assets/",
+    "*.svg",
+    "*.png",
+]
+
+[default]
+extend-ignore-re = [
+    # Hash-like / git SHAs
+    "\\b[0-9a-f]{7,40}\\b",
+]
+
+[default.extend-words]
+# Domain-specific tokens from tracking literature that look like typos
+# but are load-bearing terminology:
+#   strack(s) — "Single Track" (ByteTrack paper; used in strack_pool,
+#               test_strack_init, r_tracked_stracks, tracked_stracks, etc.)
+#   tlwh      — bbox format: top-left x, top-left y, width, height
+strack = "strack"
+stracks = "stracks"
+tlwh = "tlwh"
+# Short two-letter token (appears in some identifiers) that collides
+# with common English typos.
+ba = "ba"

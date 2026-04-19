@@ -5,6 +5,7 @@ This module implements the SORT (Simple Online and Realtime Tracking) algorithm.
 ## Algorithm Overview
 
 SORT is a simple yet effective multi-object tracking algorithm that combines:
+
 - **Kalman Filtering** for motion prediction
 - **Hungarian Algorithm** for data association using IoU (Intersection over Union)
 
@@ -16,11 +17,11 @@ SORT is a simple yet effective multi-object tracking algorithm that combines:
 
 ## Parameters
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `max_age` | 1 | Maximum frames to keep a track without detection |
-| `min_hits` | 3 | Minimum consecutive hits before track is confirmed |
-| `iou_threshold` | 0.3 | Minimum IoU for matching detection to track |
+| Parameter       | Default | Description                                        |
+| --------------- | ------- | -------------------------------------------------- |
+| `max_age`       | 1       | Maximum frames to keep a track without detection   |
+| `min_hits`      | 3       | Minimum consecutive hits before track is confirmed |
+| `iou_threshold` | 0.3     | Minimum IoU for matching detection to track        |
 
 ## References
 

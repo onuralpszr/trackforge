@@ -361,7 +361,7 @@ impl ByteTrack {
         // Actually we need to maintain lost_stracks list.
         self.lost_stracks = lost_stracks;
         // Also remove duplicates if any?
-        // Basic unique check or simple assigment is fine for now.
+        // Basic unique check or simple assignment is fine for now.
 
         // Output
         let mut output_stracks = Vec::new();

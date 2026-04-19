@@ -1,7 +1,6 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 __all__ = ["ByteTrack", "Sort", "DeepSort", "DeepSortTrack"]
-
 
 class ByteTrack:
     """
@@ -74,7 +73,6 @@ class ByteTrack:
         """
         ...
 
-
 class Sort:
     """
     SORT (Simple Online and Realtime Tracking) tracker implementation.
@@ -138,7 +136,6 @@ class Sort:
         """
         ...
 
-
 class DeepSortTrack:
     """
     A confirmed track from the DeepSort tracker.
@@ -154,7 +151,6 @@ class DeepSortTrack:
     tlwh: List[float]
     score: float
     class_id: int
-
 
 class DeepSort:
     """

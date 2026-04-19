@@ -26,18 +26,86 @@ from pathlib import Path
 
 # COCO class names for RT-DETR
 COCO_CLASSES = [
-    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
-    "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
-    "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra",
-    "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
-    "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove",
-    "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
-    "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange",
-    "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
-    "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse",
-    "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink",
-    "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier",
-    "toothbrush"
+    "person",
+    "bicycle",
+    "car",
+    "motorcycle",
+    "airplane",
+    "bus",
+    "train",
+    "truck",
+    "boat",
+    "traffic light",
+    "fire hydrant",
+    "stop sign",
+    "parking meter",
+    "bench",
+    "bird",
+    "cat",
+    "dog",
+    "horse",
+    "sheep",
+    "cow",
+    "elephant",
+    "bear",
+    "zebra",
+    "giraffe",
+    "backpack",
+    "umbrella",
+    "handbag",
+    "tie",
+    "suitcase",
+    "frisbee",
+    "skis",
+    "snowboard",
+    "sports ball",
+    "kite",
+    "baseball bat",
+    "baseball glove",
+    "skateboard",
+    "surfboard",
+    "tennis racket",
+    "bottle",
+    "wine glass",
+    "cup",
+    "fork",
+    "knife",
+    "spoon",
+    "bowl",
+    "banana",
+    "apple",
+    "sandwich",
+    "orange",
+    "broccoli",
+    "carrot",
+    "hot dog",
+    "pizza",
+    "donut",
+    "cake",
+    "chair",
+    "couch",
+    "potted plant",
+    "bed",
+    "dining table",
+    "toilet",
+    "tv",
+    "laptop",
+    "mouse",
+    "remote",
+    "keyboard",
+    "cell phone",
+    "microwave",
+    "oven",
+    "toaster",
+    "sink",
+    "refrigerator",
+    "book",
+    "clock",
+    "vase",
+    "scissors",
+    "teddy bear",
+    "hair drier",
+    "toothbrush",
 ]
 
 
@@ -59,7 +127,13 @@ def run_tracking(
         target_classes: List of class indices to track (None for all).
     """
     # Set device
-    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps"
+        if torch.backends.mps.is_available()
+        else "cpu"
+    )
     print(f"🖥️  Using device: {device}")
 
     # Load RT-DETR model from Transformers
@@ -95,9 +169,9 @@ def run_tracking(
 
     # Color palette for different track IDs
     colors = [
-        (255, 0, 0),    # Blue
-        (0, 255, 0),    # Green
-        (0, 0, 255),    # Red
+        (255, 0, 0),  # Blue
+        (0, 255, 0),  # Green
+        (0, 0, 255),  # Red
         (255, 255, 0),  # Cyan
         (255, 0, 255),  # Magenta
         (0, 255, 255),  # Yellow
@@ -132,7 +206,9 @@ def run_tracking(
 
         # Prepare detections for SORT tracker: (tlwh, score, class_id)
         detections = []
-        for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+        for score, label, box in zip(
+            results["scores"], results["labels"], results["boxes"]
+        ):
             # Filter by target classes if specified
             if target_classes is not None and label.item() not in target_classes:
                 continue
@@ -159,7 +235,11 @@ def run_tracking(
             color = colors[track_id % len(colors)]
 
             # Get class name
-            class_name = COCO_CLASSES[class_id] if class_id < len(COCO_CLASSES) else f"cls{class_id}"
+            class_name = (
+                COCO_CLASSES[class_id]
+                if class_id < len(COCO_CLASSES)
+                else f"cls{class_id}"
+            )
 
             # Draw bounding box
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
@@ -186,20 +266,24 @@ def run_tracking(
 
         # Draw frame info
         info_text = f"SORT + RT-DETR | Frame: {frame_count}/{total_frames} | Tracks: {len(tracks)}"
-        cv2.putText(frame, info_text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+        cv2.putText(
+            frame, info_text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2
+        )
 
         out.write(frame)
 
         if frame_count % 50 == 0:
             elapsed = time.time() - t0
             fps_actual = frame_count / elapsed
-            print(f"  Processed {frame_count}/{total_frames} frames ({fps_actual:.1f} fps)")
+            print(
+                f"  Processed {frame_count}/{total_frames} frames ({fps_actual:.1f} fps)"
+            )
 
     t1 = time.time()
     total_time = t1 - t0
     avg_fps = frame_count / total_time
 
-    print(f"\n✅ Done!")
+    print("\n✅ Done!")
     print(f"   Processed {frame_count} frames in {total_time:.2f}s ({avg_fps:.1f} fps)")
     print(f"   Output saved to: {output_path}")
 
@@ -211,7 +295,7 @@ if __name__ == "__main__":
     # Check if video exists
     video_file = Path("people.mp4")
     if not video_file.exists():
-        print(f"⚠️  Video file 'people.mp4' not found in current directory.")
+        print("⚠️  Video file 'people.mp4' not found in current directory.")
         print("   Please provide a video file or update the path.")
     else:
         # Track only persons (class 0) for people.mp4

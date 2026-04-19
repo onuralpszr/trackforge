@@ -87,16 +87,19 @@ cargo install cargo-docs-md
 ### Generating the Site
 
 1. **Build Python Package**:
+
    ```bash
    maturin develop
    ```
 
 2. **Generate Rustdoc JSON**:
+
    ```bash
    RUSTDOCFLAGS="-Z unstable-options --output-format json" cargo +nightly doc --no-deps
    ```
 
 3. **Convert to Markdown**:
+
    ```bash
    mkdir -p docs/api
    cargo docs-md -p target/doc/trackforge.json -o docs/api --full-method-docs
@@ -104,12 +107,15 @@ cargo install cargo-docs-md
 
 4. **Fix Formatting**:
    Run the cleaning script to format tables and code blocks:
+
    ```bash
    python3 scripts/fix_docs.py
    ```
 
 5. **Serve**:
+
    ```bash
    zensical serve
    ```
+
    Open http://127.0.0.1:8000.

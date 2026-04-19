@@ -25,14 +25,42 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-      - name: Linting
-        run: cargo clippy -- -D warnings
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2.9.1
       - name: Run tests
         run: cargo test
+      - name: Run tests (python feature)
+        run: cargo test --features python
+      - name: Doc build (warnings = errors)
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: cargo doc --no-deps --features python
+
+  # Supply-chain + unused-dep checks (not hook-style; no overlap with autofix).
+  cargo-deny:
+    name: cargo deny / machete
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2.9.1
+      - name: Install tools
+        uses: taiki-e/install-action@v2.75.7
+        with:
+          tool: cargo-deny,cargo-machete
+      - name: cargo deny
+        run: cargo deny check
+      - name: cargo machete (unused deps)
+        run: cargo machete
+
+  msrv:
+    name: MSRV (1.87)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@1.87
+      - uses: Swatinem/rust-cache@v2.9.1
+      - run: cargo check --all-targets
 
   linux:
     runs-on: ubuntu-latest
@@ -43,13 +71,13 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: "3.10"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
-          sccache: 'true'
+          sccache: "true"
           manylinux: auto
       - name: Upload wheels
         uses: actions/upload-artifact@v7
@@ -66,14 +94,14 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: "3.10"
           architecture: ${{ matrix.target }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
-          sccache: 'true'
+          sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:
@@ -89,13 +117,13 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: "3.10"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
-          sccache: 'true'
+          sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v7
         with:

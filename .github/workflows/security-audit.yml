@@ -1,15 +1,46 @@
 name: Security audit
+
 on:
   push:
-    paths: 
-      - '**/Cargo.toml'
-      - '**/Cargo.lock'
+    paths:
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+  pull_request:
+    paths:
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+  schedule:
+    # Weekly re-scan against latest advisory DB.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # rustsec/audit-check posts results as a check run and opens issues.
+  checks: write
+  issues: write
+
 jobs:
   security_audit:
     runs-on: ubuntu-latest
+    # Skip the check-run posting path on fork PRs — GITHUB_TOKEN is read-only there.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v6
       - uses: rustsec/audit-check@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ignore: RUSTSEC-2024-0436
+
+  # Fallback job for fork PRs: runs cargo-audit directly without needing
+  # write permissions on the repo (fails the job if advisories are found).
+  security_audit_fork:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2.75.7
+        with:
+          tool: cargo-audit
+      - run: cargo audit --ignore RUSTSEC-2024-0436
