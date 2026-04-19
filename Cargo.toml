@@ -21,7 +21,6 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 image = "0.25.9"
 nalgebra = "0.34.2"
-thiserror = "2.0.18"
 pyo3 = { version = "0.28.3", features = ["extension-module"], optional = true }
 
 [features]

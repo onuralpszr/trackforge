@@ -71,7 +71,7 @@ Add to your `Cargo.toml`:
 trackforge = "0.1.9"
 ```
 
-For DeepSORT with appearance extraction, enable the optional Python feature:
+To build the Python bindings from source (e.g. via `maturin develop`), enable the `python` feature:
 
 ```toml
 [dependencies]
@@ -80,7 +80,7 @@ trackforge = { version = "0.1.9", features = ["python"] }
 
 ## Quick Start
 
-### Python — ByteTrack
+### Python - ByteTrack
 
 ```python
 from trackforge import ByteTrack
@@ -99,7 +99,7 @@ for track_id, tlwh, score, class_id in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
-### Python — DeepSORT
+### Python - DeepSORT
 
 ```python
 from trackforge import DeepSort
