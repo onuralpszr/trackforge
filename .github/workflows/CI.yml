@@ -25,51 +25,33 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
       - name: Cache cargo build
         uses: Swatinem/rust-cache@v2.9.1
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-      - name: Linting
-        run: cargo clippy --all-targets -- -D warnings
-      - name: Linting (all features)
-        run: cargo clippy --all-targets --features python -- -D warnings
       - name: Run tests
         run: cargo test
       - name: Run tests (python feature)
         run: cargo test --features python
       - name: Doc build (warnings = errors)
-        # `advanced_examples` is intentionally excluded — it pulls opencv/ort
-        # which need LLVM + libclang system packages (not installed on the
-        # default runner). The `docs.yml` workflow handles the full docs
-        # site build where those deps are set up.
         env:
           RUSTDOCFLAGS: "-D warnings"
         run: cargo doc --no-deps --features python
 
-  rust-extras:
-    name: Rust Extras (deny, machete, typos, taplo)
+  # Supply-chain + unused-dep checks (not hook-style; no overlap with autofix).
+  cargo-deny:
+    name: cargo deny / machete
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
-      - name: Cache cargo build
-        uses: Swatinem/rust-cache@v2.9.1
+      - uses: Swatinem/rust-cache@v2.9.1
       - name: Install tools
         uses: taiki-e/install-action@v2.75.7
         with:
-          tool: cargo-deny,cargo-machete,typos-cli,taplo-cli
+          tool: cargo-deny,cargo-machete
       - name: cargo deny
         run: cargo deny check
       - name: cargo machete (unused deps)
         run: cargo machete
-      - name: typos
-        run: typos
-      - name: taplo fmt --check
-        run: taplo fmt --check
-      - name: taplo lint
-        run: taplo lint
 
   msrv:
     name: MSRV (1.87)
