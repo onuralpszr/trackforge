@@ -21,7 +21,7 @@ impl AppearanceExtractor for MockExtractor {
         let mut features = Vec::new();
         for bbox in bboxes {
             // Create a fake feature vector based on width/height to distinguish objects
-            let v = vec![bbox.width / 100.0, bbox.height / 100.0];
+            let v = [bbox.width / 100.0, bbox.height / 100.0];
             // Normalize
             let norm = (v[0].powi(2) + v[1].powi(2)).sqrt();
             let v = if norm > 0.0 {

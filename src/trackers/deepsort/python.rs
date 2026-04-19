@@ -90,7 +90,7 @@ impl PyDeepSort {
 }
 
 /// Python-exposed Track object
-#[pyclass(name = "DeepSortTrack")]
+#[pyclass(name = "DeepSortTrack", skip_from_py_object)]
 #[derive(Clone)]
 pub struct PyDeepSortTrack {
     #[pyo3(get)]

@@ -397,18 +397,18 @@ mod tests {
 
         // Frame 1: Create track
         tracker.predict();
-        tracker.update(&[det], &[emb.clone()]);
+        tracker.update(&[det], std::slice::from_ref(&emb));
         assert_eq!(tracker.tracks.len(), 1);
         assert!(!tracker.tracks[0].is_confirmed());
 
         // Frame 2: Match
         tracker.predict();
-        tracker.update(&[det], &[emb.clone()]);
+        tracker.update(&[det], std::slice::from_ref(&emb));
         assert!(!tracker.tracks[0].is_confirmed());
 
         // Frame 3: Confirmed (n_init = 3)
         tracker.predict();
-        tracker.update(&[det], &[emb.clone()]);
+        tracker.update(&[det], std::slice::from_ref(&emb));
         assert!(tracker.tracks[0].is_confirmed());
     }
 
@@ -517,7 +517,7 @@ mod tests {
         let emb = vec![1.0; 128];
 
         tracker.predict();
-        tracker.update(&[det1], &[emb.clone()]);
+        tracker.update(&[det1], std::slice::from_ref(&emb));
         let id1 = tracker.tracks[0].track_id;
         assert!(id1 > 0); // ID should be positive
 
@@ -540,13 +540,13 @@ mod tests {
         // Confirm a track (3 hits)
         for _ in 0..3 {
             tracker.predict();
-            tracker.update(&[det], &[emb.clone()]);
+            tracker.update(&[det], std::slice::from_ref(&emb));
         }
         assert!(tracker.tracks[0].is_confirmed());
 
         // Match the confirmed track with same detection
         tracker.predict();
-        tracker.update(&[det], &[emb.clone()]);
+        tracker.update(&[det], std::slice::from_ref(&emb));
 
         assert_eq!(tracker.tracks.len(), 1);
         assert!(tracker.tracks[0].is_confirmed());
@@ -564,17 +564,17 @@ mod tests {
         // Confirm track with det1
         for _ in 0..3 {
             tracker.predict();
-            tracker.update(&[det1], &[emb1.clone()]);
+            tracker.update(&[det1], std::slice::from_ref(&emb1));
         }
         assert_eq!(tracker.tracks.len(), 1);
         assert!(tracker.tracks[0].is_confirmed());
 
         // Now update with det2 (far away) - should create new track
         tracker.predict();
-        tracker.update(&[det2], &[emb2.clone()]);
+        tracker.update(&[det2], std::slice::from_ref(&emb2));
 
         // Original track missed, new track created
-        assert!(tracker.tracks.len() >= 1);
+        assert!(!tracker.tracks.is_empty());
     }
 
     #[test]
@@ -611,7 +611,7 @@ mod tests {
         // Confirm a track
         for _ in 0..3 {
             tracker.predict();
-            tracker.update(&[det], &[emb.clone()]);
+            tracker.update(&[det], std::slice::from_ref(&emb));
         }
 
         // Miss several frames
@@ -635,7 +635,7 @@ mod tests {
         // Confirm a track
         for _ in 0..3 {
             tracker.predict();
-            tracker.update(&[det], &[emb.clone()]);
+            tracker.update(&[det], std::slice::from_ref(&emb));
         }
         assert!(tracker.tracks[0].is_confirmed());
 
@@ -698,7 +698,7 @@ mod tests {
         let emb = vec![1.0; 128];
 
         tracker.predict();
-        tracker.update(&[det1], &[emb.clone()]);
+        tracker.update(&[det1], std::slice::from_ref(&emb));
         assert!((tracker.tracks[0].score - 0.9).abs() < 0.01);
 
         tracker.predict();
@@ -740,7 +740,7 @@ mod tests {
 
         for _ in 0..3 {
             tracker.predict();
-            tracker.update(&[det1], &[emb1.clone()]);
+            tracker.update(&[det1], std::slice::from_ref(&emb1));
         }
         assert_eq!(tracker.tracks[0].track_id, 1);
 
@@ -749,7 +749,7 @@ mod tests {
 
         for _ in 0..3 {
             tracker.predict();
-            tracker.update(&[det2], &[emb2.clone()]);
+            tracker.update(&[det2], std::slice::from_ref(&emb2));
         }
         assert_eq!(tracker.tracks[1].track_id, 2);
     }
