@@ -20,11 +20,11 @@
 
 ## Supported Trackers
 
-| Tracker | Type | Appearance (Re-ID) | Language | Status |
-|---------|------|-------------------|----------|--------|
-| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association | No | Python & Rust | ✅ Implemented |
-| [DeepSORT](https://arxiv.org/abs/1703.07402) | IoU + cosine distance | Yes (pluggable) | Python & Rust | ✅ Implemented |
-| [SORT](https://arxiv.org/abs/1602.00763) | IoU + Kalman filter | No | Python & Rust | ✅ Implemented |
+| Tracker                                       | Type                         | Appearance (Re-ID) | Language      | Status         |
+| --------------------------------------------- | ---------------------------- | ------------------ | ------------- | -------------- |
+| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association | No                 | Python & Rust | ✅ Implemented |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance        | Yes (pluggable)    | Python & Rust | ✅ Implemented |
+| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter          | No                 | Python & Rust | ✅ Implemented |
 
 ## Features
 
@@ -51,8 +51,7 @@
 
 Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detectors and handles association on the CPU — no costly device transfers needed. Algorithms like ByteTrack run in under 1ms per frame.
 
-> [!IMPORTANT]
-> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
+> [!IMPORTANT] > **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
 
 ## Installation
 
@@ -150,13 +149,13 @@ Complete working examples are included in the repository:
 
 ### Python Examples
 
-| Example | Description | Requirements |
-|---------|-------------|--------------|
-| [ByteTrack + YOLO](examples/python/byte_track_demo.py) | ByteTrack with Ultralytics YOLO11 on video | `ultralytics`, `opencv-python` |
-| [DeepSORT + YOLO](examples/python/deepsort_demo.py) | DeepSORT with YOLO + ResNet18 embeddings | `ultralytics`, `torch`, `torchvision` |
-| [SORT + RT-DETR](examples/python/sort_rtdetr_demo.py) | SORT with Hugging Face RT-DETR | `transformers`, `torch` |
-| [SORT + YOLO](examples/python/sort_yolo_demo.py) | SORT with Ultralytics YOLO | `ultralytics`, `opencv-python` |
-| [Tracker Comparison](examples/python/tracker_comparison.py) | side-by-side tracker benchmark | varies |
+| Example                                                     | Description                                | Requirements                          |
+| ----------------------------------------------------------- | ------------------------------------------ | ------------------------------------- |
+| [ByteTrack + YOLO](examples/python/byte_track_demo.py)      | ByteTrack with Ultralytics YOLO11 on video | `ultralytics`, `opencv-python`        |
+| [DeepSORT + YOLO](examples/python/deepsort_demo.py)         | DeepSORT with YOLO + ResNet18 embeddings   | `ultralytics`, `torch`, `torchvision` |
+| [SORT + RT-DETR](examples/python/sort_rtdetr_demo.py)       | SORT with Hugging Face RT-DETR             | `transformers`, `torch`               |
+| [SORT + YOLO](examples/python/sort_yolo_demo.py)            | SORT with Ultralytics YOLO                 | `ultralytics`, `opencv-python`        |
+| [Tracker Comparison](examples/python/tracker_comparison.py) | side-by-side tracker benchmark             | varies                                |
 
 Run a Python example:
 
@@ -166,11 +165,11 @@ python examples/python/byte_track_demo.py
 
 ### Rust Examples
 
-| Example | Description | Feature Flag |
-|---------|-------------|--------------|
-| [ByteTrack Demo](examples/rust/byte_track_demo.rs) | Basic ByteTrack with simulated detections | none |
-| [DeepSORT (simple)](examples/deepsort_simple.rs) | DeepSORT with a mock appearance extractor | none |
-| [DeepSORT + ONNX](examples/deepsort_ort.rs) | DeepSORT with RT-DETR + ONNX Re-ID | `advanced_examples` |
+| Example                                            | Description                               | Feature Flag        |
+| -------------------------------------------------- | ----------------------------------------- | ------------------- |
+| [ByteTrack Demo](examples/rust/byte_track_demo.rs) | Basic ByteTrack with simulated detections | none                |
+| [DeepSORT (simple)](examples/deepsort_simple.rs)   | DeepSORT with a mock appearance extractor | none                |
+| [DeepSORT + ONNX](examples/deepsort_ort.rs)        | DeepSORT with RT-DETR + ONNX Re-ID        | `advanced_examples` |
 
 Run a Rust example:
 
@@ -189,30 +188,30 @@ cargo run --example deepsort_ort --features advanced_examples
 
 ### ByteTrack
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `track_thresh` | float | 0.5 | High confidence detection threshold |
-| `track_buffer` | int | 30 | Frames to keep lost tracks alive |
-| `match_thresh` | float | 0.8 | IoU threshold for matching |
-| `det_thresh` | float | 0.6 | Minimum detection confidence for initialization |
+| Parameter      | Type  | Default | Description                                     |
+| -------------- | ----- | ------- | ----------------------------------------------- |
+| `track_thresh` | float | 0.5     | High confidence detection threshold             |
+| `track_buffer` | int   | 30      | Frames to keep lost tracks alive                |
+| `match_thresh` | float | 0.8     | IoU threshold for matching                      |
+| `det_thresh`   | float | 0.6     | Minimum detection confidence for initialization |
 
 ### DeepSORT
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_age` | int | 70 | Max frames to keep a track without detection |
-| `n_init` | int | 3 | Consecutive detections needed to confirm a track |
-| `max_iou_distance` | float | 0.7 | Max IoU distance for association |
-| `max_cosine_distance` | float | 0.2 | Max cosine distance for Re-ID matching |
-| `nn_budget` | int | 100 | Max appearance feature library size per track |
+| Parameter             | Type  | Default | Description                                      |
+| --------------------- | ----- | ------- | ------------------------------------------------ |
+| `max_age`             | int   | 70      | Max frames to keep a track without detection     |
+| `n_init`              | int   | 3       | Consecutive detections needed to confirm a track |
+| `max_iou_distance`    | float | 0.7     | Max IoU distance for association                 |
+| `max_cosine_distance` | float | 0.2     | Max cosine distance for Re-ID matching           |
+| `nn_budget`           | int   | 100     | Max appearance feature library size per track    |
 
 ### SORT
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_age` | int | 1 | Max frames to keep a track without detection |
-| `min_hits` | int | 3 | Minimum hits before a track is confirmed |
-| `iou_threshold` | float | 0.3 | IoU threshold for matching |
+| Parameter       | Type  | Default | Description                                  |
+| --------------- | ----- | ------- | -------------------------------------------- |
+| `max_age`       | int   | 1       | Max frames to keep a track without detection |
+| `min_hits`      | int   | 3       | Minimum hits before a track is confirmed     |
+| `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
 
 ## Development
 
@@ -253,6 +252,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 ## Roadmap
 
 ### Completed
+
 - [x] SORT
 - [x] ByteTrack
 - [x] DeepSORT
@@ -260,6 +260,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [x] Rust & Python examples
 
 ### Planned
+
 - [ ] Norfair — Lightweight distance-based tracking
 - [ ] StrongSORT — Improved DeepSORT with stronger Re-ID
 - [ ] StrongSORT++ — With camera motion compensation
@@ -269,4 +270,4 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## License
 
- Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.

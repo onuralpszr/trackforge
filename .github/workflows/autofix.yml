@@ -1,0 +1,54 @@
+name: autofix.ci
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2.9.1
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        uses: taiki-e/install-action@v2.75.7
+        with:
+          tool: prek,typos-cli,taplo-cli
+
+      - name: Run prek fixers
+        run: prek run --all-files --color always || true
+
+      - name: Cargo fmt
+        run: cargo fmt --all
+
+      - name: Cargo clippy --fix
+        run: |
+          cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged -- -D warnings || true
+
+      - name: Taplo format
+        run: taplo fmt
+
+      - name: Typos (auto-correct)
+        run: typos --write-changes || true
+
+      - uses: autofix-ci/action@v1
+        with:
+          fail-fast: false

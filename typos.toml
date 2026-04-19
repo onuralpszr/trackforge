@@ -1,0 +1,22 @@
+[files]
+extend-exclude = [
+    "target/",
+    "site/",
+    "docs/api/",
+    "CHANGELOG.md",
+    "Cargo.lock",
+    "assets/",
+    "*.svg",
+    "*.png",
+]
+
+[default]
+extend-ignore-re = [
+    # Hash-like / git SHAs
+    "\\b[0-9a-f]{7,40}\\b",
+]
+
+[default.extend-words]
+# Domain-specific terms / author names that may trip the spell checker.
+ba = "ba"
+tlwh = "tlwh"

@@ -1,0 +1,17 @@
+default: true
+
+# Line length — tables and code blocks get long; let prettier handle wrapping.
+MD013: false
+
+# Allow inline HTML (the README uses <p align="center"> + <picture>).
+MD033: false
+
+# Allow duplicate headings across the document (useful for parameter sections).
+MD024:
+  siblings_only: true
+
+# Allow bare URLs (badges and arxiv links).
+MD034: false
+
+# First line doesn't need to be a top-level heading (README starts with a logo).
+MD041: false

@@ -1,0 +1,18 @@
+target/
+site/
+dist/
+.venv/
+node_modules/
+
+# Generated / vendored
+Cargo.lock
+CHANGELOG.md
+docs/api/
+
+# Python build artifacts
+*.egg-info/
+__pycache__/
+.ruff_cache/
+
+# Logo / binary-ish
+assets/

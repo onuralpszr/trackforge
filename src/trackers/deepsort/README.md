@@ -35,4 +35,4 @@ let mut tracker = DeepSort::new_default(extractor);
 
 ## References
 
-*   [Simple Online and Realtime Tracking with a Deep Association Metric](https://arxiv.org/abs/1703.07402)
+- [Simple Online and Realtime Tracking with a Deep Association Metric](https://arxiv.org/abs/1703.07402)

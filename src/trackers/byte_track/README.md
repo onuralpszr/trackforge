@@ -4,7 +4,7 @@
 >
 > Yifu Zhang, Peize Sun, Yi Jiang, Dongdong Yu, Fucheng Weng, Zehuan Yuan, Ping Luo, Wenyu Liu, Xinggang Wang
 >
-> *[arXiv 2110.06864](https://arxiv.org/abs/2110.06864)*
+> _[arXiv 2110.06864](https://arxiv.org/abs/2110.06864)_
 
 **ByteTrack** is a simple, fast and strong multi-object tracker.
 
