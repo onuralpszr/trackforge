@@ -113,7 +113,9 @@ cargo install cargo-docs-md
    ```
 
 5. **Serve**:
+
    ```bash
    zensical serve
    ```
+
    Open http://127.0.0.1:8000.

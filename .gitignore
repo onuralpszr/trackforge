@@ -92,7 +92,7 @@ docs/_build/
 # Codeconv
 lcov.info
 
-# docs 
+# docs
 site/
 docs/api/
 

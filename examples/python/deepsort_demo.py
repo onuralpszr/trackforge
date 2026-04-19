@@ -49,11 +49,13 @@ def get_embedder():
     model.fc = torch.nn.Identity()
     model.eval()
 
-    transform = T.Compose([
-        T.Resize((128, 64)),  # Typical ReID size
-        T.ToTensor(),
-        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    transform = T.Compose(
+        [
+            T.Resize((128, 64)),  # Typical ReID size
+            T.ToTensor(),
+            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
     return model, transform
 
@@ -161,7 +163,7 @@ def run_tracking(args):
         n_init=3,
         max_iou_distance=0.7,
         max_cosine_distance=0.2,
-        nn_budget=100
+        nn_budget=100,
     )
 
     cap = cv2.VideoCapture(video_path)
@@ -202,11 +204,9 @@ def run_tracking(args):
                 h_box = y2 - y1
                 conf = float(box.conf[0])
                 cls = int(box.cls[0])
-                detections.append((
-                    [float(x1), float(y1), float(w_box), float(h_box)],
-                    conf,
-                    cls
-                ))
+                detections.append(
+                    ([float(x1), float(y1), float(w_box), float(h_box)], conf, cls)
+                )
 
         # 2. Extract Embeddings
         bboxes = [d[0] for d in detections]
@@ -223,13 +223,16 @@ def run_tracking(args):
 
             color = colors[tid % len(colors)]
 
-            cv2.rectangle(
-                frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2
-            )
+            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
             label = f"ID:{tid}"
             cv2.putText(
-                frame, label, (int(x1), int(y1) - 5),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2
+                frame,
+                label,
+                (int(x1), int(y1) - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color,
+                2,
             )
 
         out.write(frame)
@@ -250,16 +253,13 @@ def main():
         description="Deep SORT tracking with YOLO detection and ResNet18 embeddings."
     )
     parser.add_argument(
-        "--video", type=str, default="people.mp4",
-        help="Path to input video"
+        "--video", type=str, default="people.mp4", help="Path to input video"
     )
     parser.add_argument(
-        "--output", type=str, default="output_deepsort.mp4",
-        help="Path to output video"
+        "--output", type=str, default="output_deepsort.mp4", help="Path to output video"
     )
     parser.add_argument(
-        "--model", type=str, default="yolo11n.pt",
-        help="YOLO model path"
+        "--model", type=str, default="yolo11n.pt", help="YOLO model path"
     )
     args = parser.parse_args()
 
@@ -272,4 +272,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

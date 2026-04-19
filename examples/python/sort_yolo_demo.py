@@ -65,9 +65,9 @@ def run_tracking(
 
     # Color palette for different track IDs
     colors = [
-        (255, 0, 0),    # Blue
-        (0, 255, 0),    # Green
-        (0, 0, 255),    # Red
+        (255, 0, 0),  # Blue
+        (0, 255, 0),  # Green
+        (0, 0, 255),  # Red
         (255, 255, 0),  # Cyan
         (255, 0, 255),  # Magenta
         (0, 255, 255),  # Yellow
@@ -85,7 +85,9 @@ def run_tracking(
         frame_count += 1
 
         # Run YOLO Detection
-        results = model.predict(frame, verbose=False, classes=[0])  # Only detect persons (class 0)
+        results = model.predict(
+            frame, verbose=False, classes=[0]
+        )  # Only detect persons (class 0)
 
         # Prepare detections for SORT tracker: (tlwh, score, class_id)
         detections = []
@@ -138,21 +140,27 @@ def run_tracking(
             )
 
         # Draw frame info
-        info_text = f"SORT + YOLO | Frame: {frame_count}/{total_frames} | Tracks: {len(tracks)}"
-        cv2.putText(frame, info_text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+        info_text = (
+            f"SORT + YOLO | Frame: {frame_count}/{total_frames} | Tracks: {len(tracks)}"
+        )
+        cv2.putText(
+            frame, info_text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2
+        )
 
         out.write(frame)
 
         if frame_count % 50 == 0:
             elapsed = time.time() - t0
             fps_actual = frame_count / elapsed
-            print(f"  Processed {frame_count}/{total_frames} frames ({fps_actual:.1f} fps)")
+            print(
+                f"  Processed {frame_count}/{total_frames} frames ({fps_actual:.1f} fps)"
+            )
 
     t1 = time.time()
     total_time = t1 - t0
     avg_fps = frame_count / total_time
 
-    print(f"\n✅ Done!")
+    print("\n✅ Done!")
     print(f"   Processed {frame_count} frames in {total_time:.2f}s ({avg_fps:.1f} fps)")
     print(f"   Output saved to: {output_path}")
 
@@ -164,7 +172,7 @@ if __name__ == "__main__":
     # Check if video exists
     video_file = Path("people.mp4")
     if not video_file.exists():
-        print(f"⚠️  Video file 'people.mp4' not found in current directory.")
+        print("⚠️  Video file 'people.mp4' not found in current directory.")
         print("   Please provide a video file or update the path.")
     else:
         run_tracking()
