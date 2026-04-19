@@ -31,11 +31,11 @@ impl PyDeepSort {
     /// Update the tracker with detections and embeddings.
     ///
     /// Args:
-    ///     detections (List[Tuple[List[float], float, int]]): List of (tlwh, score, class_id).
-    ///     embeddings (List[List[float]]): List of appearance embeddings corresponding to detections.
+    ///     detections (`List[Tuple[List[float], float, int]]`): List of (tlwh, score, class_id).
+    ///     embeddings (`List[List[float]]`): List of appearance embeddings corresponding to detections.
     ///
     /// Returns:
-    ///     List[Track]: List of active confirmed tracks.
+    ///     `List[Track]`: List of active confirmed tracks.
     pub fn update(
         &mut self,
         detections: Vec<([f32; 4], f32, i64)>,
