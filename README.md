@@ -36,7 +36,7 @@
 
 ## Architecture
 
-```
+```text
 ┌──────────────┐         ┌───────────────┐
 │   GPU Detectors│ ─────▶ │  Trackforge   │
 │  (YOLO, RT-  │ bounding │  (CPU)        │
