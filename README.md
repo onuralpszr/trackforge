@@ -37,21 +37,19 @@
 ## Architecture
 
 ```text
-┌──────────────┐         ┌───────────────┐
-│   GPU Detectors│ ─────▶ │  Trackforge   │
-│  (YOLO, RT-  │ bounding │  (CPU)        │
-│   DETR, etc.)│  boxes  │  Association  │
-└──────────────┘         └───────────────┘
-                                   │
-                            ┌──────▼──────┐
-                            │  Tracks     │
-                            │  (IDs, boxes)│
-                            └─────────────┘
+┌──────────────────┐   bboxes    ┌──────────────────┐   tracks    ┌──────────────────┐
+│  GPU Detectors   │ ──────────▶ │    Trackforge    │ ──────────▶ │      Tracks      │
+│ YOLO / RT-DETR / │             │  (CPU, no GPU    │             │   ID + bbox +    │
+│     custom       │             │   round-trip)    │             │      class       │
+└──────────────────┘             └──────────────────┘             └──────────────────┘
 ```
 
-Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detectors and handles association on the CPU — no costly device transfers needed. Algorithms like ByteTrack run in under 1ms per frame.
+Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detectors and handles
+association on the CPU — no costly device transfers needed. Algorithms like ByteTrack run in under
+1ms per frame.
 
-> [!IMPORTANT] > **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
+> [!IMPORTANT]
+> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
 
 ## Installation
 
