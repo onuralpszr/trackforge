@@ -40,9 +40,13 @@ jobs:
       - name: Run tests (python feature)
         run: cargo test --features python
       - name: Doc build (warnings = errors)
+        # `advanced_examples` is intentionally excluded — it pulls opencv/ort
+        # which need LLVM + libclang system packages (not installed on the
+        # default runner). The `docs.yml` workflow handles the full docs
+        # site build where those deps are set up.
         env:
           RUSTDOCFLAGS: "-D warnings"
-        run: cargo doc --no-deps --all-features
+        run: cargo doc --no-deps --features python
 
   rust-extras:
     name: Rust Extras (deny, machete, typos, taplo)
