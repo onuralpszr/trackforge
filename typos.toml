@@ -17,6 +17,14 @@ extend-ignore-re = [
 ]
 
 [default.extend-words]
-# Domain-specific terms / author names that may trip the spell checker.
-ba = "ba"
+# Domain-specific tokens from tracking literature that look like typos
+# but are load-bearing terminology:
+#   strack(s) — "Single Track" (ByteTrack paper; used in strack_pool,
+#               test_strack_init, r_tracked_stracks, tracked_stracks, etc.)
+#   tlwh      — bbox format: top-left x, top-left y, width, height
+strack = "strack"
+stracks = "stracks"
 tlwh = "tlwh"
+# Short two-letter token (appears in some identifiers) that collides
+# with common English typos.
+ba = "ba"
