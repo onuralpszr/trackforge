@@ -28,11 +28,11 @@
 
 ## Features
 
-- 🚀 **Native Rust Core**  Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
-- 🐍 **Python Bindings**  First-class `pip install trackforge` support via PyO3
-- 🎯 **Multi-Algorithm**  ByteTrack, DeepSORT, and SORT with a unified API
-- 🔌 **Pluggable Re-ID**  DeepSORT's appearance extractor is a trait; plug in any feature model
-- 📐 **Generic Kalman Filter**  Configurable position/velocity weighting, gating distance computation
+- 🚀 **Native Rust Core** Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
+- 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
+- 🎯 **Multi-Algorithm** ByteTrack, DeepSORT, and SORT with a unified API
+- 🔌 **Pluggable Re-ID** DeepSORT's appearance extractor is a trait; plug in any feature model
+- 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 
 ## Architecture
 
@@ -45,7 +45,7 @@
 ```
 
 Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detectors and handles
-association on the CPU  no costly device transfers needed. Algorithms like ByteTrack run in under
+association on the CPU no costly device transfers needed. Algorithms like ByteTrack run in under
 1ms per frame.
 
 <!-- prettier-ignore -->
@@ -119,7 +119,7 @@ for track in tracks:
     print(f"ID: {track.track_id}, Box: {track.tlwh}, Score: {track.score}")
 ```
 
-### Rust  ByteTrack
+### Rust ByteTrack
 
 ```rust
 use trackforge::trackers::byte_track::ByteTrack;
@@ -180,8 +180,8 @@ cargo run --example deepsort_ort --features advanced_examples
 
 ## API Reference
 
-- [Python API](https://onuralpszr.github.io/trackforge/reference/python.html)  Full PyO3 class reference
-- [Rust API](https://docs.rs/trackforge)  Generated rustdoc
+- [Python API](https://onuralpszr.github.io/trackforge/reference/python.html) Full PyO3 class reference
+- [Rust API](https://docs.rs/trackforge) Generated rustdoc
 
 ## Parameters
 
