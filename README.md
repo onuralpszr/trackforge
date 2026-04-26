@@ -266,6 +266,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [ ] BoT-SORT ByteTrack + Re-ID + camera motion compensation
 - [ ] Joint detection & tracking (FairMOT, CenterTrack)
 - [ ] Transformer-based trackers (TrackFormer, MOTR)
+- [ ] TrackTrack: Focusing on Tracks for Online Multi-Object Tracking
 
 ## License
 
