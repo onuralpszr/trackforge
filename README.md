@@ -16,6 +16,7 @@
     <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://codecov.io/gh/onuralpszr/trackforge/branch/main/graph/badge.svg?token=DHMFYRLJW1" alt="Coverage" /></a>
     <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg" alt="CI" /></a>
     <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+    <a href="https://deps.rs/repo/github/onuralpszr/trackforge"><img src="https://deps.rs/repo/github/onuralpszr/trackforge/status.svg" alt="dependency status" /></a>
 </p>
 
 ## Supported Trackers
