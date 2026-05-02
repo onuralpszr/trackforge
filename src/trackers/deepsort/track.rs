@@ -23,8 +23,8 @@ pub struct Track {
     /// These are flushed to the metric gallery when appropriate.
     pub features: Vec<Vec<f32>>,
 
-    _n_init: usize,
-    _max_age: usize,
+    n_init: usize,
+    max_age: usize,
 }
 
 impl Track {
@@ -50,8 +50,8 @@ impl Track {
             state: TrackState::Tentative,
             score,
             features: vec![feature],
-            _n_init: n_init,
-            _max_age: max_age,
+            n_init,
+            max_age,
         }
     }
 
@@ -102,13 +102,13 @@ impl Track {
         self.class_id = class_id;
         self.features.push(feature);
 
-        if self.state == TrackState::Tentative && self.hits >= self._n_init {
+        if self.state == TrackState::Tentative && self.hits >= self.n_init {
             self.state = TrackState::Confirmed;
         }
     }
 
     pub fn mark_missed(&mut self) {
-        if self.state == TrackState::Tentative || self.time_since_update > self._max_age {
+        if self.state == TrackState::Tentative || self.time_since_update > self.max_age {
             self.state = TrackState::Deleted;
         }
     }
