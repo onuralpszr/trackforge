@@ -48,7 +48,7 @@ pub struct OcSortTrack {
     mean: StateVector,
     covariance: CovarianceMatrix,
 
-    // OC-SORT: circular observation history used for OCV and ORU.
+    // OC-SORT: circular observation history used for OCV and OUR.
     // Stored as (xyah, frame_id) in insertion order; capped at `delta_t + 1` entries.
     observations: Vec<(MeasurementVector, usize)>,
 }
@@ -126,13 +126,13 @@ impl OcSortTrack {
         Some([dy / norm, dx / norm])
     }
 
-    /// ORU: replay interpolated observations to correct KF drift after re-association.
+    /// OUR: replay interpolated observations to correct KF drift after re-association.
     ///
     /// Linearly interpolates between the last recorded observation and the current
     /// detection in TLWH space (matching the reference implementation), converts each
     /// virtual observation to xyah, then replays predict → update through the KF so
     /// that future predictions start from a corrected state.
-    fn oru_re_update(
+    fn our_re_update(
         &mut self,
         current_xyah: &MeasurementVector,
         current_frame: usize,
@@ -345,9 +345,9 @@ impl OcSort {
 
             let was_lost = track.time_since_update > 0;
 
-            // ORU: correct KF drift if the track was re-found after a gap.
+            // OUR: correct KF drift if the track was re-found after a gap.
             if was_lost {
-                track.oru_re_update(&xyah, self.frame_count, &self.kf);
+                track.our_re_update(&xyah, self.frame_count, &self.kf);
             }
 
             track.update_kf(&xyah, &self.kf);
@@ -738,7 +738,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ocsort_oru_does_not_panic_on_re_association() {
+    fn test_ocsort_our_does_not_panic_on_re_association() {
         let kf = KalmanFilter::default();
         let tlwh = [100.0_f32, 100.0, 50.0, 100.0];
         let mut track = OcSortTrack::new(tlwh, 0.9, 0, 1, 1, &kf);
@@ -750,7 +750,7 @@ mod tests {
 
         // Re-associate at frame 7.
         let xyah_new = tlwh_to_xyah(&[130.0_f32, 100.0, 50.0, 100.0]);
-        track.oru_re_update(&xyah_new, 7, &kf);
+        track.our_re_update(&xyah_new, 7, &kf);
 
         // Check tlwh is finite.
         assert!(track.tlwh.iter().all(|v| v.is_finite()));

@@ -36,7 +36,6 @@ class BYTETRACK:
         match_thresh: float = 0.8,
         det_thresh: float = 0.6,
     ) -> None: ...
-
     def update(
         self, output_results: List[Tuple[List[float], float, int]]
     ) -> List[Tuple[int, List[float], float, int]]: ...
@@ -68,7 +67,6 @@ class SORT:
         min_hits: int = 3,
         iou_threshold: float = 0.3,
     ) -> None: ...
-
     def update(
         self, detections: List[Tuple[List[float], float, int]]
     ) -> List[Tuple[int, List[float], float, int]]: ...
@@ -108,7 +106,6 @@ class OCSORT:
         delta_t: int = 3,
         inertia: float = 0.2,
     ) -> None: ...
-
     def update(
         self, detections: List[Tuple[List[float], float, int]]
     ) -> List[Tuple[int, List[float], float, int]]: ...
@@ -150,7 +147,6 @@ class DEEPSORT:
         max_cosine_distance: float = 0.2,
         nn_budget: int = 100,
     ) -> None: ...
-
     def update(
         self,
         detections: List[Tuple[List[float], float, int]],

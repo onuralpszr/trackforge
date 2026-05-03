@@ -133,7 +133,7 @@ for track_id, tlwh, score, class_id in tracks:
 ## `OCSORT`
 
 Observation-Centric SORT. Extends SORT with velocity-based prediction correction (OCM) and
-Kalman filter re-update on re-association (ORU). More robust than SORT in scenes with brief
+Kalman filter re-update on re-association (OUR). More robust than SORT in scenes with brief
 occlusions without requiring appearance features.
 
 ### Constructor
@@ -148,12 +148,12 @@ trackforge.OCSORT(
 )
 ```
 
-| Parameter       | Type    | Default | Description                                                    |
-| --------------- | ------- | ------- | -------------------------------------------------------------- |
-| `max_age`       | `int`   | `30`    | Frames a lost track is kept alive before deletion              |
-| `min_hits`      | `int`   | `3`     | Consecutive matched frames required to confirm a track         |
-| `iou_threshold` | `float` | `0.3`   | Minimum IoU to associate a detection with a track              |
-| `delta_t`       | `int`   | `3`     | Observation window (frames) for velocity computation (OCV)     |
+| Parameter       | Type    | Default | Description                                                                   |
+| --------------- | ------- | ------- | ----------------------------------------------------------------------------- |
+| `max_age`       | `int`   | `30`    | Frames a lost track is kept alive before deletion                             |
+| `min_hits`      | `int`   | `3`     | Consecutive matched frames required to confirm a track                        |
+| `iou_threshold` | `float` | `0.3`   | Minimum IoU to associate a detection with a track                             |
+| `delta_t`       | `int`   | `3`     | Observation window (frames) for velocity computation (OCV)                    |
 | `inertia`       | `float` | `0.2`   | Weight for the direction-consistency cost bonus during OCM (range 0.0 to 1.0) |
 
 ### `update`

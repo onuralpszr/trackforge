@@ -21,12 +21,12 @@
 
 ## Supported Trackers
 
-| Tracker                                       | Type                              | Appearance (Re-ID) | Language      | Status         |
-| --------------------------------------------- | --------------------------------- | ------------------ | ------------- | -------------- |
-| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association      | No                 | Python & Rust | ✅ Implemented |
-| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance             | Yes (pluggable)    | Python & Rust | ✅ Implemented |
-| [OC-SORT](https://arxiv.org/abs/2203.14360)   | IoU + velocity direction (OCM)    | No                 | Python & Rust | ✅ Implemented |
-| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter               | No                 | Python & Rust | ✅ Implemented |
+| Tracker                                       | Type                           | Appearance (Re-ID) | Language      | Status         |
+| --------------------------------------------- | ------------------------------ | ------------------ | ------------- | -------------- |
+| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association   | No                 | Python & Rust | ✅ Implemented |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance          | Yes (pluggable)    | Python & Rust | ✅ Implemented |
+| [OC-SORT](https://arxiv.org/abs/2203.14360)   | IoU + velocity direction (OCM) | No                 | Python & Rust | ✅ Implemented |
+| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter            | No                 | Python & Rust | ✅ Implemented |
 
 ## Features
 
@@ -232,13 +232,13 @@ cargo run --example deepsort_ort --features advanced_examples
 
 ### OC-SORT
 
-| Parameter       | Type  | Default | Description                                               |
-| --------------- | ----- | ------- | --------------------------------------------------------- |
-| `max_age`       | int   | 30      | Max frames to keep a lost track alive before deletion     |
-| `min_hits`      | int   | 3       | Consecutive matched frames required to confirm a track    |
-| `iou_threshold` | float | 0.3     | IoU threshold for matching                                |
-| `delta_t`       | int   | 3       | Observation window (frames) for velocity computation      |
-| `inertia`       | float | 0.2     | Weight for the direction-consistency cost bonus (OCM)     |
+| Parameter       | Type  | Default | Description                                            |
+| --------------- | ----- | ------- | ------------------------------------------------------ |
+| `max_age`       | int   | 30      | Max frames to keep a lost track alive before deletion  |
+| `min_hits`      | int   | 3       | Consecutive matched frames required to confirm a track |
+| `iou_threshold` | float | 0.3     | IoU threshold for matching                             |
+| `delta_t`       | int   | 3       | Observation window (frames) for velocity computation   |
+| `inertia`       | float | 0.2     | Weight for the direction-consistency cost bonus (OCM)  |
 
 ### SORT
 

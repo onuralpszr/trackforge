@@ -53,20 +53,38 @@ def run_tracking(video_path="test_video.mp4", output_path="output_ocsort.mp4"):
 
         for track_id, tlwh, score, class_id in online_tracks:
             x1, y1, w, h = tlwh
-            cv2.rectangle(frame, (int(x1), int(y1)), (int(x1 + w), int(y1 + h)), (0, 255, 0), 2)
+            cv2.rectangle(
+                frame, (int(x1), int(y1)), (int(x1 + w), int(y1 + h)), (0, 255, 0), 2
+            )
             label = f"ID:{track_id} {model.names[class_id]} {score:.2f}"
-            cv2.putText(frame, label, (int(x1), int(y1) - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(
+                frame,
+                label,
+                (int(x1), int(y1) - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                2,
+            )
 
-        cv2.putText(frame, f"Frame: {frame_count}", (20, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(
+            frame,
+            f"Frame: {frame_count}",
+            (20, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 255),
+            2,
+        )
         out.write(frame)
 
         if frame_count % 50 == 0:
             print(f"Processed {frame_count} frames...")
 
     t1 = time.time()
-    print(f"Done. {frame_count} frames in {t1 - t0:.2f}s ({frame_count / (t1 - t0):.1f} fps)")
+    print(
+        f"Done. {frame_count} frames in {t1 - t0:.2f}s ({frame_count / (t1 - t0):.1f} fps)"
+    )
     cap.release()
     out.release()
     print(f"Saved output to {output_path}")

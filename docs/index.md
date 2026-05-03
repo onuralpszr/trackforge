@@ -42,12 +42,12 @@ maturin develop --features python
 
 ## Choosing a Tracker
 
-| Tracker       | Appearance       | Matching              | When to use                                                 |
-| ------------- | ---------------- | --------------------- | ----------------------------------------------------------- |
-| **SORT**      | None             | IoU                   | Simple scenes, highest speed, no occlusions                 |
-| **ByteTrack** | None             | IoU (2-stage)         | Crowded scenes, low-confidence detections, short occlusions |
-| **OC-SORT**   | None             | IoU + velocity (OCM)  | Scenes with frequent brief occlusions, no Re-ID available   |
-| **DeepSORT**  | Re-ID embeddings | Appearance + IoU      | Long occlusions, dense crowds, identity-sensitive use cases |
+| Tracker       | Appearance       | Matching             | When to use                                                 |
+| ------------- | ---------------- | -------------------- | ----------------------------------------------------------- |
+| **SORT**      | None             | IoU                  | Simple scenes, highest speed, no occlusions                 |
+| **ByteTrack** | None             | IoU (2-stage)        | Crowded scenes, low-confidence detections, short occlusions |
+| **OC-SORT**   | None             | IoU + velocity (OCM) | Scenes with frequent brief occlusions, no Re-ID available   |
+| **DeepSORT**  | Re-ID embeddings | Appearance + IoU     | Long occlusions, dense crowds, identity-sensitive use cases |
 
 All trackers share the same detection input format:
 
@@ -193,7 +193,7 @@ Extends SORT with three observation-centric mechanisms that reduce tracker drift
 - **OCM** — before matching, a direction-consistency bonus is added to each IoU score: pairs
   where the track's stored velocity direction aligns with the vector from the last observation to
   the candidate detection receive a higher effective IoU, improving association after missed frames.
-- **ORU** — when a lost track is re-matched, the Kalman filter is corrected by replaying
+- **OUR** — when a lost track is re-matched, the Kalman filter is corrected by replaying
   linearly interpolated observations between the last seen position and the current detection.
 
 No appearance features are required, making it a strong upgrade over SORT when occlusions are
@@ -201,12 +201,12 @@ common but Re-ID is unavailable.
 
 ### Configuration
 
-| Parameter       | Type    | Default | Description                                                     |
-| --------------- | ------- | ------- | --------------------------------------------------------------- |
-| `max_age`       | `usize` | `30`    | Frames to keep a lost track alive before deletion               |
-| `min_hits`      | `usize` | `3`     | Consecutive matched frames required to confirm a track          |
-| `iou_threshold` | `f32`   | `0.3`   | Minimum IoU to associate a detection with a track               |
-| `delta_t`       | `usize` | `3`     | Observation window (frames) used to compute velocity for OCV    |
+| Parameter       | Type    | Default | Description                                                          |
+| --------------- | ------- | ------- | -------------------------------------------------------------------- |
+| `max_age`       | `usize` | `30`    | Frames to keep a lost track alive before deletion                    |
+| `min_hits`      | `usize` | `3`     | Consecutive matched frames required to confirm a track               |
+| `iou_threshold` | `f32`   | `0.3`   | Minimum IoU to associate a detection with a track                    |
+| `delta_t`       | `usize` | `3`     | Observation window (frames) used to compute velocity for OCV         |
 | `inertia`       | `f32`   | `0.2`   | Weight for the direction-consistency cost bonus during OCM (0.0-1.0) |
 
 **Tuning tips**
