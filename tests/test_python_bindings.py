@@ -98,6 +98,11 @@ def test_bytetrack_constructor():
     assert t is not None
 
 
+def test_bytetrack_update_empty():
+    t = trackforge.BYTETRACK()
+    assert t.update([]) == []
+
+
 def test_bytetrack_update_returns_track():
     t = trackforge.BYTETRACK(
         track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6
@@ -114,6 +119,11 @@ def test_bytetrack_update_returns_track():
 def test_sort_constructor():
     t = trackforge.SORT()
     assert t is not None
+
+
+def test_sort_update_empty():
+    t = trackforge.SORT()
+    assert t.update([]) == []
 
 
 def test_sort_update_confirmed_after_min_hits():
