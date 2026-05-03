@@ -52,7 +52,7 @@ association on the CPU no costly device transfers needed. Algorithms like ByteTr
 
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.87.
+> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.88.
 
 ## Installation
 
@@ -252,7 +252,7 @@ cargo run --example deepsort_ort --features advanced_examples
 
 ### Prerequisites
 
-- Rust 1.87+ (MSRV)
+- Rust 1.88+ (MSRV)
 - Python 3.8+
 - [`maturin`](https://github.com/pyo3/maturin) for Python bindings
 
@@ -301,6 +301,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 - [ ] StrongSORT Improved DeepSORT with stronger Re-ID
 - [ ] StrongSORT++ With camera motion compensation
 - [ ] BoT-SORT ByteTrack + Re-ID + camera motion compensation
+- [ ] DeepOCSORT (OC-SORT + appearance)
 - [ ] Joint detection & tracking (FairMOT, CenterTrack)
 - [ ] Transformer-based trackers (TrackFormer, MOTR)
 - [ ] TrackTrack: Focusing on Tracks for Online Multi-Object Tracking

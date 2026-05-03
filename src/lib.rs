@@ -2,7 +2,7 @@
 //! [![docs.rs](https://docs.rs/trackforge/badge.svg)](https://docs.rs/trackforge)
 //! [![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
 //! [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-//! [![MSRV](https://img.shields.io/badge/rustc-1.87%2B-orange.svg)](https://blog.rust-lang.org/2025/05/15/Rust-1.87.0/)
+//! [![MSRV](https://img.shields.io/badge/rustc-1.88%2B-orange.svg)](https://blog.rust-lang.org/2025/05/15/Rust-1.88.0/)
 //!
 //! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.
