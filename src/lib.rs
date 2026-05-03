@@ -1,11 +1,17 @@
-//! Trackforge is a unified, high-performance computer vision tracking library, implemented in
+//! [![Crates.io](https://img.shields.io/crates/v/trackforge.svg)](https://crates.io/crates/trackforge)
+//! [![docs.rs](https://docs.rs/trackforge/badge.svg)](https://docs.rs/trackforge)
+//! [![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
+//! [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+//! [![MSRV](https://img.shields.io/badge/rustc-1.87%2B-orange.svg)](https://blog.rust-lang.org/2025/05/15/Rust-1.87.0/)
+//!
+//! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.
 //!
-//! It provides three state-of-the-art multi-object tracking algorithms — **SORT**, **ByteTrack**,
-//! and **DeepSORT** — each optimized for a different trade-off between speed, accuracy, and
-//! robustness.
+//! It provides three production-ready multi-object tracking algorithms built on a shared
+//! 8-dimensional Kalman filter with state `[x, y, a, h, vx, vy, va, vh]`, where `(x, y)`
+//! is the bounding-box centre, `a` the aspect ratio, and `h` the height.
 //!
-//! # Choosing a Tracker
+//! # Choose a Tracker
 //!
 //! | Tracker | Appearance Features | Matching Strategy | Best For |
 //! |---------|-------------------|-------------------|----------|
@@ -13,12 +19,10 @@
 //! | [`byte_track`] | None | IoU two-stage | Crowded scenes, low-confidence detections |
 //! | [`deepsort`] | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds |
 //!
-//! All three share the same 8-dimensional Kalman filter state `[x, y, a, h, vx, vy, va, vh]`
-//! where `(x, y)` is the bounding-box centre, `a` the aspect ratio and `h` the height.
+//! # SORT
 //!
-//! # SORT — Simple Online and Realtime Tracking
-//!
-//! Pure IoU matching with a Kalman filter.  Fastest tracker with minimal configuration.
+//! Simple Online and Realtime Tracking. Pure IoU matching with a Kalman filter.
+//! Fastest option with minimal configuration.
 //!
 //! ```rust
 //! use trackforge::trackers::sort::Sort;
@@ -38,8 +42,8 @@
 //!
 //! # ByteTrack
 //!
-//! Two-stage IoU matching that also associates low-confidence detections, improving recall
-//! of partially occluded objects.
+//! Two-stage IoU matching that also associates low-confidence detections, recovering
+//! objects that are temporarily occluded or partially out of frame.
 //!
 //! ```rust
 //! use trackforge::trackers::byte_track::ByteTrack;
@@ -61,7 +65,7 @@
 //! # DeepSORT
 //!
 //! Augments IoU matching with Re-ID appearance embeddings for reliable re-identification
-//! across long occlusions.  Requires an [`AppearanceExtractor`] implementation that produces
+//! across long occlusions. Requires an [`AppearanceExtractor`] implementation that produces
 //! a feature vector for each detected crop.
 //!
 //! ```rust,ignore
@@ -78,7 +82,7 @@
 //!         image: &DynamicImage,
 //!         boxes: &[BoundingBox],
 //!     ) -> Result<Vec<Vec<f32>>, Box<dyn std::error::Error>> {
-//!         // Return one 128-D embedding per bounding box
+//!         // Return one embedding vector per bounding box
 //!         Ok(boxes.iter().map(|_| vec![0.0_f32; 128]).collect())
 //!     }
 //! }
@@ -86,7 +90,7 @@
 //! // max_age=70, n_init=3, max_iou_distance=0.7, max_cosine_distance=0.2, nn_budget=100
 //! let mut tracker = DeepSort::new(MyExtractor, 70, 3, 0.7, 0.2, 100);
 //!
-//! let frame: DynamicImage = DynamicImage::new_rgb8(640, 480);
+//! let frame = DynamicImage::new_rgb8(640, 480);
 //! let detections = vec![
 //!     (BoundingBox { x: 100.0, y: 100.0, width: 50.0, height: 100.0 }, 0.9_f32, 0_i64),
 //! ];
