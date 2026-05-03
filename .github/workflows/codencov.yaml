@@ -34,19 +34,24 @@ jobs:
         with:
           tool: cargo-llvm-cov
 
-      - name: Install maturin and pytest
-        run: pip install maturin pytest
+      - name: Create virtualenv and install maturin and pytest
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install maturin pytest
 
       - name: Run Rust unit tests with coverage
         run: cargo llvm-cov --no-report --workspace
 
       - name: Build Python extension with coverage instrumentation
         run: |
+          source .venv/bin/activate
           source <(cargo llvm-cov show-env --export-prefix)
           maturin develop --features python
 
       - name: Run Python integration tests
         run: |
+          source .venv/bin/activate
           source <(cargo llvm-cov show-env --export-prefix)
           pytest tests/ -v
 
