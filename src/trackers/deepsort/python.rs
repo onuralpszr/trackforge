@@ -74,3 +74,26 @@ impl PyDeepSort {
         Ok(tracks)
     }
 }
+
+#[cfg(all(test, feature = "python"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_py_deepsort_mismatched_lengths_returns_err() {
+        pyo3::prepare_freethreaded_python();
+        let mut tracker = PyDeepSort::new(70, 3, 0.7, 0.2, 100);
+        let dets = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+        let embeddings: Vec<Vec<f32>> = vec![];
+        let result = tracker.update(dets, embeddings);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_py_deepsort_update_empty() {
+        pyo3::prepare_freethreaded_python();
+        let mut tracker = PyDeepSort::new(70, 3, 0.7, 0.2, 100);
+        let result = tracker.update(vec![], vec![]).unwrap();
+        assert!(result.is_empty());
+    }
+}

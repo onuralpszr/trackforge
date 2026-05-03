@@ -815,3 +815,56 @@ mod tests {
         assert_eq!(tracks[0].track_id, 1, "Should be the same track");
     }
 }
+
+#[cfg(all(test, feature = "python"))]
+mod python_tests {
+    use super::*;
+
+    fn det(x: f32, y: f32, w: f32, h: f32, s: f32) -> ([f32; 4], f32, i64) {
+        ([x, y, w, h], s, 0)
+    }
+
+    #[test]
+    fn test_py_ocsort_new() {
+        pyo3::prepare_freethreaded_python();
+        let tracker = PyOcSort::new(30, 3, 0.3, 3, 0.2);
+        drop(tracker);
+    }
+
+    #[test]
+    fn test_py_ocsort_update_empty() {
+        pyo3::prepare_freethreaded_python();
+        let mut tracker = PyOcSort::new(30, 1, 0.3, 3, 0.2);
+        let result = tracker.update(vec![]).unwrap();
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_py_ocsort_update_returns_confirmed_tracks() {
+        pyo3::prepare_freethreaded_python();
+        let mut tracker = PyOcSort::new(30, 1, 0.3, 3, 0.2);
+        let dets = vec![det(100.0, 100.0, 50.0, 100.0, 0.9)];
+        let result = tracker.update(dets).unwrap();
+        assert_eq!(result.len(), 1);
+        let (track_id, tlwh, score, class_id) = result[0];
+        assert_eq!(track_id, 1);
+        assert!(score > 0.0);
+        assert_eq!(class_id, 0);
+        assert_eq!(tlwh.len(), 4);
+    }
+
+    #[test]
+    fn test_py_ocsort_default_params() {
+        pyo3::prepare_freethreaded_python();
+        let mut tracker = PyOcSort::new(30, 3, 0.3, 3, 0.2);
+        for _ in 0..3 {
+            tracker
+                .update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)])
+                .unwrap();
+        }
+        let result = tracker
+            .update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)])
+            .unwrap();
+        assert_eq!(result.len(), 1);
+    }
+}
