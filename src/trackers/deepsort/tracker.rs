@@ -216,7 +216,10 @@ impl DeepSortTracker {
 
             let mut level_cost_matrix = Vec::new();
             for &trk_idx in &tracks_at_level {
-                let data_row_idx = track_indices.iter().position(|&x| x == trk_idx).unwrap();
+                let data_row_idx = track_indices
+                    .iter()
+                    .position(|&x| x == trk_idx)
+                    .expect("track index must exist in track_indices slice");
 
                 let mut row = Vec::new();
                 for &det_idx in &unmatched_dets_vec {
