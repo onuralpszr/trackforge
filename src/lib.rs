@@ -105,7 +105,7 @@
 //! # OC-SORT
 //!
 //! Observation-Centric SORT. Extends SORT with velocity correction (OCM) and Kalman filter
-//! re-update on re-association (OUR), making it robust to brief occlusions without appearance
+//! re-update on re-association (ORU), making it robust to brief occlusions without appearance
 //! features.
 //!
 //! ```rust

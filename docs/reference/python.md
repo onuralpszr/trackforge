@@ -133,7 +133,7 @@ for track_id, tlwh, score, class_id in tracks:
 ## `OCSORT`
 
 Observation-Centric SORT. Extends SORT with velocity-based prediction correction (OCM) and
-Kalman filter re-update on re-association (OUR). More robust than SORT in scenes with brief
+Kalman filter re-update on re-association (ORU). More robust than SORT in scenes with brief
 occlusions without requiring appearance features.
 
 ### Constructor

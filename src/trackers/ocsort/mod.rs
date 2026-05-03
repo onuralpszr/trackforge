@@ -48,7 +48,7 @@ pub struct OcSortTrack {
     mean: StateVector,
     covariance: CovarianceMatrix,
 
-    // OC-SORT: circular observation history used for OCV and OUR.
+    // OC-SORT: circular observation history used for OCV and ORU.
     // Stored as (xyah, frame_id) in insertion order; capped at `delta_t + 1` entries.
     observations: Vec<(MeasurementVector, usize)>,
 }
@@ -126,7 +126,7 @@ impl OcSortTrack {
         Some([dy / norm, dx / norm])
     }
 
-    /// OUR: replay interpolated observations to correct KF drift after re-association.
+    /// ORU: replay interpolated observations to correct KF drift after re-association.
     ///
     /// Linearly interpolates between the last recorded observation and the current
     /// detection in TLWH space (matching the reference implementation), converts each
@@ -345,7 +345,7 @@ impl OcSort {
 
             let was_lost = track.time_since_update > 0;
 
-            // OUR: correct KF drift if the track was re-found after a gap.
+            // ORU: correct KF drift if the track was re-found after a gap.
             if was_lost {
                 track.our_re_update(&xyah, self.frame_count, &self.kf);
             }

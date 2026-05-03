@@ -193,7 +193,7 @@ Extends SORT with three observation-centric mechanisms that reduce tracker drift
 - **OCM** — before matching, a direction-consistency bonus is added to each IoU score: pairs
   where the track's stored velocity direction aligns with the vector from the last observation to
   the candidate detection receive a higher effective IoU, improving association after missed frames.
-- **OUR** — when a lost track is re-matched, the Kalman filter is corrected by replaying
+- **ORU** — when a lost track is re-matched, the Kalman filter is corrected by replaying
   linearly interpolated observations between the last seen position and the current detection.
 
 No appearance features are required, making it a strong upgrade over SORT when occlusions are

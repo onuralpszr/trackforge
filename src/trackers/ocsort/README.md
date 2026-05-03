@@ -20,7 +20,7 @@ well the observed velocity direction aligns with the vector from the track's las
 to each candidate detection. Matches that are consistent with the track's momentum receive a
 higher effective IoU, improving association after missed frames.
 
-**Observation-Centric Re-Update (OUR)**
+**Observation-Centric Re-Update (ORU)**
 When a lost track is re-matched after a gap, the Kalman filter is "re-wound" by replaying
 linearly interpolated observations between the last seen position and the current detection.
 This corrects the accumulated drift so that future predictions start from an accurate state.

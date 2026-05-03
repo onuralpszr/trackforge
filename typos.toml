@@ -28,3 +28,6 @@ tlwh = "tlwh"
 # Short two-letter token (appears in some identifiers) that collides
 # with common English typos.
 ba = "ba"
+# ORU — Observation Re-Update (OC-SORT paper terminology); typos mangles it to "OUR"
+oru = "oru"
+ORU = "ORU"
