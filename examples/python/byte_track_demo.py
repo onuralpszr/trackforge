@@ -10,7 +10,7 @@ def run_tracking(video_path="test_video.mp4", output_path="output_tracking.mp4")
 
     # Initialize Tracker
     # track_thresh=0.1, track_buffer=30, match_thresh=0.8, det_thresh=0.1
-    tracker = trackforge.ByteTrack(0.1, 30, 0.8, 0.1)
+    tracker = trackforge.BYTETRACK(0.1, 30, 0.8, 0.1)
 
     # Open Video
     cap = cv2.VideoCapture(video_path)
