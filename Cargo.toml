@@ -1,6 +1,6 @@
 [package]
 name = "trackforge"
-version = "0.1.9"
+version = "0.2.0"
 edition = "2024"
 description = "A unified, high-performance computer vision tracking library."
 rust-version = "1.87"
