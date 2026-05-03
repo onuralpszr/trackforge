@@ -42,11 +42,11 @@ maturin develop --features python
 
 ## Choosing a Tracker
 
-| Tracker | Appearance | Matching | When to use |
-|---------|-----------|----------|-------------|
-| **SORT** | None | IoU | Simple scenes, highest speed, no occlusions |
-| **ByteTrack** | None | IoU (2-stage) | Crowded scenes, low-confidence detections, short occlusions |
-| **DeepSORT** | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds, identity-sensitive use cases |
+| Tracker       | Appearance       | Matching         | When to use                                                 |
+| ------------- | ---------------- | ---------------- | ----------------------------------------------------------- |
+| **SORT**      | None             | IoU              | Simple scenes, highest speed, no occlusions                 |
+| **ByteTrack** | None             | IoU (2-stage)    | Crowded scenes, low-confidence detections, short occlusions |
+| **DeepSORT**  | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds, identity-sensitive use cases |
 
 All trackers share the same detection input format:
 
@@ -61,16 +61,16 @@ where `tlwh` is `[top-left-x, top-left-y, width, height]`.
 ## SORT
 
 **Simple Online and Realtime Tracking** ([arXiv 1602.00763](https://arxiv.org/abs/1602.00763)).
-Pairs a Kalman filter with greedy IoU matching.  Designed for speed — ideal when objects rarely
+Pairs a Kalman filter with greedy IoU matching. Designed for speed — ideal when objects rarely
 overlap.
 
 ### Configuration
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_age` | `usize` | `1` | Frames to keep a track alive without a detection match |
-| `min_hits` | `usize` | `3` | Consecutive matched frames required before a track is confirmed |
-| `iou_threshold` | `f32` | `0.3` | Minimum IoU required to associate a detection with a track |
+| Parameter       | Type    | Default | Description                                                     |
+| --------------- | ------- | ------- | --------------------------------------------------------------- |
+| `max_age`       | `usize` | `1`     | Frames to keep a track alive without a detection match          |
+| `min_hits`      | `usize` | `3`     | Consecutive matched frames required before a track is confirmed |
+| `iou_threshold` | `f32`   | `0.3`   | Minimum IoU required to associate a detection with a track      |
 
 **Tuning tips**
 
@@ -121,18 +121,18 @@ for t in &tracks {
 ## ByteTrack
 
 **ByteTrack** ([arXiv 2110.06864](https://arxiv.org/abs/2110.06864)).
-A two-stage IoU tracker that associates *every* detection — not just high-confidence ones — to
-recover objects that are temporarily occluded or partially off-screen.  Provides a significant
+A two-stage IoU tracker that associates _every_ detection — not just high-confidence ones — to
+recover objects that are temporarily occluded or partially off-screen. Provides a significant
 recall improvement over SORT with minimal added cost.
 
 ### Configuration
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `track_thresh` | `f32` | `0.5` | Confidence threshold separating high- and low-confidence detections |
-| `track_buffer` | `usize` | `30` | Frames a lost track is buffered before deletion |
-| `match_thresh` | `f32` | `0.8` | IoU threshold for stage-1 (high-confidence) matching |
-| `det_thresh` | `f32` | `0.6` | Minimum confidence to initialise a new track |
+| Parameter      | Type    | Default | Description                                                         |
+| -------------- | ------- | ------- | ------------------------------------------------------------------- |
+| `track_thresh` | `f32`   | `0.5`   | Confidence threshold separating high- and low-confidence detections |
+| `track_buffer` | `usize` | `30`    | Frames a lost track is buffered before deletion                     |
+| `match_thresh` | `f32`   | `0.8`   | IoU threshold for stage-1 (high-confidence) matching                |
+| `det_thresh`   | `f32`   | `0.6`   | Minimum confidence to initialise a new track                        |
 
 **Tuning tips**
 
@@ -186,19 +186,19 @@ for t in &tracks {
 ## DeepSORT
 
 **DeepSORT** ([arXiv 1703.07402](https://arxiv.org/abs/1703.07402)).
-Extends SORT with a Re-ID appearance metric.  Confirmed tracks are first matched by cosine
+Extends SORT with a Re-ID appearance metric. Confirmed tracks are first matched by cosine
 distance on appearance embeddings (with Mahalanobis gating), then any remaining tracks fall back
-to IoU matching.  Provides robust long-term identity maintenance.
+to IoU matching. Provides robust long-term identity maintenance.
 
 ### Configuration
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `max_age` | `usize` | `70` | Frames a track survives without a match |
-| `n_init` | `usize` | `3` | Consecutive detections required to confirm a track |
-| `max_iou_distance` | `f32` | `0.7` | IoU distance threshold for the fallback IoU stage |
-| `max_cosine_distance` | `f32` | `0.2` | Cosine distance threshold for appearance matching |
-| `nn_budget` | `usize` | `100` | Maximum number of appearance embeddings stored per track (FIFO) |
+| Parameter             | Type    | Default | Description                                                     |
+| --------------------- | ------- | ------- | --------------------------------------------------------------- |
+| `max_age`             | `usize` | `70`    | Frames a track survives without a match                         |
+| `n_init`              | `usize` | `3`     | Consecutive detections required to confirm a track              |
+| `max_iou_distance`    | `f32`   | `0.7`   | IoU distance threshold for the fallback IoU stage               |
+| `max_cosine_distance` | `f32`   | `0.2`   | Cosine distance threshold for appearance matching               |
+| `nn_budget`           | `usize` | `100`   | Maximum number of appearance embeddings stored per track (FIFO) |
 
 **Tuning tips**
 
@@ -210,7 +210,7 @@ to IoU matching.  Provides robust long-term identity maintenance.
 
 ### Implementing an AppearanceExtractor (Rust)
 
-DeepSORT requires you to supply a feature extractor.  Implement the `AppearanceExtractor` trait:
+DeepSORT requires you to supply a feature extractor. Implement the `AppearanceExtractor` trait:
 
 ```rust,ignore
 use trackforge::traits::AppearanceExtractor;
@@ -304,5 +304,5 @@ All trackers use the same detection tuple format:
 - [Python API Reference](reference/python.md)
 - [Rust API Reference](/api/trackforge/index.html)
 - [Examples](examples.md)
-</content>
-</invoke>
+  </content>
+  </invoke>
