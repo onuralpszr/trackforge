@@ -21,17 +21,18 @@
 
 ## Supported Trackers
 
-| Tracker                                       | Type                         | Appearance (Re-ID) | Language      | Status         |
-| --------------------------------------------- | ---------------------------- | ------------------ | ------------- | -------------- |
-| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association | No                 | Python & Rust | ✅ Implemented |
-| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance        | Yes (pluggable)    | Python & Rust | ✅ Implemented |
-| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter          | No                 | Python & Rust | ✅ Implemented |
+| Tracker                                       | Type                              | Appearance (Re-ID) | Language      | Status         |
+| --------------------------------------------- | --------------------------------- | ------------------ | ------------- | -------------- |
+| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association      | No                 | Python & Rust | ✅ Implemented |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance             | Yes (pluggable)    | Python & Rust | ✅ Implemented |
+| [OC-SORT](https://arxiv.org/abs/2203.14360)   | IoU + velocity direction (OCM)    | No                 | Python & Rust | ✅ Implemented |
+| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter               | No                 | Python & Rust | ✅ Implemented |
 
 ## Features
 
 - 🚀 **Native Rust Core** Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
 - 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
-- 🎯 **Multi-Algorithm** ByteTrack, DeepSORT, and SORT with a unified API
+- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, and SORT with a unified API
 - 🔌 **Pluggable Re-ID** DeepSORT's appearance extractor is a trait; plug in any feature model
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 
@@ -82,9 +83,9 @@ trackforge = { version = "0.1.9", features = ["python"] }
 ### Python - ByteTrack
 
 ```python
-from trackforge import ByteTrack
+from trackforge import BYTETRACK
 
-tracker = ByteTrack(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6)
+tracker = BYTETRACK(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6)
 
 # Format: ([x, y, w, h], confidence, class_id)
 detections = [
@@ -101,9 +102,9 @@ for track_id, tlwh, score, class_id in tracks:
 ### Python - DeepSORT
 
 ```python
-from trackforge import DeepSort
+from trackforge import DEEPSORT
 
-tracker = DeepSort(
+tracker = DEEPSORT(
     max_age=30,
     n_init=3,
     max_iou_distance=0.7,
@@ -116,8 +117,32 @@ embeddings = [[0.1, 0.2, 0.3, ...]]  # appearance feature vectors
 
 tracks = tracker.update(detections, embeddings)
 
-for track in tracks:
-    print(f"ID: {track.track_id}, Box: {track.tlwh}, Score: {track.score}")
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}, Score: {score}")
+```
+
+### Python - OC-SORT
+
+```python
+from trackforge import OCSORT
+
+tracker = OCSORT(
+    max_age=30,
+    min_hits=3,
+    iou_threshold=0.3,
+    delta_t=3,
+    inertia=0.2,
+)
+
+detections = [
+    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
+]
+
+tracks = tracker.update(detections)
+
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
 ### Rust ByteTrack
@@ -205,6 +230,16 @@ cargo run --example deepsort_ort --features advanced_examples
 | `max_cosine_distance` | float | 0.2     | Max cosine distance for Re-ID matching           |
 | `nn_budget`           | int   | 100     | Max appearance feature library size per track    |
 
+### OC-SORT
+
+| Parameter       | Type  | Default | Description                                               |
+| --------------- | ----- | ------- | --------------------------------------------------------- |
+| `max_age`       | int   | 30      | Max frames to keep a lost track alive before deletion     |
+| `min_hits`      | int   | 3       | Consecutive matched frames required to confirm a track    |
+| `iou_threshold` | float | 0.3     | IoU threshold for matching                                |
+| `delta_t`       | int   | 3       | Observation window (frames) for velocity computation      |
+| `inertia`       | float | 0.2     | Weight for the direction-consistency cost bonus (OCM)     |
+
 ### SORT
 
 | Parameter       | Type  | Default | Description                                  |
@@ -255,6 +290,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 - [x] SORT
 - [x] ByteTrack
+- [x] OC-SORT
 - [x] DeepSORT
 - [x] Python bindings & PyPI package
 - [x] Rust & Python examples
