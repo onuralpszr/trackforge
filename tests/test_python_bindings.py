@@ -83,6 +83,7 @@ def test_deepsort_update_with_embedding():
     )
     det = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
     emb = [[0.1] * 128]
+    t.update(det, emb)
     tracks = t.update(det, emb)
     assert len(tracks) == 1
 
