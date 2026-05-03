@@ -826,14 +826,14 @@ mod python_tests {
 
     #[test]
     fn test_py_ocsort_new() {
-        pyo3::prepare_freethreaded_python();
+        pyo3::Python::initialize();
         let tracker = PyOcSort::new(30, 3, 0.3, 3, 0.2);
         drop(tracker);
     }
 
     #[test]
     fn test_py_ocsort_update_empty() {
-        pyo3::prepare_freethreaded_python();
+        pyo3::Python::initialize();
         let mut tracker = PyOcSort::new(30, 1, 0.3, 3, 0.2);
         let result = tracker.update(vec![]).unwrap();
         assert!(result.is_empty());
@@ -841,7 +841,7 @@ mod python_tests {
 
     #[test]
     fn test_py_ocsort_update_returns_confirmed_tracks() {
-        pyo3::prepare_freethreaded_python();
+        pyo3::Python::initialize();
         let mut tracker = PyOcSort::new(30, 1, 0.3, 3, 0.2);
         let dets = vec![det(100.0, 100.0, 50.0, 100.0, 0.9)];
         let result = tracker.update(dets).unwrap();
@@ -855,7 +855,7 @@ mod python_tests {
 
     #[test]
     fn test_py_ocsort_default_params() {
-        pyo3::prepare_freethreaded_python();
+        pyo3::Python::initialize();
         let mut tracker = PyOcSort::new(30, 3, 0.3, 3, 0.2);
         for _ in 0..3 {
             tracker
