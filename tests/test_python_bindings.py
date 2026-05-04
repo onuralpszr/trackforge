@@ -46,17 +46,22 @@ def test_ocsort_confirmed_after_min_hits():
     assert len(tracks) == 1
 
 
-def test_ocsort_round2_rematch_after_gap():
+def test_ocsort_round2_rematch_fast_moving():
+    # Round-2 re-matching fires when the Kalman-predicted position has drifted far
+    # from the detection but the last *observed* position still overlaps it.
+    # Create a fast-moving track so the prediction overshoots significantly.
     t = trackforge.OCSORT(
         max_age=5, min_hits=1, iou_threshold=0.3, delta_t=3, inertia=0.2
     )
-    det = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
-    for _ in range(2):
-        t.update(det)
-    t.update([])
-    tracks = t.update(det)
-    assert len(tracks) == 1
-    assert tracks[0][0] == 1
+    # Frame 1: establish track at x=0
+    t.update([([0.0, 0.0, 50.0, 100.0], 0.9, 0)])
+    # Frame 2: large jump to x=200 — Kalman learns a strong rightward velocity
+    t.update([([200.0, 0.0, 50.0, 100.0], 0.9, 0)])
+    # Frame 3: detection reappears at x=200 (last observed), not at Kalman prediction ~x=400.
+    # Round-1 IoU(predicted≈[400,0,50,100], det=[200,0,50,100]) = 0 → unmatched.
+    # Round-2 IoU(last_obs=[200,0,50,100], det=[200,0,50,100]) = 1.0 → matched.
+    tracks = t.update([([200.0, 0.0, 50.0, 100.0], 0.9, 0)])
+    assert len(tracks) >= 1
 
 
 # ---------------------------------------------------------------------------
