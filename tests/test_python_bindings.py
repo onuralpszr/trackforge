@@ -46,6 +46,19 @@ def test_ocsort_confirmed_after_min_hits():
     assert len(tracks) == 1
 
 
+def test_ocsort_round2_rematch_after_gap():
+    t = trackforge.OCSORT(
+        max_age=5, min_hits=1, iou_threshold=0.3, delta_t=3, inertia=0.2
+    )
+    det = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+    for _ in range(2):
+        t.update(det)
+    t.update([])
+    tracks = t.update(det)
+    assert len(tracks) == 1
+    assert tracks[0][0] == 1
+
+
 # ---------------------------------------------------------------------------
 # DEEPSORT
 # ---------------------------------------------------------------------------
