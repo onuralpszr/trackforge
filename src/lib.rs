@@ -2,12 +2,12 @@
 //! [![docs.rs](https://docs.rs/trackforge/badge.svg)](https://docs.rs/trackforge)
 //! [![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
 //! [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-//! [![MSRV](https://img.shields.io/badge/rustc-1.87%2B-orange.svg)](https://blog.rust-lang.org/2025/05/15/Rust-1.87.0/)
+//! [![MSRV](https://img.shields.io/badge/rustc-1.88%2B-orange.svg)](https://blog.rust-lang.org/2025/05/15/Rust-1.88.0/)
 //!
 //! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.
 //!
-//! It provides three production-ready multi-object tracking algorithms built on a shared
+//! It provides four production-ready multi-object tracking algorithms built on a shared
 //! 8-dimensional Kalman filter with state `[x, y, a, h, vx, vy, va, vh]`, where `(x, y)`
 //! is the bounding-box centre, `a` the aspect ratio, and `h` the height.
 //!
@@ -17,6 +17,7 @@
 //! |---------|-------------------|-------------------|----------|
 //! | [`sort`] | None | IoU only | Simple scenes, maximum speed |
 //! | [`byte_track`] | None | IoU two-stage | Crowded scenes, low-confidence detections |
+//! | [`ocsort`] | None | IoU + velocity correction | Scenes with frequent occlusions |
 //! | [`deepsort`] | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds |
 //!
 //! # SORT
@@ -101,8 +102,31 @@
 //! }
 //! ```
 //!
+//! # OC-SORT
+//!
+//! Observation-Centric SORT. Extends SORT with velocity correction (OCM) and Kalman filter
+//! re-update on re-association (ORU), making it robust to brief occlusions without appearance
+//! features.
+//!
+//! ```rust
+//! use trackforge::trackers::ocsort::OcSort;
+//!
+//! // max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2
+//! let mut tracker = OcSort::new(30, 3, 0.3, 3, 0.2);
+//!
+//! let detections = vec![
+//!     ([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64),
+//! ];
+//!
+//! let tracks = tracker.update(detections);
+//! for t in &tracks {
+//!     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+//! }
+//! ```
+//!
 //! [`sort`]: trackers::sort
 //! [`byte_track`]: trackers::byte_track
+//! [`ocsort`]: trackers::ocsort
 //! [`deepsort`]: trackers::deepsort
 //! [`AppearanceExtractor`]: traits::AppearanceExtractor
 
@@ -121,6 +145,6 @@ fn trackforge(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<trackers::byte_track::PyByteTrack>()?;
     m.add_class::<trackers::sort::PySort>()?;
     m.add_class::<trackers::deepsort::python::PyDeepSort>()?;
-    m.add_class::<trackers::deepsort::python::PyDeepSortTrack>()?;
+    m.add_class::<trackers::ocsort::PyOcSort>()?;
     Ok(())
 }

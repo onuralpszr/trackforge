@@ -32,13 +32,13 @@ def run_comparison(
 
     # Initialize both trackers
     print("📦 Initializing trackers...")
-    bytetrack = trackforge.ByteTrack(
+    bytetrack = trackforge.BYTETRACK(
         track_thresh=0.5,
         track_buffer=30,
         match_thresh=0.8,
         det_thresh=0.6,
     )
-    sort = trackforge.Sort(
+    sort = trackforge.SORT(
         max_age=30,
         min_hits=3,
         iou_threshold=0.3,

@@ -21,16 +21,42 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@nightly
 
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12"
+
       - name: Cache build artifacts
         uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
 
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@b5fddbb5361bce8a06fb168c9d403a6cc552b084 # v2.75.29
+        uses: taiki-e/install-action@db5fb34fa772531a3ece57ca434f579eb334e0fb # v2.75.30
         with:
           tool: cargo-llvm-cov
 
-      - name: Coverage
-        run: cargo llvm-cov --features python --workspace --lcov --output-path lcov.info
+      - name: Create virtualenv and install maturin and pytest
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install maturin pytest
+
+      - name: Run Rust unit tests with coverage
+        run: cargo llvm-cov --no-report --workspace
+
+      - name: Build Python extension with coverage instrumentation
+        run: |
+          source .venv/bin/activate
+          source <(cargo llvm-cov show-env --export-prefix)
+          maturin develop --features python
+
+      - name: Run Python integration tests
+        run: |
+          source .venv/bin/activate
+          source <(cargo llvm-cov show-env --export-prefix)
+          pytest tests/ -v
+
+      - name: Generate combined lcov report
+        run: cargo llvm-cov report --lcov --output-path lcov.info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0

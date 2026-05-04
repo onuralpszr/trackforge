@@ -6,6 +6,9 @@ coverage: # https://docs.codecov.com/docs/codecovyml-reference#coverage
     project:
       default:
         threshold: 1% # Avoid false negatives
+    patch:
+      default:
+        threshold: 1% # Allow for LLVM-uninstrumentable lines (let bindings, closing braces)
 ignore:
   - "examples"
   - "benches"

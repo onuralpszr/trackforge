@@ -7,14 +7,14 @@
 </p>
 
 **Trackforge** is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements three production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.
 
 ## Features
 
 - **High Performance** — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.
 - **Python Bindings** — Install from PyPI, import, and track in three lines.
-- **Three Algorithms** — SORT, ByteTrack, and DeepSORT cover the full speed-accuracy spectrum.
+- **Four Algorithms** — SORT, ByteTrack, OC-SORT, and DeepSORT cover the full speed-accuracy spectrum.
 - **Unified API** — All trackers accept `(tlwh, score, class_id)` detection tuples.
 
 ## Installation
@@ -42,11 +42,12 @@ maturin develop --features python
 
 ## Choosing a Tracker
 
-| Tracker       | Appearance       | Matching         | When to use                                                 |
-| ------------- | ---------------- | ---------------- | ----------------------------------------------------------- |
-| **SORT**      | None             | IoU              | Simple scenes, highest speed, no occlusions                 |
-| **ByteTrack** | None             | IoU (2-stage)    | Crowded scenes, low-confidence detections, short occlusions |
-| **DeepSORT**  | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds, identity-sensitive use cases |
+| Tracker       | Appearance       | Matching             | When to use                                                 |
+| ------------- | ---------------- | -------------------- | ----------------------------------------------------------- |
+| **SORT**      | None             | IoU                  | Simple scenes, highest speed, no occlusions                 |
+| **ByteTrack** | None             | IoU (2-stage)        | Crowded scenes, low-confidence detections, short occlusions |
+| **OC-SORT**   | None             | IoU + velocity (OCM) | Scenes with frequent brief occlusions, no Re-ID available   |
+| **DeepSORT**  | Re-ID embeddings | Appearance + IoU     | Long occlusions, dense crowds, identity-sensitive use cases |
 
 All trackers share the same detection input format:
 
@@ -83,7 +84,7 @@ overlap.
 ```python
 import trackforge
 
-tracker = trackforge.Sort(
+tracker = trackforge.SORT(
     max_age=1,
     min_hits=3,
     iou_threshold=0.3,
@@ -146,7 +147,7 @@ recall improvement over SORT with minimal added cost.
 ```python
 import trackforge
 
-tracker = trackforge.ByteTrack(
+tracker = trackforge.BYTETRACK(
     track_thresh=0.5,
     track_buffer=30,
     match_thresh=0.8,
@@ -169,6 +170,82 @@ for track_id, tlwh, score, class_id in tracks:
 use trackforge::trackers::byte_track::ByteTrack;
 
 let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+
+let detections = vec![
+    ([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64),
+    ([200.0_f32, 200.0, 60.0, 120.0], 0.85_f32, 0_i64),
+];
+
+let tracks = tracker.update(detections);
+for t in &tracks {
+    println!("ID: {}, Box: {:?}, Score: {:.2}", t.track_id, t.tlwh, t.score);
+}
+```
+
+---
+
+## OC-SORT
+
+**OC-SORT** ([arXiv 2203.14360](https://arxiv.org/abs/2203.14360), CVPR 2023).
+Extends SORT with three observation-centric mechanisms that reduce tracker drift during occlusions:
+
+- **OCV** — velocity is computed from consecutive detections, not from the Kalman filter state.
+- **OCM** — before matching, a direction-consistency bonus is added to each IoU score: pairs
+  where the track's stored velocity direction aligns with the vector from the last observation to
+  the candidate detection receive a higher effective IoU, improving association after missed frames.
+- **ORU** — when a lost track is re-matched, the Kalman filter is corrected by replaying
+  linearly interpolated observations between the last seen position and the current detection.
+
+No appearance features are required, making it a strong upgrade over SORT when occlusions are
+common but Re-ID is unavailable.
+
+### Configuration
+
+| Parameter       | Type    | Default | Description                                                          |
+| --------------- | ------- | ------- | -------------------------------------------------------------------- |
+| `max_age`       | `usize` | `30`    | Frames to keep a lost track alive before deletion                    |
+| `min_hits`      | `usize` | `3`     | Consecutive matched frames required to confirm a track               |
+| `iou_threshold` | `f32`   | `0.3`   | Minimum IoU to associate a detection with a track                    |
+| `delta_t`       | `usize` | `3`     | Observation window (frames) used to compute velocity for OCV         |
+| `inertia`       | `f32`   | `0.2`   | Weight for the direction-consistency cost bonus during OCM (0.0-1.0) |
+
+**Tuning tips**
+
+- Increase `max_age` (e.g. `60`) when objects undergo long occlusions.
+- Increase `delta_t` for smoother velocity at the cost of responsiveness to rapid direction changes.
+- Increase `inertia` (up to `1.0`) when objects move at near-constant velocity; lower it for
+  erratic or non-linear motion.
+- `min_hits=1` gives immediate track output — useful when detections are already filtered upstream.
+
+### Python
+
+```python
+import trackforge
+
+tracker = trackforge.OCSORT(
+    max_age=30,
+    min_hits=3,
+    iou_threshold=0.3,
+    delta_t=3,
+    inertia=0.2,
+)
+
+detections = [
+    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ([200.0, 150.0, 60.0, 120.0], 0.85, 0),
+]
+
+tracks = tracker.update(detections)
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
+```
+
+### Rust
+
+```rust
+use trackforge::trackers::ocsort::OcSort;
+
+let mut tracker = OcSort::new(30, 3, 0.3, 3, 0.2);
 
 let detections = vec![
     ([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64),
@@ -240,7 +317,7 @@ The Python `DeepSort` class accepts embeddings directly, so you can bring your o
 import numpy as np
 import trackforge
 
-tracker = trackforge.DeepSort(
+tracker = trackforge.DEEPSORT(
     max_age=70,
     n_init=3,
     max_iou_distance=0.7,
@@ -260,8 +337,8 @@ embeddings = [
 ]
 
 tracks = tracker.update(detections, embeddings)
-for t in tracks:
-    print(f"ID={t.track_id}  box={t.tlwh}  score={t.score:.2f}")
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
 
 ### Rust

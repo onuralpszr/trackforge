@@ -336,7 +336,7 @@ use pyo3::prelude::*;
 type PyTrackingResult = (u64, [f32; 4], f32, i64);
 
 #[cfg(feature = "python")]
-#[pyclass(name = "Sort")]
+#[pyclass(name = "SORT")]
 pub struct PySort {
     inner: Sort,
 }

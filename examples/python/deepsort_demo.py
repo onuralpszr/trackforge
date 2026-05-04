@@ -158,7 +158,7 @@ def run_tracking(args):
 
     # Initialize Deep SORT Tracker
     print("📦 Initializing Deep SORT tracker...")
-    tracker = trackforge.DeepSort(
+    tracker = trackforge.DEEPSORT(
         max_age=30,
         n_init=3,
         max_iou_distance=0.7,
@@ -216,15 +216,14 @@ def run_tracking(args):
         tracks = tracker.update(detections, embeddings)
 
         # 4. Draw
-        for track in tracks:
-            tid = track.track_id
-            x1, y1, w, h = track.tlwh
+        for track_id, tlwh, score, class_id in tracks:
+            x1, y1, w, h = tlwh
             x2, y2 = x1 + w, y1 + h
 
-            color = colors[tid % len(colors)]
+            color = colors[track_id % len(colors)]
 
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
-            label = f"ID:{tid}"
+            label = f"ID:{track_id}"
             cv2.putText(
                 frame,
                 label,

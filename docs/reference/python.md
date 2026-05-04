@@ -1,20 +1,21 @@
 # Python API Reference
 
-Trackforge exposes three tracker classes. All are importable directly from the `trackforge`
+Trackforge exposes four tracker classes. All are importable directly from the `trackforge`
 module after installing with `pip install trackforge`.
 
 ```python
 import trackforge
 
 # Available classes
-trackforge.ByteTrack
-trackforge.Sort
-trackforge.DeepSort
+trackforge.BYTETRACK
+trackforge.SORT
+trackforge.OCSORT
+trackforge.DEEPSORT
 ```
 
 ---
 
-## `ByteTrack`
+## `BYTETRACK`
 
 Two-stage IoU tracker. Associates high-confidence detections first, then attempts to recover
 lost tracks using low-confidence detections.
@@ -22,7 +23,7 @@ lost tracks using low-confidence detections.
 ### Constructor
 
 ```python
-trackforge.ByteTrack(
+trackforge.BYTETRACK(
     track_thresh: float = 0.5,
     track_buffer: int   = 30,
     match_thresh: float = 0.8,
@@ -64,7 +65,7 @@ current frame.
 ```python
 import trackforge
 
-tracker = trackforge.ByteTrack(
+tracker = trackforge.BYTETRACK(
     track_thresh=0.5,
     track_buffer=30,
     match_thresh=0.8,
@@ -83,14 +84,14 @@ for track_id, tlwh, score, class_id in tracks:
 
 ---
 
-## `Sort`
+## `SORT`
 
 Simple Online and Realtime Tracking. Lightweight IoU-only tracker, no appearance features.
 
 ### Constructor
 
 ```python
-trackforge.Sort(
+trackforge.SORT(
     max_age: int        = 1,
     min_hits: int       = 3,
     iou_threshold: float = 0.3,
@@ -109,14 +110,14 @@ trackforge.Sort(
 tracks = tracker.update(detections: list[tuple[list[float], float, int]]) -> list[tuple]
 ```
 
-Same input/output format as `ByteTrack.update`.
+Same input/output format as `BYTETRACK.update`.
 
 ### Example
 
 ```python
 import trackforge
 
-tracker = trackforge.Sort(max_age=1, min_hits=3, iou_threshold=0.3)
+tracker = trackforge.SORT(max_age=1, min_hits=3, iou_threshold=0.3)
 
 detections = [
     ([100.0, 100.0, 50.0, 100.0], 0.92, 0),
@@ -129,7 +130,66 @@ for track_id, tlwh, score, class_id in tracks:
 
 ---
 
-## `DeepSort`
+## `OCSORT`
+
+Observation-Centric SORT. Extends SORT with velocity-based prediction correction (OCM) and
+Kalman filter re-update on re-association (ORU). More robust than SORT in scenes with brief
+occlusions without requiring appearance features.
+
+### Constructor
+
+```python
+trackforge.OCSORT(
+    max_age: int        = 30,
+    min_hits: int       = 3,
+    iou_threshold: float = 0.3,
+    delta_t: int        = 3,
+    inertia: float      = 0.2,
+)
+```
+
+| Parameter       | Type    | Default | Description                                                                   |
+| --------------- | ------- | ------- | ----------------------------------------------------------------------------- |
+| `max_age`       | `int`   | `30`    | Frames a lost track is kept alive before deletion                             |
+| `min_hits`      | `int`   | `3`     | Consecutive matched frames required to confirm a track                        |
+| `iou_threshold` | `float` | `0.3`   | Minimum IoU to associate a detection with a track                             |
+| `delta_t`       | `int`   | `3`     | Observation window (frames) for velocity computation (OCV)                    |
+| `inertia`       | `float` | `0.2`   | Weight for the direction-consistency cost bonus during OCM (range 0.0 to 1.0) |
+
+### `update`
+
+```python
+tracks = tracker.update(detections: list[tuple[list[float], float, int]]) -> list[tuple]
+```
+
+Same input/output format as `BYTETRACK.update` and `SORT.update`.
+
+### Example
+
+```python
+import trackforge
+
+tracker = trackforge.OCSORT(
+    max_age=30,
+    min_hits=3,
+    iou_threshold=0.3,
+    delta_t=3,
+    inertia=0.2,
+)
+
+detections = [
+    ([100.0, 100.0, 50.0, 100.0], 0.92, 0),
+    ([200.0, 150.0, 60.0, 120.0], 0.87, 0),
+]
+
+tracks = tracker.update(detections)
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID={track_id}  box={tlwh}  score={score:.2f}  class={class_id}")
+```
+
+---
+
+## `DEEPSORT`
 
 DeepSORT with a Re-ID appearance metric. Accepts explicit embedding vectors so you can plug in
 any Re-ID model.
@@ -137,7 +197,7 @@ any Re-ID model.
 ### Constructor
 
 ```python
-trackforge.DeepSort(
+trackforge.DEEPSORT(
     max_age: int                 = 70,
     n_init: int                  = 3,
     max_iou_distance: float      = 0.7,
@@ -160,7 +220,7 @@ trackforge.DeepSort(
 tracks = tracker.update(
     detections: list[tuple[list[float], float, int]],
     embeddings: list[list[float]],
-) -> list[DeepSortTrack]
+) -> list[tuple[int, list[float], float, int]]
 ```
 
 **Parameters**
@@ -171,16 +231,8 @@ tracks = tracker.update(
 
 **Returns**
 
-A list of `DeepSortTrack` objects for confirmed tracks that were matched in the current frame.
-
-### `DeepSortTrack`
-
-| Attribute  | Type          | Description                                            |
-| ---------- | ------------- | ------------------------------------------------------ |
-| `track_id` | `int`         | Unique track identifier                                |
-| `tlwh`     | `list[float]` | Bounding box `[top-left-x, top-left-y, width, height]` |
-| `score`    | `float`       | Detection confidence of the last match                 |
-| `class_id` | `int`         | Class label of the last match                          |
+A list of `(track_id, tlwh, score, class_id)` tuples for confirmed tracks matched in the current
+frame. Same format as all other trackers.
 
 ### Example
 
@@ -188,7 +240,7 @@ A list of `DeepSortTrack` objects for confirmed tracks that were matched in the 
 import numpy as np
 import trackforge
 
-tracker = trackforge.DeepSort(
+tracker = trackforge.DEEPSORT(
     max_age=70,
     n_init=3,
     max_iou_distance=0.7,
@@ -205,8 +257,8 @@ detections = [
 embeddings = [np.random.rand(128).tolist() for _ in detections]
 
 tracks = tracker.update(detections, embeddings)
-for t in tracks:
-    print(f"ID={t.track_id}  box={t.tlwh}  score={t.score:.2f}")
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
 
 ---
@@ -227,6 +279,3 @@ All trackers accept the same detection tuple format:
 | `h`        | `float` | Height in pixels                    |
 | `score`    | `float` | Detector confidence in `[0.0, 1.0]` |
 | `class_id` | `int`   | Integer class label                 |
-
-</content>
-</invoke>

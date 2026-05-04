@@ -40,7 +40,7 @@ def run_tracking(
     # min_hits=3: Require 3 consecutive detections to confirm track
     # iou_threshold=0.3: Minimum IoU for matching
     print("📦 Initializing SORT tracker...")
-    tracker = trackforge.Sort(max_age=30, min_hits=3, iou_threshold=0.3)
+    tracker = trackforge.SORT(max_age=30, min_hits=3, iou_threshold=0.3)
 
     # Open Video
     cap = cv2.VideoCapture(video_path)

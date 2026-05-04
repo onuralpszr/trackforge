@@ -478,7 +478,7 @@ use pyo3::prelude::*;
 type PyTrackingResult = (u64, [f32; 4], f32, i64);
 
 #[cfg(feature = "python")]
-#[pyclass(name = "ByteTrack")]
+#[pyclass(name = "BYTETRACK")]
 pub struct PyByteTrack {
     inner: ByteTrack,
 }
