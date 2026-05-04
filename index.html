@@ -525,6 +525,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#oc-sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OC-SORT
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OC-SORT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Configuration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Python
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rust_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Rust
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#deepsort" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -537,7 +587,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configuration_2" class="md-nav__link">
+  <a href="#configuration_3" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Configuration
@@ -559,7 +609,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rust_3" class="md-nav__link">
+  <a href="#rust_4" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Rust
@@ -872,6 +922,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#oc-sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        OC-SORT
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OC-SORT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Configuration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Python
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rust_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Rust
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#deepsort" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -884,7 +984,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configuration_2" class="md-nav__link">
+  <a href="#configuration_3" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Configuration
@@ -906,7 +1006,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rust_3" class="md-nav__link">
+  <a href="#rust_4" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Rust
@@ -961,13 +1061,13 @@
 </p>
 
 <p><strong>Trackforge</strong> is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements three production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.</p>
 <h2 id="features">Features</h2>
 <ul>
 <li><strong>High Performance</strong> — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.</li>
 <li><strong>Python Bindings</strong> — Install from PyPI, import, and track in three lines.</li>
-<li><strong>Three Algorithms</strong> — SORT, ByteTrack, and DeepSORT cover the full speed-accuracy spectrum.</li>
+<li><strong>Four Algorithms</strong> — SORT, ByteTrack, OC-SORT, and DeepSORT cover the full speed-accuracy spectrum.</li>
 <li><strong>Unified API</strong> — All trackers accept <code>(tlwh, score, class_id)</code> detection tuples.</li>
 </ul>
 <h2 id="installation">Installation</h2>
@@ -1004,6 +1104,12 @@ shared Kalman filter, so you can swap trackers without changing your integration
 <td>None</td>
 <td>IoU (2-stage)</td>
 <td>Crowded scenes, low-confidence detections, short occlusions</td>
+</tr>
+<tr>
+<td><strong>OC-SORT</strong></td>
+<td>None</td>
+<td>IoU + velocity (OCM)</td>
+<td>Scenes with frequent brief occlusions, no Re-ID available</td>
 </tr>
 <tr>
 <td><strong>DeepSORT</strong></td>
@@ -1062,7 +1168,7 @@ overlap.</p>
 <h3 id="python_1">Python</h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tracker</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">Sort</span><span class="p">(</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tracker</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">SORT</span><span class="p">(</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">max_age</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">min_hits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
@@ -1144,7 +1250,7 @@ recall improvement over SORT with minimal added cost.</p>
 <h3 id="python_2">Python</h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">tracker</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">ByteTrack</span><span class="p">(</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">tracker</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">BYTETRACK</span><span class="p">(</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">track_thresh</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">track_buffer</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">match_thresh</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
@@ -1176,12 +1282,112 @@ recall improvement over SORT with minimal added cost.</p>
 </span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
+<h2 id="oc-sort">OC-SORT</h2>
+<p><strong>OC-SORT</strong> (<a href="https://arxiv.org/abs/2203.14360">arXiv 2203.14360</a>, CVPR 2023).
+Extends SORT with three observation-centric mechanisms that reduce tracker drift during occlusions:</p>
+<ul>
+<li><strong>OCV</strong> — velocity is computed from consecutive detections, not from the Kalman filter state.</li>
+<li><strong>OCM</strong> — before matching, a direction-consistency bonus is added to each IoU score: pairs
+  where the track's stored velocity direction aligns with the vector from the last observation to
+  the candidate detection receive a higher effective IoU, improving association after missed frames.</li>
+<li><strong>ORU</strong> — when a lost track is re-matched, the Kalman filter is corrected by replaying
+  linearly interpolated observations between the last seen position and the current detection.</li>
+</ul>
+<p>No appearance features are required, making it a strong upgrade over SORT when occlusions are
+common but Re-ID is unavailable.</p>
+<h3 id="configuration_2">Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_age</code></td>
+<td><code>usize</code></td>
+<td><code>30</code></td>
+<td>Frames to keep a lost track alive before deletion</td>
+</tr>
+<tr>
+<td><code>min_hits</code></td>
+<td><code>usize</code></td>
+<td><code>3</code></td>
+<td>Consecutive matched frames required to confirm a track</td>
+</tr>
+<tr>
+<td><code>iou_threshold</code></td>
+<td><code>f32</code></td>
+<td><code>0.3</code></td>
+<td>Minimum IoU to associate a detection with a track</td>
+</tr>
+<tr>
+<td><code>delta_t</code></td>
+<td><code>usize</code></td>
+<td><code>3</code></td>
+<td>Observation window (frames) used to compute velocity for OCV</td>
+</tr>
+<tr>
+<td><code>inertia</code></td>
+<td><code>f32</code></td>
+<td><code>0.2</code></td>
+<td>Weight for the direction-consistency cost bonus during OCM (0.0-1.0)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tuning tips</strong></p>
+<ul>
+<li>Increase <code>max_age</code> (e.g. <code>60</code>) when objects undergo long occlusions.</li>
+<li>Increase <code>delta_t</code> for smoother velocity at the cost of responsiveness to rapid direction changes.</li>
+<li>Increase <code>inertia</code> (up to <code>1.0</code>) when objects move at near-constant velocity; lower it for
+  erratic or non-linear motion.</li>
+<li><code>min_hits=1</code> gives immediate track output — useful when detections are already filtered upstream.</li>
+</ul>
+<h3 id="python_3">Python</h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">tracker</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">OCSORT</span><span class="p">(</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">max_age</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">min_hits</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">iou_threshold</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">delta_t</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">inertia</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="p">)</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="n">detections</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="p">([</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">],</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    <span class="p">([</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">],</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">]</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="n">tracks</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="k">for</span> <span class="n">track_id</span><span class="p">,</span> <span class="n">tlwh</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span> <span class="ow">in</span> <span class="n">tracks</span><span class="p">:</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID=</span><span class="si">{</span><span class="n">track_id</span><span class="si">}</span><span class="s2">  box=</span><span class="si">{</span><span class="n">tlwh</span><span class="si">}</span><span class="s2">  score=</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="rust_3">Rust</h3>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">use</span><span class="w"> </span><span class="n">trackforge</span><span class="p">::</span><span class="n">trackers</span><span class="p">::</span><span class="n">ocsort</span><span class="p">::</span><span class="n">OcSort</span><span class="p">;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">tracker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OcSort</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">);</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="kd">let</span><span class="w"> </span><span class="n">detections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="p">([</span><span class="mf">100.0_</span><span class="k">f32</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">50.0</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0</span><span class="p">],</span><span class="w"> </span><span class="mf">0.9_</span><span class="k">f32</span><span class="p">,</span><span class="w"> </span><span class="mi">0_</span><span class="k">i64</span><span class="p">),</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="p">([</span><span class="mf">200.0_</span><span class="k">f32</span><span class="p">,</span><span class="w"> </span><span class="mf">200.0</span><span class="p">,</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="mf">120.0</span><span class="p">],</span><span class="w"> </span><span class="mf">0.85_</span><span class="k">f32</span><span class="p">,</span><span class="w"> </span><span class="mi">0_</span><span class="k">i64</span><span class="p">),</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">];</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="kd">let</span><span class="w"> </span><span class="n">tracks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tracker</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">detections</span><span class="p">);</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tracks</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;ID: {}, Box: {:?}, Score: {:.2}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">track_id</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tlwh</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">score</span><span class="p">);</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
 <h2 id="deepsort">DeepSORT</h2>
 <p><strong>DeepSORT</strong> (<a href="https://arxiv.org/abs/1703.07402">arXiv 1703.07402</a>).
 Extends SORT with a Re-ID appearance metric. Confirmed tracks are first matched by cosine
 distance on appearance embeddings (with Mahalanobis gating), then any remaining tracks fall back
 to IoU matching. Provides robust long-term identity maintenance.</p>
-<h3 id="configuration_2">Configuration</h3>
+<h3 id="configuration_3">Configuration</h3>
 <table>
 <thead>
 <tr>
@@ -1250,38 +1456,38 @@ use image::DynamicImage;</p>
         Ok(boxes.iter().map(|_| vec![0.0_f32; 128]).collect())
     }
 }
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>### Python
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>The Python `DeepSort` class accepts embeddings directly, so you can bring your own Re-ID model:
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>```python
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>import numpy as np
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>import trackforge
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>tracker = trackforge.DeepSort(
-</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    max_age=70,
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    n_init=3,
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    max_iou_distance=0.7,
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    max_cosine_distance=0.2,
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>    nn_budget=100,
-</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>)
-</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>
-</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>detections = [
-</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
-</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>    ([200.0, 150.0, 60.0, 120.0], 0.85, 0),
-</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>]
-</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>
-</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a># One 128-D embedding per detection (from your Re-ID model)
-</span><span id="__span-8-23"><a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>embeddings = [
-</span><span id="__span-8-24"><a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>    np.random.rand(128).tolist(),
-</span><span id="__span-8-25"><a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>    np.random.rand(128).tolist(),
-</span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>]
-</span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>
-</span><span id="__span-8-28"><a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>tracks = tracker.update(detections, embeddings)
-</span><span id="__span-8-29"><a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>for t in tracks:
-</span><span id="__span-8-30"><a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>    print(f&quot;ID={t.track_id}  box={t.tlwh}  score={t.score:.2f}&quot;)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>### Python
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>The Python `DeepSort` class accepts embeddings directly, so you can bring your own Re-ID model:
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>```python
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>import numpy as np
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>import trackforge
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>tracker = trackforge.DEEPSORT(
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    max_age=70,
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>    n_init=3,
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>    max_iou_distance=0.7,
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>    max_cosine_distance=0.2,
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    nn_budget=100,
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>)
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>detections = [
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>    ([200.0, 150.0, 60.0, 120.0], 0.85, 0),
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>]
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a># One 128-D embedding per detection (from your Re-ID model)
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>embeddings = [
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>    np.random.rand(128).tolist(),
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    np.random.rand(128).tolist(),
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>]
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>tracks = tracker.update(detections, embeddings)
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>for track_id, tlwh, score, class_id in tracks:
+</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>    print(f&quot;ID={track_id}  box={tlwh}  score={score:.2f}&quot;)
 </span></code></pre></div></p>
-<h3 id="rust_3">Rust</h3>
+<h3 id="rust_4">Rust</h3>
 <p>```rust,ignore
 use trackforge::trackers::deepsort::DeepSort;
 use trackforge::types::BoundingBox;
@@ -1295,11 +1501,11 @@ let detections = vec![
 for t in &amp;tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
 }
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>---
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>## Detection Format
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>All trackers use the same detection tuple format:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>---
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>## Detection Format
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>All trackers use the same detection tuple format:
 </span></code></pre></div>
 ([x, y, w, h], score, class_id)
 ```</p>

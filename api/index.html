@@ -464,15 +464,15 @@
 
 
 <h1 id="crate-trackforge">Crate <code>trackforge</code></h1>
-<p><strong>Version:</strong> 0.1.9</p>
+<p><strong>Version:</strong> 0.2.0</p>
 <p><a href="https://crates.io/crates/trackforge"><img alt="Crates.io" src="https://img.shields.io/crates/v/trackforge.svg" /></a>
 <a href="https://docs.rs/trackforge"><img alt="docs.rs" src="https://docs.rs/trackforge/badge.svg" /></a>
 <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img alt="CI" src="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg" /></a>
 <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
-<a href="https://blog.rust-lang.org/2025/05/15/Rust-1.87.0/"><img alt="MSRV" src="https://img.shields.io/badge/rustc-1.87%2B-orange.svg" /></a></p>
+<a href="https://blog.rust-lang.org/2025/05/15/Rust-1.88.0/"><img alt="MSRV" src="https://img.shields.io/badge/rustc-1.88%2B-orange.svg" /></a></p>
 <p>Trackforge is a unified, high-performance computer vision tracking library implemented in
 Rust and exposed as a Python package via PyO3.</p>
-<p>It provides three production-ready multi-object tracking algorithms built on a shared
+<p>It provides four production-ready multi-object tracking algorithms built on a shared
 8-dimensional Kalman filter with state <code>[x, y, a, h, vx, vy, va, vh]</code>, where <code>(x, y)</code>
 is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> the height.</p>
 <h1 id="choose-a-tracker">Choose a Tracker</h1>
@@ -497,6 +497,12 @@ is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> 
 <td>None</td>
 <td>IoU two-stage</td>
 <td>Crowded scenes, low-confidence detections</td>
+</tr>
+<tr>
+<td><a href="trackers/ocsort/#ocsort"><code>ocsort</code></a></td>
+<td>None</td>
+<td>IoU + velocity correction</td>
+<td>Scenes with frequent occlusions</td>
 </tr>
 <tr>
 <td><a href="trackers/deepsort/#deepsort"><code>deepsort</code></a></td>
@@ -571,7 +577,27 @@ let detections = vec![
 for t in &amp;tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
 }
-```</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a># OC-SORT
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Observation-Centric SORT. Extends SORT with velocity correction (OCM) and Kalman filter
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>re-update on re-association (ORU), making it robust to brief occlusions without appearance
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>features.
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>```rust
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>use trackforge::trackers::ocsort::OcSort;
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>// max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>let mut tracker = OcSort::new(30, 3, 0.3, 3, 0.2);
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>let detections = vec![
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    ([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64),
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>];
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>let tracks = tracker.update(detections);
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>for t in &amp;tracks {
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    println!(&quot;ID: {}, Box: {:?}&quot;, t.track_id, t.tlwh);
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>}
+</span></code></pre></div></p>
 <h2 id="quick-reference">Quick Reference</h2>
 <table>
 <thead>
