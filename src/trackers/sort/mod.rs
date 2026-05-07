@@ -301,7 +301,7 @@ impl Sort {
         }
 
         // Sort by cost (ascending)
-        costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+        costs.sort_by(|a, b| a.0.total_cmp(&b.0));
 
         // Greedy matching
         for (cost, trk_idx, det_idx) in costs {
