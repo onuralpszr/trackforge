@@ -632,6 +632,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Variants
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#trait-implementations_4" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -708,6 +719,7 @@
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="p">}</span>
 </span></code></pre></div>
+<p>A single object track maintained by the DeepSORT tracker.</p>
 <h4 id="fields">Fields</h4>
 <table>
 <thead>
@@ -719,9 +731,54 @@
 </thead>
 <tbody>
 <tr>
+<td><code>track_id</code></td>
+<td><code>u64</code></td>
+<td>Unique track identifier.</td>
+</tr>
+<tr>
+<td><code>class_id</code></td>
+<td><code>i64</code></td>
+<td>Class label of the tracked object.</td>
+</tr>
+<tr>
+<td><code>hits</code></td>
+<td><code>usize</code></td>
+<td>Number of times this track has been matched to a detection.</td>
+</tr>
+<tr>
+<td><code>age</code></td>
+<td><code>usize</code></td>
+<td>Total frames since the track was created.</td>
+</tr>
+<tr>
+<td><code>time_since_update</code></td>
+<td><code>usize</code></td>
+<td>Frames elapsed since the last successful detection match.</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td><code>TrackState</code></td>
+<td>Current life-cycle state.</td>
+</tr>
+<tr>
+<td><code>mean</code></td>
+<td><code>crate::utils::kalman::StateVector</code></td>
+<td>Kalman filter mean state <code>[x, y, a, h, vx, vy, va, vh]</code>.</td>
+</tr>
+<tr>
+<td><code>covariance</code></td>
+<td><code>crate::utils::kalman::CovarianceMatrix</code></td>
+<td>Kalman filter covariance matrix.</td>
+</tr>
+<tr>
+<td><code>score</code></td>
+<td><code>f32</code></td>
+<td>Detection confidence of the last matched detection.</td>
+</tr>
+<tr>
 <td><code>features</code></td>
 <td><code>Vec&lt;Vec&lt;f32&gt;&gt;</code></td>
-<td>Features (embeddings) collected during the current update cycle or while tentative. These are flushed to the metric gallery when appropriate.</td>
+<td>Appearance embeddings accumulated since the last metric-gallery flush.</td>
 </tr>
 </tbody>
 </table>
@@ -961,6 +1018,20 @@
 </span><span id="__span-53-4"><a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="w">    </span><span class="n">Deleted</span><span class="p">,</span>
 </span><span id="__span-53-5"><a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="p">}</span>
 </span></code></pre></div>
+<p>Life-cycle state of a DeepSORT track.</p>
+<h4 id="variants">Variants</h4>
+<ul>
+<li><strong><code>Tentative</code></strong></li>
+</ul>
+<p>Newly created; not yet confirmed by <code>n_init</code> consecutive hits.</p>
+<ul>
+<li><strong><code>Confirmed</code></strong></li>
+</ul>
+<p>Confirmed and actively tracked.</p>
+<ul>
+<li><strong><code>Deleted</code></strong></li>
+</ul>
+<p>Marked for removal; will be pruned at the next update.</p>
 <h4 id="trait-implementations_4">Trait Implementations</h4>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-54-1"><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="k">impl</span><span class="w"> </span><span class="nb">Clone</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">TrackState</span>
 </span></code></pre></div>
