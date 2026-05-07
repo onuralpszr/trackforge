@@ -608,9 +608,9 @@ mod tests {
 
     #[test]
     fn test_bytetrack_re_activate_lost_track() {
-        // Frame 1: high-conf detection → track activated (state=Tracked).
-        // Frame 2: no detection  → track unmatched in both rounds state=Lost.
-        // Frame 3: detection at same position → lost track matched in round 1
+        // Frame 1: high-conf detection track activated (state=Tracked).
+        // Frame 2: no detection track unmatched in both rounds state=Lost.
+        // Frame 3: detection at same position lost track matched in round 1
         // re_activate() called instead of update().
         let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
 
