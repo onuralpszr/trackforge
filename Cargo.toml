@@ -12,8 +12,15 @@ authors = ["Onuralp Sezer <thunderbirdtr@gmail.com>"]
 documentation = "https://docs.rs/trackforge"
 keywords = ["computer-vision", "tracking", "bytetrack", "kalman-filter"]
 categories = ["computer-vision", "science"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+include = [
+    "src/**/*",
+    "examples/rust/**/*",
+    "examples/deepsort_ort.rs",
+    "examples/deepsort_simple.rs",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+]
 [lib]
 name = "trackforge"
 crate-type = ["cdylib", "rlib"]
