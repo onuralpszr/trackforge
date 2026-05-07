@@ -2,6 +2,97 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-05-07
+
+### 🚀 Features
+
+- *(ocsort)* 🚀 add OC-SORT tracker implementation by @onuralpszr
+- *(ocsort)* 🚀 add OC-SORT tracker implementation #72 by @onuralpszr
+- *(deepsort)* 🚀 enhance TrackState and Track structure with additional states and properties by @onuralpszr
+
+### 🐛 Bug Fixes
+
+- *(deps)* Bump rustls-webpki and tar to patch RUSTSEC-2026-0049/0067/0068/0098/0099; ignore yanked core2 by @onuralpszr
+- 🐞 update domain-specific tokens in typos configuration for clarity by @onuralpszr
+- 🐞 update clippy hook arguments to improve compatibility with fresh dev environments by @onuralpszr
+- 🐞 update bounding box feature vector creation and tracker update calls for consistency by @onuralpszr
+- *(deepsort)* Rename _n_init/_max_age fields — they are actively used, not dead code by @onuralpszr
+- *(deepsort)* Replace bare .unwrap() in cascade matching with .expect() by @onuralpszr
+- 🐞 correct terminology from OUR to ORU in documentation and code comments by @onuralpszr
+- 🐞 replace deprecated pyo3::prepare_freethreaded_python() with pyo3::Python::initialize() in tests by @onuralpszr
+- 🐞 create virtual environment for installing maturin and pytest in Codecov workflow by @onuralpszr
+- *(ocsort)* Replace bare unwrap() with expect() for observations.last() by @onuralpszr
+- *(dependencies)* Update ort version to 2.0.0-rc.12 by @onuralpszr
+- *(dependencies)* 🐛 downgrade ort dependency version to 2.0.0-rc.10 for usls by @onuralpszr
+
+### 🚜 Refactor
+
+- *(python)* ♻️ rename tracker exports to all-caps (BYTETRACK, SORT, OCSORT, DEEPSORT) by @onuralpszr
+- 🧹 remove unused Python test modules for DeepSort and OC-SORT by @onuralpszr
+- *(deepsort)* Fix clippy warning and optimize partial_fit lookup by @onuralpszr
+- *(bytetrack)* Eliminate per-call KF allocations and dead code by @onuralpszr
+- *(deepsort)* Use total_cmp for NaN-safe cost sorting by @onuralpszr
+- *(sort)* ♻️ replace unwrap with total_cmp for cost sorting by @onuralpszr
+- *(kalman)* ♻️ update comments and enhance measurement vector definitions by @onuralpszr
+- *(tests)* 🧪 improve comments for re_activate lost track test case by @onuralpszr
+- ♻️ code clean ups and documentation fixes and cargo fix #73 by @onuralpszr
+
+### 📚 Documentation
+
+- 📝 pypi download badge added by @onuralpszr
+- 📝 improve readme roadmap and example section by @onuralpszr
+- 📝 improve readme and fix typo and remove unused deps by @onuralpszr
+- 📝 correct code block syntax for architecture section in README by @onuralpszr
+- 📝 update return type documentation for update method in PyDeepSort by @onuralpszr
+- 📝 update architecture diagram for clarity and improve formatting in README by @onuralpszr
+- Small clean up in readme by @onuralpszr
+- 📝 Add TrackTrack to the tracking methods list by @onuralpszr
+- 📝 Add dependency status badge to README by @onuralpszr
+- 📝 Add dependency status badge to README #67 by @onuralpszr
+- *(index)* Rewrite mkdocs index with full per-tracker reference by @onuralpszr
+- *(python)* Replace stub with complete Python API reference by @onuralpszr
+- *(lib)* Expand crate-level Rust documentation by @onuralpszr
+- *(examples)* Replace broken mkdocs file-include syntax with inline code by @onuralpszr
+- *(lib)* Expand crate-level Rust documentation with badges and full examples by @onuralpszr
+- 📝 documentation fixes and small bug fixes #71 by @onuralpszr
+- 📝 update all Python class names to all-caps across docs and README by @onuralpszr
+- *(types)* 📝 improve BoundingBox documentation and add new fields by @onuralpszr
+- 📝 add missing MSRV badge to README by @onuralpszr
+
+### 🎨 Styling
+
+- Apply prettier to markdown and yaml files by @onuralpszr
+
+### 🧪 Testing
+
+- 🧪 add instance isolation and sequential ID tests for ByteTrack, DeepSort, and SORT trackers by @onuralpszr
+- 🧪 add unit tests for PyDeepSort and PyOcSort functionality by @onuralpszr
+- 🧪 add integration tests for Python bindings of OCSORT, DEEPSORT, BYTETRACK, and SORT by @onuralpszr
+- 🐞 fixing embedding test in deepsort by @onuralpszr
+- 🧪 add empty update tests for BYTETRACK and SORT by @onuralpszr
+- 🧪 add OCSORT round2 rematch after gap test by @onuralpszr
+- 🧪 update OCSORT round2 rematch test for fast-moving tracks by @onuralpszr
+- *(coverage)* Add tests for re_activate and observations.last() paths by @onuralpszr
+
+### ⚙️ Miscellaneous Tasks
+
+- 📝 update changelog for version 0.1.9 release by @onuralpszr
+- 🧹 formatting fix by @onuralpszr
+- 👷 update security audit workflow to include pull request handling and permissions by @onuralpszr
+- Remove obsolete commit_plan and reformat_markdown scripts by @onuralpszr
+- 👷 update CI workflow to exclude advanced_examples from doc build due to dependency requirements by @onuralpszr
+- 👷 update CI workflow by removing pre-commit checks and simplifying cargo steps by @onuralpszr
+- Update GitHub Actions to use specific versions for dependencies and tools by @onuralpszr
+- *(stubs)* 🧹 update trackforge.pyi for all-caps class names and unified return types by @onuralpszr
+- *(examples)* ♻️ update Python examples to all-caps tracker names by @onuralpszr
+- *(package)* 📦 update uv.lock by @onuralpszr
+- 📦 update trackforge version to 0.2.0 in Cargo files by @onuralpszr
+- 📦 update dependencies in Cargo.lock to latest versions by @onuralpszr
+- 📦 update rust-version to 1.88 in Cargo.toml by @onuralpszr
+- 📦 update taiki-e/install-action to v2.75.30 in CI workflows by @onuralpszr
+- *(cargo)* Add include field to restrict crates.io upload by @onuralpszr
+- *(workflows)* 👷 update taiki-e/install-action to v2.77.1 in CI, autofix, codencov, and security-audit by @onuralpszr
+
 ## [0.1.9] - 2026-03-14
 
 ### 📚 Documentation
