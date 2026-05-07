@@ -624,6 +624,9 @@ mod tests {
 
         let out3 = tracker.update(vec![d]);
         assert_eq!(out3.len(), 1);
-        assert_eq!(out3[0].track_id, id, "re-activated track retains its original ID");
+        assert_eq!(
+            out3[0].track_id, id,
+            "re-activated track retains its original ID"
+        );
     }
 }
