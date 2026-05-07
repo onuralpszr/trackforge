@@ -328,8 +328,7 @@ fn min_cost_matching(
         }
     }
 
-    // Sort by cost
-    costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+    costs.sort_by(|a, b| a.0.total_cmp(&b.0));
 
     for (cost, r, c) in costs {
         if cost > threshold {
