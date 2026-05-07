@@ -71,8 +71,7 @@ impl STrack {
         self.covariance = covariance;
     }
 
-    pub fn re_activate(&mut self, new_track: STrack, frame_id: usize, new_track_id: Option<u64>) {
-        let kf = KalmanFilter::default(); // Should ideally pass shared KF
+    pub fn re_activate(&mut self, new_track: STrack, frame_id: usize, new_track_id: Option<u64>, kf: &KalmanFilter) {
         let measurement = self.tlwh_to_xyah(new_track.tlwh);
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
         self.mean = mean;
@@ -90,8 +89,7 @@ impl STrack {
         }
     }
 
-    pub fn update(&mut self, new_track: STrack, frame_id: usize) {
-        let kf = KalmanFilter::default(); // Should ideally pass shared KF
+    pub fn update(&mut self, new_track: STrack, frame_id: usize, kf: &KalmanFilter) {
         self.frame_id = frame_id;
         self.tracklet_len += 1;
         self.state = TrackState::Tracked;
@@ -112,7 +110,7 @@ impl STrack {
         let (mean, covariance) = kf.predict(&self.mean, &self.covariance);
         self.mean = mean;
         self.covariance = covariance;
-        let (tlwh, _) = self.tlwh_from_xyah(&self.mean);
+        let tlwh = self.tlwh_from_xyah(&self.mean);
         self.tlwh = tlwh; // Update box estimate
     }
 
@@ -124,12 +122,12 @@ impl STrack {
         MeasurementVector::from_vec(vec![x, y, a, h])
     }
 
-    fn tlwh_from_xyah(&self, xyah: &StateVector) -> ([f32; 4], f32) {
+    fn tlwh_from_xyah(&self, xyah: &StateVector) -> [f32; 4] {
         let w = xyah[2] * xyah[3];
         let h = xyah[3];
         let x = xyah[0] - w / 2.0;
         let y = xyah[1] - h / 2.0;
-        ([x, y, w, h], 0.0) // ret confidence unused for now
+        [x, y, w, h]
     }
 }
 
@@ -263,13 +261,13 @@ impl ByteTrack {
             };
 
         for (itrack, idet) in matches {
-            let track = &mut strack_pool[itrack]; // We need mutable access, tricky with pool construction
+            let track = &mut strack_pool[itrack];
             let det = &detections_high[idet];
             if track.state == TrackState::Tracked {
-                track.update(det.clone(), self.frame_id);
+                track.update(det.clone(), self.frame_id, &self.kalman_filter);
                 activated_stracks.push(track.clone());
             } else {
-                track.re_activate(det.clone(), self.frame_id, None);
+                track.re_activate(det.clone(), self.frame_id, None, &self.kalman_filter);
                 refind_stracks.push(track.clone());
             }
         }
@@ -309,10 +307,10 @@ impl ByteTrack {
             let track = &mut r_tracked_stracks[itrack];
             let det = &detections_low[idet];
             if track.state == TrackState::Tracked {
-                track.update(det.clone(), self.frame_id);
+                track.update(det.clone(), self.frame_id, &self.kalman_filter);
                 activated_stracks.push(track.clone());
             } else {
-                track.re_activate(det.clone(), self.frame_id, None);
+                track.re_activate(det.clone(), self.frame_id, None, &self.kalman_filter);
                 refind_stracks.push(track.clone());
             }
         }
@@ -419,26 +417,6 @@ impl ByteTrack {
         let rows = cost_matrix.len();
         let cols = cost_matrix[0].len();
 
-        // Flatten matrix for lap crate
-        let mut cost_data = Vec::with_capacity(rows * cols);
-        for r in cost_matrix {
-            cost_data.extend_from_slice(r);
-        }
-
-        // lap crate expects a 1D array - check signature. lapjv uses a specific structure.
-        // Actually, let's look at `lap` crate usage. `lap::lapjv` or `lap::laplap`.
-        // Assuming `lap` crate exposes `lapjv` or similar which takes row, col, cost.
-        // Many Rust LAP crates exist. I added `lap = "0.1.0"`.
-        // Let's assume standard usage or implement a simple greedy if `lap` is complex.
-        // Actually, for optimal matching we need Hungarian/LAP.
-
-        // Simulating the result of LAP for now with a greedy approach if I can't confirm `lap` usage
-        // without docs. `lap` 0.1.0 might be the one by `tjhunter` or similar.
-        // Let's try to search `lap` usage but I will assume a mock implementation for now or use my own `hungarian` if needed.
-        // WAIT, I added `lap` dependency. It's better to verify usage.
-        // But for this step let's use a simple greedy match based on min cost for now to avoid compilation errors with unknown crate API.
-        // TODO: Replace with actual Hungarian algorithm later.
-
         // Greedy matching
         let mut matches = Vec::new();
         let mut unmatched_tracks = (0..rows).collect::<HashSet<_>>();
@@ -451,7 +429,7 @@ impl ByteTrack {
             }
         }
         // sort by cost
-        costs.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+        costs.sort_by(|a, b| a.0.total_cmp(&b.0));
 
         for (cost, r, c) in costs {
             if cost > thresh {
