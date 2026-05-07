@@ -444,7 +444,7 @@ impl OcSort {
                 None => continue,
             };
 
-            let (last_xyah, _) = track.observations.last().unwrap();
+            let (last_xyah, _) = track.observations.last().expect("observations is non-empty by invariant");
             let last_cx = last_xyah[0];
             let last_cy = last_xyah[1];
 
@@ -484,7 +484,7 @@ impl OcSort {
                 .collect();
             let left_trk_obs: Vec<[f32; 4]> = unmatched_trks
                 .iter()
-                .map(|&ti| xyah4_to_tlwh(&self.tracks[ti].observations.last().unwrap().0))
+                .map(|&ti| xyah4_to_tlwh(&self.tracks[ti].observations.last().expect("observations is non-empty by invariant").0))
                 .collect();
 
             let iou_left = crate::utils::geometry::iou_batch(&left_trk_obs, &left_det_boxes);
