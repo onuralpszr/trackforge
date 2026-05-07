@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Metric {
@@ -45,18 +45,14 @@ impl NearestNeighborDistanceMetric {
         for (track_id, feature) in features {
             let sample_list = self.samples.entry(*track_id).or_default();
             sample_list.push(feature.clone());
-            if let Some(b) = self.budget {
-                if sample_list.len() > b {
-                    // Remove oldest (simple FIFO)
-                    let remove_count = sample_list.len() - b;
-                    sample_list.drain(0..remove_count);
-                }
+            if let Some(b) = self.budget && sample_list.len() > b {
+                let remove_count = sample_list.len() - b;
+                sample_list.drain(0..remove_count);
             }
         }
 
-        // Filter out inactive targets
-        // Creating a set for faster lookup might be better if many targets, but slice is fine for now.
-        self.samples.retain(|k, _| active_targets.contains(k));
+        let active_set: HashSet<u64> = active_targets.iter().cloned().collect();
+        self.samples.retain(|k, _| active_set.contains(k));
     }
 
     /// Compute the distance matrix between tracks and detections.
