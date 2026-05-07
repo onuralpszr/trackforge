@@ -1,26 +1,38 @@
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
 
+/// Life-cycle state of a DeepSORT track.
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum TrackState {
+    /// Newly created; not yet confirmed by `n_init` consecutive hits.
     Tentative,
+    /// Confirmed and actively tracked.
     Confirmed,
+    /// Marked for removal; will be pruned at the next update.
     Deleted,
 }
 
+/// A single object track maintained by the DeepSORT tracker.
 #[derive(Debug, Clone)]
 pub struct Track {
+    /// Unique track identifier.
     pub track_id: u64,
+    /// Class label of the tracked object.
     pub class_id: i64,
+    /// Number of times this track has been matched to a detection.
     pub hits: usize,
+    /// Total frames since the track was created.
     pub age: usize,
+    /// Frames elapsed since the last successful detection match.
     pub time_since_update: usize,
+    /// Current life-cycle state.
     pub state: TrackState,
+    /// Kalman filter mean state `[x, y, a, h, vx, vy, va, vh]`.
     pub mean: StateVector,
+    /// Kalman filter covariance matrix.
     pub covariance: CovarianceMatrix,
+    /// Detection confidence of the last matched detection.
     pub score: f32,
-
-    /// Features (embeddings) collected during the current update cycle or while tentative.
-    /// These are flushed to the metric gallery when appropriate.
+    /// Appearance embeddings accumulated since the last metric-gallery flush.
     pub features: Vec<Vec<f32>>,
 
     n_init: usize,
