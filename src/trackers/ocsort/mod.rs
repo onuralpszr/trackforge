@@ -444,7 +444,10 @@ impl OcSort {
                 None => continue,
             };
 
-            let (last_xyah, _) = track.observations.last().expect("observations is non-empty by invariant");
+            let (last_xyah, _) = track
+                .observations
+                .last()
+                .expect("observations is non-empty by invariant");
             let last_cx = last_xyah[0];
             let last_cy = last_xyah[1];
 
@@ -484,7 +487,15 @@ impl OcSort {
                 .collect();
             let left_trk_obs: Vec<[f32; 4]> = unmatched_trks
                 .iter()
-                .map(|&ti| xyah4_to_tlwh(&self.tracks[ti].observations.last().expect("observations is non-empty by invariant").0))
+                .map(|&ti| {
+                    xyah4_to_tlwh(
+                        &self.tracks[ti]
+                            .observations
+                            .last()
+                            .expect("observations is non-empty by invariant")
+                            .0,
+                    )
+                })
                 .collect();
 
             let iou_left = crate::utils::geometry::iou_batch(&left_trk_obs, &left_det_boxes);
@@ -813,5 +824,33 @@ mod tests {
         let tracks = tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
         assert_eq!(tracks.len(), 1, "Track should be re-matched after gap");
         assert_eq!(tracks[0].track_id, 1, "Should be the same track");
+    }
+
+    #[test]
+    fn test_ocsort_ocm_direction_bonus_path() {
+        // After two consecutive matches the track has 2 observations, so
+        // obs_direction() returns Some.  On frame 3 associate() runs with
+        // that track → the angle-diff block at line ~441 is entered and
+        // observations.last() at line ~450 is reached.
+        let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
+        tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]); // obs 1
+        tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]); // obs 2 → Some direction
+        let tracks = tracker.update(vec![det(105.0, 100.0, 50.0, 100.0, 0.9)]);
+        assert_eq!(tracks.len(), 1);
+    }
+
+    #[test]
+    fn test_ocsort_round2_observations_last_reached() {
+        // Build a track with 2 observations at position A.  On the next frame
+        // supply a detection at a distant position B (IoU = 0 with A).  Round-1
+        // leaves both unmatched, so the round-2 block (lines ~484-521) is entered
+        // and observations.last() at line ~495 is called for the unmatched track.
+        let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
+        tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]); // obs 1 at A
+        tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]); // obs 2 at A
+        // Detection far from A: track is unmatched in round 1 → round-2 block entered.
+        tracker.update(vec![det(10000.0, 0.0, 50.0, 100.0, 0.9)]);
+        // Track at A is now age-1 unmatched; new track created at B.
+        // Just verify no panic — coverage of line ~495 is the goal.
     }
 }
