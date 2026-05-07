@@ -45,7 +45,9 @@ impl NearestNeighborDistanceMetric {
         for (track_id, feature) in features {
             let sample_list = self.samples.entry(*track_id).or_default();
             sample_list.push(feature.clone());
-            if let Some(b) = self.budget && sample_list.len() > b {
+            if let Some(b) = self.budget
+                && sample_list.len() > b
+            {
                 let remove_count = sample_list.len() - b;
                 sample_list.drain(0..remove_count);
             }

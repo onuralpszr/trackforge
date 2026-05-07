@@ -71,7 +71,13 @@ impl STrack {
         self.covariance = covariance;
     }
 
-    pub fn re_activate(&mut self, new_track: STrack, frame_id: usize, new_track_id: Option<u64>, kf: &KalmanFilter) {
+    pub fn re_activate(
+        &mut self,
+        new_track: STrack,
+        frame_id: usize,
+        new_track_id: Option<u64>,
+        kf: &KalmanFilter,
+    ) {
         let measurement = self.tlwh_to_xyah(new_track.tlwh);
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
         self.mean = mean;
