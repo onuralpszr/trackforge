@@ -605,4 +605,25 @@ mod tests {
         let tracks2 = tracker.update(det2);
         assert_eq!(tracks2[0].track_id, 2);
     }
+
+    #[test]
+    fn test_bytetrack_re_activate_lost_track() {
+        // Frame 1: high-conf detection → track activated (state=Tracked).
+        // Frame 2: no detection  → track unmatched in both rounds state=Lost.
+        // Frame 3: detection at same position → lost track matched in round 1
+        // re_activate() called instead of update().
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+
+        let d = ([10.0, 10.0, 50.0, 100.0], 0.9_f32, 0_i64);
+        let out1 = tracker.update(vec![d]);
+        assert_eq!(out1.len(), 1);
+        let id = out1[0].track_id;
+
+        let out2 = tracker.update(vec![]);
+        assert_eq!(out2.len(), 0, "track should not appear while lost");
+
+        let out3 = tracker.update(vec![d]);
+        assert_eq!(out3.len(), 1);
+        assert_eq!(out3[0].track_id, id, "re-activated track retains its original ID");
+    }
 }
