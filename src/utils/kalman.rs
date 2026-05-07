@@ -1,8 +1,12 @@
 use nalgebra::{SMatrix, SVector};
 
-pub type StateVector = SVector<f32, 8>; // [x, y, a, h, vx, vy, va, vh]
-pub type MeasurementVector = SVector<f32, 4>; // [x, y, a, h]
+/// 8-D Kalman state vector `[x, y, a, h, vx, vy, va, vh]`.
+pub type StateVector = SVector<f32, 8>;
+/// 4-D measurement vector `[x, y, a, h]` (centre-x, centre-y, aspect ratio, height).
+pub type MeasurementVector = SVector<f32, 4>;
+/// 8×8 state covariance matrix.
 pub type CovarianceMatrix = SMatrix<f32, 8, 8>;
+/// 4×8 observation matrix mapping state space to measurement space.
 pub type MeasurementMatrix = SMatrix<f32, 4, 8>;
 
 /// A standard Kalman Filter implementation for bounding box tracking.
@@ -137,9 +141,6 @@ impl KalmanFilter {
         }
 
         let innovation_cov = projected_cov + diag;
-        // let inv_innovation_cov = innovation_cov.try_inverse().unwrap(); // Handle unwrap properly in prod
-        // Simplification for stability - often solved via Cholesky decomposition or similar
-        // For now, assume invertibility for this standard KF setup.
         let inv_innovation_cov = innovation_cov
             .try_inverse()
             .unwrap_or_else(SMatrix::<f32, 4, 4>::identity);
@@ -153,17 +154,18 @@ impl KalmanFilter {
         (new_mean, new_covariance)
     }
 
-    /// Calculate the Mahalanobis distance between the track state and measurements.
+    /// Calculate the Mahalanobis distance between the track state and each measurement.
+    ///
+    /// Projects the track state into measurement space and computes the squared
+    /// Mahalanobis distance using the full `[x, y, a, h]` measurement vector.
     ///
     /// # Arguments
     /// * `mean` - The current state mean.
     /// * `covariance` - The current state covariance.
-    /// * `measurements` - A list of measurements to compare against.
-    /// * `only_position` - If true, only use the position (x, y) components (not implemented).
-    ///   For this implementation, we use the full measurement vector [x, y, a, h].
+    /// * `measurements` - Measurements to compare against.
     ///
     /// # Returns
-    /// A vector of distances, one for each measurement.
+    /// A vector of squared Mahalanobis distances, one per measurement.
     pub fn gating_distance(
         &self,
         mean: &StateVector,
