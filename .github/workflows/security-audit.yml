@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: dtolnay/rust-toolchain@stable
-      - uses: taiki-e/install-action@3fa6878dc4ae603f73960271565a082bf196ab96 # v2.77.2
+      - uses: taiki-e/install-action@e3134ec54b36203e18f2d1e80652058bd078dd91 # v2.77.3
         with:
           tool: cargo-audit
       - run: cargo audit --ignore RUSTSEC-2024-0436
