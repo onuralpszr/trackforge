@@ -1,3 +1,29 @@
+use crate::utils::kalman::MeasurementVector;
+use nalgebra::SVector;
+
+/// Convert a bounding box from TLWH to XYAH (center-x, center-y, aspect ratio, height).
+///
+/// The aspect ratio is `width / height`, guarded against division by zero.
+pub fn tlwh_to_xyah(tlwh: &[f32; 4]) -> MeasurementVector {
+    let x = tlwh[0] + tlwh[2] / 2.0;
+    let y = tlwh[1] + tlwh[3] / 2.0;
+    let a = tlwh[2] / tlwh[3].max(1e-6);
+    let h = tlwh[3];
+    MeasurementVector::from_vec(vec![x, y, a, h])
+}
+
+/// Convert an XYAH vector back to a TLWH bounding box.
+///
+/// Accepts any vector with at least four components (e.g. the 8-dim Kalman state
+/// or the 4-dim measurement vector); only the first four elements are used.
+pub fn xyah_to_tlwh<const N: usize>(state: &SVector<f32, N>) -> [f32; 4] {
+    let w = state[2] * state[3];
+    let h = state[3];
+    let x = state[0] - w / 2.0;
+    let y = state[1] - h / 2.0;
+    [x, y, w, h]
+}
+
 /// Calculate Intersection over Union (IoU) between two bounding boxes.
 ///
 /// # Arguments

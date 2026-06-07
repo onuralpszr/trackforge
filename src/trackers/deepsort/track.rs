@@ -69,20 +69,12 @@ impl Track {
 
     /// Convert TLWH to (x, y, a, h)
     pub fn tlwh_to_xyah(tlwh: &[f32; 4]) -> MeasurementVector {
-        let x = tlwh[0] + tlwh[2] / 2.0;
-        let y = tlwh[1] + tlwh[3] / 2.0;
-        let a = tlwh[2] / tlwh[3].max(1e-6);
-        let h = tlwh[3];
-        MeasurementVector::from_vec(vec![x, y, a, h])
+        crate::utils::geometry::tlwh_to_xyah(tlwh)
     }
 
     /// Convert (x, y, a, h) to TLWH
     pub fn xyah_to_tlwh(state: &StateVector) -> [f32; 4] {
-        let w = state[2] * state[3];
-        let h = state[3];
-        let x = state[0] - w / 2.0;
-        let y = state[1] - h / 2.0;
-        [x, y, w, h]
+        crate::utils::geometry::xyah_to_tlwh(state)
     }
 
     pub fn to_tlwh(&self) -> [f32; 4] {

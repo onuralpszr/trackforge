@@ -1,6 +1,7 @@
 #![doc = include_str!("README.md")]
 
-use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
+use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
+use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
 
 // Define STrack
 /// A Single Track (STrack) representing a tracked object.
@@ -65,7 +66,7 @@ impl STrack {
         self.track_id = track_id;
         self.tracklet_len = 0;
 
-        let measurement = self.tlwh_to_xyah(self.tlwh);
+        let measurement = tlwh_to_xyah(&self.tlwh);
         let (mean, covariance) = kf.initiate(&measurement);
         self.mean = mean;
         self.covariance = covariance;
@@ -78,7 +79,7 @@ impl STrack {
         new_track_id: Option<u64>,
         kf: &KalmanFilter,
     ) {
-        let measurement = self.tlwh_to_xyah(new_track.tlwh);
+        let measurement = tlwh_to_xyah(&new_track.tlwh);
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
         self.mean = mean;
         self.covariance = covariance;
@@ -103,7 +104,7 @@ impl STrack {
         self.score = new_track.score;
         self.tlwh = new_track.tlwh;
 
-        let measurement = self.tlwh_to_xyah(new_track.tlwh);
+        let measurement = tlwh_to_xyah(&new_track.tlwh);
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
         self.mean = mean;
         self.covariance = covariance;
@@ -116,24 +117,8 @@ impl STrack {
         let (mean, covariance) = kf.predict(&self.mean, &self.covariance);
         self.mean = mean;
         self.covariance = covariance;
-        let tlwh = self.tlwh_from_xyah(&self.mean);
+        let tlwh = xyah_to_tlwh(&self.mean);
         self.tlwh = tlwh; // Update box estimate
-    }
-
-    fn tlwh_to_xyah(&self, tlwh: [f32; 4]) -> MeasurementVector {
-        let x = tlwh[0] + tlwh[2] / 2.0;
-        let y = tlwh[1] + tlwh[3] / 2.0;
-        let a = tlwh[2] / tlwh[3];
-        let h = tlwh[3];
-        MeasurementVector::from_vec(vec![x, y, a, h])
-    }
-
-    fn tlwh_from_xyah(&self, xyah: &StateVector) -> [f32; 4] {
-        let w = xyah[2] * xyah[3];
-        let h = xyah[3];
-        let x = xyah[0] - w / 2.0;
-        let y = xyah[1] - h / 2.0;
-        [x, y, w, h]
     }
 }
 
