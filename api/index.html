@@ -555,7 +555,7 @@ use image::DynamicImage;</p>
 <p>struct MyExtractor;</p>
 <p>impl AppearanceExtractor for MyExtractor {
     fn extract(
-        &amp;self,
+        &amp;mut self,
         image: &amp;DynamicImage,
         boxes: &amp;[BoundingBox],
     ) -&gt; Result<Vec\<Vec\<f32>>, Box\<dyn std::error::Error>> {
