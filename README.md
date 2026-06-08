@@ -235,6 +235,7 @@ The Python demos use the usual detector stacks: `ultralytics` (YOLO), `transform
 
 <a href="https://onuralpszr.github.io/trackforge/reference/python.html"><img src="https://img.shields.io/badge/Python%20API-docs-3776AB?logo=python&logoColor=white" alt="Python API" /></a>
 <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/badge/Rust%20API-docs.rs-000000?logo=docsdotrs&logoColor=white" alt="Rust API" /></a>
+<a href="https://onuralpszr.github.io/trackforge/book/"><img src="https://img.shields.io/badge/Guide-mdBook-1F7087?logo=mdbook&logoColor=white" alt="Guide" /></a>
 
 ## Parameters
 
