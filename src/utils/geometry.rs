@@ -151,4 +151,30 @@ mod tests {
         assert_eq!(ious[1][1], 0.0);
         assert_eq!(ious[1][2], 0.0);
     }
+
+    #[test]
+    fn test_iou_cost_matrix() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0], [100.0, 100.0, 10.0, 10.0]];
+        let dets = vec![[0.0, 0.0, 10.0, 10.0], [200.0, 200.0, 10.0, 10.0]];
+
+        let cost = iou_cost_matrix(&tracks, &dets);
+        assert_eq!(cost.len(), 2);
+        assert_eq!(cost[0].len(), 2);
+        // Perfect overlap -> cost 0; no overlap -> cost 1.
+        assert_eq!(cost[0][0], 0.0);
+        assert_eq!(cost[0][1], 1.0);
+        assert_eq!(cost[1][0], 1.0);
+        assert_eq!(cost[1][1], 1.0);
+    }
+
+    #[test]
+    fn test_iou_cost_matrix_empty() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0]];
+        // No detections: one row per track, each empty.
+        let cost = iou_cost_matrix(&tracks, &[]);
+        assert_eq!(cost.len(), 1);
+        assert!(cost[0].is_empty());
+        // No tracks: empty matrix.
+        assert!(iou_cost_matrix(&[], &tracks).is_empty());
+    }
 }
