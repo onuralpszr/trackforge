@@ -19,6 +19,19 @@ use image::DynamicImage;
 use nn_matching::NearestNeighborDistanceMetric;
 use std::error::Error;
 
+/// Build the inner DeepSORT tracker shared by the Rust and Python constructors.
+fn build_tracker(
+    max_age: usize,
+    n_init: usize,
+    max_iou_distance: f32,
+    max_cosine_distance: f32,
+    nn_budget: usize,
+) -> DeepSortTracker {
+    let metric =
+        NearestNeighborDistanceMetric::new(Metric::Cosine, max_cosine_distance, Some(nn_budget));
+    DeepSortTracker::new(metric, max_age, n_init, max_iou_distance)
+}
+
 /// Deep SORT tracker implementation.
 ///
 /// Wraps the tracker logic and appearance feature extraction.
@@ -45,12 +58,13 @@ impl<E: AppearanceExtractor> DeepSort<E> {
         max_cosine_distance: f32,
         nn_budget: usize,
     ) -> Self {
-        let metric = NearestNeighborDistanceMetric::new(
-            Metric::Cosine,
+        let tracker = build_tracker(
+            max_age,
+            n_init,
+            max_iou_distance,
             max_cosine_distance,
-            Some(nn_budget),
+            nn_budget,
         );
-        let tracker = DeepSortTracker::new(metric, max_age, n_init, max_iou_distance);
 
         Self { extractor, tracker }
     }
