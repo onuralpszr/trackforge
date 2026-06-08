@@ -54,14 +54,14 @@ repos:
     hooks:
       - id: prettier
         types_or: [markdown, yaml, json]
-        exclude: ^(CHANGELOG\.md|target/|site/|docs/api/)
+        exclude: ^(CHANGELOG\.md|target/|site/|docs/api/|book/)
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.18.1
     hooks:
       - id: markdownlint-cli2
         args: [--fix]
-        exclude: ^(CHANGELOG\.md|target/|site/|docs/api/)
+        exclude: ^(CHANGELOG\.md|target/|site/|docs/api/|book/)
 
   # --- Python (pyo3 bindings / scripts) --------------------------------
   - repo: https://github.com/astral-sh/ruff-pre-commit
