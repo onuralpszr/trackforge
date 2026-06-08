@@ -3,6 +3,11 @@ site_description: A unified, high-performance computer vision tracking library.
 repo_url: https://github.com/onuralpszr/trackforge
 repo_name: onuralpszr/trackforge
 
+# Emit page.html files instead of page/ directories so the .html links used
+# throughout the README and docs resolve (e.g. roadmap.html, parameters.html,
+# reference/python.html).
+use_directory_urls: false
+
 theme:
   name: material
   logo: logo.png
