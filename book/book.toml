@@ -9,6 +9,7 @@ src = "src"
 edition = "2024"
 
 [output.html]
+site-url = "/trackforge/book/"
 git-repository-url = "https://github.com/onuralpszr/trackforge"
 edit-url-template = "https://github.com/onuralpszr/trackforge/edit/main/book/{path}"
 default-theme = "rust"

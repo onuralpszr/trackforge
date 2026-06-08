@@ -49,6 +49,17 @@ jobs:
       - name: Build Zensical site
         run: zensical build --clean
 
+      - name: Install mdbook
+        uses: taiki-e/install-action@56545b37b57562edd73171cb6c62cc509db4c34e # v2.81.7
+        with:
+          tool: mdbook
+
+      - name: Build the book under /book
+        run: |
+          mdbook build book
+          mkdir -p site/book
+          cp -r book/book/. site/book/
+
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
