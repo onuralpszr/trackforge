@@ -98,3 +98,6 @@ docs/api/
 
 # cargo audit
 ~/.cargo/advisory-db
+
+# mdbook build output
+book/book/

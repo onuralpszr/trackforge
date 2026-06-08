@@ -1,0 +1,19 @@
+[book]
+title = "The Trackforge Book"
+description = "A guide to the Trackforge multi-object tracking library"
+authors = ["Onuralp Sezer"]
+language = "en"
+src = "src"
+
+[rust]
+edition = "2024"
+
+[output.html]
+git-repository-url = "https://github.com/onuralpszr/trackforge"
+edit-url-template = "https://github.com/onuralpszr/trackforge/edit/main/book/{path}"
+default-theme = "rust"
+preferred-dark-theme = "ayu"
+
+[output.html.fold]
+enable = true
+level = 1
