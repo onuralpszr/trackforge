@@ -69,14 +69,14 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-trackforge = "0.1.9"
+trackforge = "0.2.0"
 ```
 
 To build the Python bindings from source (e.g. via `maturin develop`), enable the `python` feature:
 
 ```toml
 [dependencies]
-trackforge = { version = "0.1.9", features = ["python"] }
+trackforge = { version = "0.2.0", features = ["python"] }
 ```
 
 ## Quick Start

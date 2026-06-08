@@ -79,7 +79,7 @@
 //!
 //! impl AppearanceExtractor for MyExtractor {
 //!     fn extract(
-//!         &self,
+//!         &mut self,
 //!         image: &DynamicImage,
 //!         boxes: &[BoundingBox],
 //!     ) -> Result<Vec<Vec<f32>>, Box<dyn std::error::Error>> {
