@@ -25,6 +25,30 @@ All contributions are welcome. Please include as many details as possible in you
 
 Run `cargo fmt` before committing to ensure that code is consistently formatted.
 
+### Git hooks with prek
+
+This repo ships a [`.pre-commit-config.yaml`](.pre-commit-config.yaml) and runs the
+hooks in CI with [`prek`](https://github.com/j178/prek), a fast, dependency-free Rust
+reimplementation of `pre-commit`. It reads the same config, so no extra setup file is
+needed. We recommend the Rust install:
+
+```shell
+# Install prek (pick one)
+cargo install --locked prek
+# or, prebuilt binaries:
+cargo binstall prek
+
+# Set up the git hooks (pre-commit and commit-msg)
+prek install
+
+# Run every hook against the whole tree
+prek run --all-files
+```
+
+The hooks cover formatting (`cargo fmt`, `taplo`, `prettier`), linting (`cargo clippy`,
+`markdownlint`), and hygiene (`typos`, trailing whitespace, merge-conflict markers). The
+classic `pre-commit run --all-files` still works if you prefer it.
+
 ## Implementation Guidelines
 
 ### Setup
