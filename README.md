@@ -209,13 +209,13 @@ for t in tracks {
 
 Runnable demos live under [`examples/`](examples/), with both a Python and a Rust entry per tracker.
 
-| Tracker   | Python                                                                                                                              | Rust                                                                                                         |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| ByteTrack | [`byte_track_demo.py`](examples/python/byte_track_demo.py) (YOLO11)                                                                | [`byte_track_demo.rs`](examples/rust/byte_track_demo.rs)                                                     |
-| DeepSORT  | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                           | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX)    |
-| OC-SORT   | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                 | —                                                                                                           |
-| SORT      | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                       |
-| All four  | [`tracker_comparison.py`](examples/python/tracker_comparison.py) side-by-side benchmark                                            | —                                                                                                           |
+| Tracker   | Python                                                                                                                                  | Rust                                                                                                      |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| ByteTrack | [`byte_track_demo.py`](examples/python/byte_track_demo.py) (YOLO11)                                                                     | [`byte_track_demo.rs`](examples/rust/byte_track_demo.rs)                                                  |
+| DeepSORT  | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                                | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX) |
+| OC-SORT   | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                      | —                                                                                                         |
+| SORT      | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
+| All four  | [`tracker_comparison.py`](examples/python/tracker_comparison.py) side-by-side benchmark                                                 | —                                                                                                         |
 
 ```bash
 # Python
