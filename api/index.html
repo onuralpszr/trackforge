@@ -11,8 +11,6 @@
       
       
       
-        <link rel="prev" href="../reference/python/">
-      
       
       
         
@@ -93,7 +91,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="./.." title="Trackforge" class="md-header__button md-logo" aria-label="Trackforge" data-md-component="logo">
+    <a href="../index.html" title="Trackforge" class="md-header__button md-logo" aria-label="Trackforge" data-md-component="logo">
       
   <img src="../logo.png" alt="Trackforge">
 
@@ -196,7 +194,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="./.." class="md-tabs__link">
+      <a href="../index.html" class="md-tabs__link">
         
   
   Home
@@ -212,7 +210,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../examples/" class="md-tabs__link">
+      <a href="../examples.html" class="md-tabs__link">
         
   
   Examples
@@ -228,7 +226,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../parameters/" class="md-tabs__link">
+      <a href="../parameters.html" class="md-tabs__link">
         
   
   Parameters
@@ -244,7 +242,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../roadmap/" class="md-tabs__link">
+      <a href="../roadmap.html" class="md-tabs__link">
         
   
   Roadmap
@@ -260,7 +258,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../reference/python/" class="md-tabs__link">
+      <a href="../reference/python.html" class="md-tabs__link">
         
   
   Python API
@@ -274,10 +272,8 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
+    <li class="md-tabs__item">
       <a href="././" class="md-tabs__link">
         
   
@@ -310,7 +306,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="./.." title="Trackforge" class="md-nav__button md-logo" aria-label="Trackforge" data-md-component="logo">
+    <a href="../index.html" title="Trackforge" class="md-nav__button md-logo" aria-label="Trackforge" data-md-component="logo">
       
   <img src="../logo.png" alt="Trackforge">
 
@@ -339,7 +335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./.." class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -365,7 +361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+      <a href="../examples.html" class="md-nav__link">
         
   
   
@@ -391,7 +387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../parameters/" class="md-nav__link">
+      <a href="../parameters.html" class="md-nav__link">
         
   
   
@@ -417,7 +413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap/" class="md-nav__link">
+      <a href="../roadmap.html" class="md-nav__link">
         
   
   
@@ -443,7 +439,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../reference/python/" class="md-nav__link">
+      <a href="../reference/python.html" class="md-nav__link">
         
   
   
@@ -466,19 +462,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-      
-      
-        
-      
-      
-      <a href="././" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="././" class="md-nav__link">
         
   
   
@@ -493,7 +480,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -568,25 +554,25 @@ is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> 
 </thead>
 <tbody>
 <tr>
-<td><a href="trackers/sort/#sort"><code>sort</code></a></td>
+<td><a href="trackers/sort/index.html#sort"><code>sort</code></a></td>
 <td>None</td>
 <td>IoU only</td>
 <td>Simple scenes, maximum speed</td>
 </tr>
 <tr>
-<td><a href="trackers/byte_track/#byte-track"><code>byte_track</code></a></td>
+<td><a href="trackers/byte_track/index.html#byte-track"><code>byte_track</code></a></td>
 <td>None</td>
 <td>IoU two-stage</td>
 <td>Crowded scenes, low-confidence detections</td>
 </tr>
 <tr>
-<td><a href="trackers/ocsort/#ocsort"><code>ocsort</code></a></td>
+<td><a href="trackers/ocsort/index.html#ocsort"><code>ocsort</code></a></td>
 <td>None</td>
 <td>IoU + velocity correction</td>
 <td>Scenes with frequent occlusions</td>
 </tr>
 <tr>
-<td><a href="trackers/deepsort/#deepsort"><code>deepsort</code></a></td>
+<td><a href="trackers/deepsort/index.html#deepsort"><code>deepsort</code></a></td>
 <td>Re-ID embeddings</td>
 <td>Appearance + IoU</td>
 <td>Long occlusions, dense crowds</td>
@@ -630,7 +616,7 @@ objects that are temporarily occluded or partially out of frame.</p>
 </span></code></pre></div>
 <h1 id="deepsort">DeepSORT</h1>
 <p>Augments IoU matching with Re-ID appearance embeddings for reliable re-identification
-across long occlusions. Requires an <a href="traits/#appearanceextractor"><code>AppearanceExtractor</code></a> implementation that produces
+across long occlusions. Requires an <a href="traits/index.html#appearanceextractor"><code>AppearanceExtractor</code></a> implementation that produces
 a feature vector for each detected crop.</p>
 <p>```rust,ignore
 use trackforge::trackers::deepsort::DeepSort;
@@ -690,22 +676,22 @@ for t in &amp;tracks {
 </thead>
 <tbody>
 <tr>
-<td><a href="trackers/#trackers"><code>trackers</code></a></td>
+<td><a href="trackers/index.html#trackers"><code>trackers</code></a></td>
 <td>mod</td>
 <td>Implementation of various multi-object tracking (MOT) algorithms.</td>
 </tr>
 <tr>
-<td><a href="traits/#traits"><code>traits</code></a></td>
+<td><a href="traits/index.html#traits"><code>traits</code></a></td>
 <td>mod</td>
 <td></td>
 </tr>
 <tr>
-<td><a href="types/#types"><code>types</code></a></td>
+<td><a href="types/index.html#types"><code>types</code></a></td>
 <td>mod</td>
 <td>Common types used across the Trackforge library.</td>
 </tr>
 <tr>
-<td><a href="utils/#utils"><code>utils</code></a></td>
+<td><a href="utils/index.html#utils"><code>utils</code></a></td>
 <td>mod</td>
 <td>Utility functions for geometry and Kalman filtering.</td>
 </tr>
@@ -713,10 +699,10 @@ for t in &amp;tracks {
 </table>
 <h2 id="modules">Modules</h2>
 <ul>
-<li><a href="trackers/#trackers"><code>trackers</code></a> — Implementation of various multi-object tracking (MOT) algorithms.</li>
-<li><a href="traits/#traits"><code>traits</code></a></li>
-<li><a href="types/#types"><code>types</code></a> — Common types used across the Trackforge library.</li>
-<li><a href="utils/#utils"><code>utils</code></a> — Utility functions for geometry and Kalman filtering.</li>
+<li><a href="trackers/index.html#trackers"><code>trackers</code></a> — Implementation of various multi-object tracking (MOT) algorithms.</li>
+<li><a href="traits/index.html#traits"><code>traits</code></a></li>
+<li><a href="types/index.html#types"><code>types</code></a> — Common types used across the Trackforge library.</li>
+<li><a href="utils/index.html#utils"><code>utils</code></a> — Utility functions for geometry and Kalman filtering.</li>
 </ul>
 
 
