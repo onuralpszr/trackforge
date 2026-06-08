@@ -572,4 +572,15 @@ mod tests {
             "re-activated track retains its original ID"
         );
     }
+
+    #[test]
+    fn test_iou_distance_empty_inputs() {
+        // update() guards empty pools before calling iou_distance, so exercise
+        // its own empty guard directly.
+        let tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let (cost, rows, cols) = tracker.iou_distance(&[], &[]);
+        assert!(cost.is_empty());
+        assert!(rows.is_empty());
+        assert!(cols.is_empty());
+    }
 }
