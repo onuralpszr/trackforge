@@ -71,6 +71,18 @@ pub fn iou_batch(bboxes1: &[[f32; 4]], bboxes2: &[[f32; 4]]) -> Vec<Vec<f32>> {
     iou_matrix
 }
 
+/// Build an IoU association cost matrix between track boxes and detection boxes.
+///
+/// `result[i][j] = 1.0 - iou(tracks[i], dets[j])`, the cost used by the
+/// IoU-based trackers. The shape mirrors [`iou_batch`]: one row per track, one
+/// column per detection (so an empty `dets` yields one empty row per track).
+pub fn iou_cost_matrix(tracks: &[[f32; 4]], dets: &[[f32; 4]]) -> Vec<Vec<f32>> {
+    tracks
+        .iter()
+        .map(|t| dets.iter().map(|d| 1.0 - iou(t, d)).collect())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

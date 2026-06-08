@@ -246,16 +246,8 @@ impl Sort {
         let track_boxes: Vec<[f32; 4]> = self.tracks.iter().map(|t| t.tlwh).collect();
         let det_boxes: Vec<[f32; 4]> = detections.iter().map(|d| d.tlwh).collect();
 
-        let ious = crate::utils::geometry::iou_batch(&track_boxes, &det_boxes);
+        let cost_matrix = crate::utils::geometry::iou_cost_matrix(&track_boxes, &det_boxes);
 
-        // Convert IoU to cost (1 - IoU)
-        let cost_matrix: Vec<Vec<f32>> = ious
-            .iter()
-            .map(|row| row.iter().map(|&iou| 1.0 - iou).collect())
-            .collect();
-
-        // Greedy matching (same as ByteTrack for now)
-        // TODO: Replace with proper Hungarian algorithm for optimal matching
         self.linear_assignment(&cost_matrix, 1.0 - self.iou_threshold)
     }
 
