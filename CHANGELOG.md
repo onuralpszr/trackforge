@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-06-08
+
+### 🚜 Refactor
+
+- Centralize tlwh/xyah box conversions in `utils::geometry`
+- Share the greedy assignment core in `utils::assignment`
+- Share the IoU cost-matrix construction in `utils::geometry`
+- Share the DeepSORT tracker construction across Rust and Python
+- Use bool vectors instead of HashSet in `greedy_match`
+
+### 📚 Documentation
+
+- Overhaul the README and docs site (unified examples, badges, parameters and roadmap pages)
+- Add an mdBook guide, published at `/book` alongside the zensical site
+- Fix the docs site URLs so the `.html` links resolve
+- Document prek for the git hooks in CONTRIBUTING
+
+### 📦 Dependencies
+
+- Bump nalgebra from 0.34 to 0.35 (raises the MSRV to 1.89)
+
+### ⚙️ Miscellaneous
+
+- Parallelize the Rust CI into separate test, lint, and doc jobs
+- Add tests for the extractor error path, the empty IoU guards, and the degenerate IoU case
+
 ## [0.2.0] - 2026-05-07
 
 ### 🚀 Features

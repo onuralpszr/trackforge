@@ -4,6 +4,7 @@
 //! [![MSRV](https://img.shields.io/crates/msrv/trackforge?logo=rust&logoColor=white)](https://crates.io/crates/trackforge)
 //! [![CI](https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
 //! [![License: MIT](https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/MIT)
+//! [![Guide](https://img.shields.io/badge/Guide-mdBook-1F7087?logo=mdbook&logoColor=white)](https://onuralpszr.github.io/trackforge/book/)
 //!
 //! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.
