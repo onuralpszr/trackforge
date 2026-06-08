@@ -2,7 +2,7 @@
 
 [tool.commitizen]
 name = "cz_customize"
-tag_format = "$version"
+tag_format = "v$version"
 version_type = "semver"
 version_provider = "cargo"
 update_changelog_on_bump = true
