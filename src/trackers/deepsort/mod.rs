@@ -165,4 +165,34 @@ mod tests {
         assert_eq!(tracks.len(), 1);
         assert!(tracks[0].is_confirmed());
     }
+
+    struct FailingExtractor;
+    impl AppearanceExtractor for FailingExtractor {
+        fn extract(
+            &mut self,
+            _image: &DynamicImage,
+            _bboxes: &[BoundingBox],
+        ) -> Result<Vec<Vec<f32>>, Box<dyn Error>> {
+            Err("extraction failed".into())
+        }
+    }
+
+    #[test]
+    fn test_deepsort_extractor_error_propagates() {
+        let mut tracker = DeepSort::new_default(FailingExtractor);
+        let image = DynamicImage::new_rgb8(100, 100);
+        let det = vec![(BoundingBox::new(10.0, 10.0, 20.0, 20.0), 0.9, 0)];
+        // Extraction fails, so update should surface the error.
+        assert!(tracker.update(&image, det).is_err());
+    }
+
+    #[test]
+    fn test_deepsort_empty_detections_skips_extraction() {
+        // No detections means the extractor is never called, so even a failing
+        // one is fine and update succeeds with no tracks.
+        let mut tracker = DeepSort::new_default(FailingExtractor);
+        let image = DynamicImage::new_rgb8(100, 100);
+        let tracks = tracker.update(&image, vec![]).unwrap();
+        assert!(tracks.is_empty());
+    }
 }

@@ -105,6 +105,14 @@ mod tests {
     }
 
     #[test]
+    fn test_iou_degenerate_zero_area() {
+        // Two zero-area boxes give a zero union; the guard returns 0 instead of NaN.
+        let box1 = [0.0, 0.0, 0.0, 10.0]; // zero width
+        let box2 = [0.0, 0.0, 10.0, 0.0]; // zero height
+        assert_eq!(iou(&box1, &box2), 0.0);
+    }
+
+    #[test]
     fn test_iou_contained() {
         let box1 = [0.0, 0.0, 100.0, 100.0];
         let box2 = [25.0, 25.0, 50.0, 50.0];
