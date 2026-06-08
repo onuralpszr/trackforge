@@ -507,45 +507,18 @@ impl Default for OcSort {
 // Greedy matching
 // ---------------------------------------------------------------------------
 
+/// Greedy assignment for OC-SORT.
+///
+/// Rows are tracks and columns are detections; returns matches as
+/// `(detection, track)` pairs alongside the unmatched detections and tracks.
 fn greedy_match(
     cost_matrix: &[Vec<f32>],
     threshold: f32,
 ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-    if cost_matrix.is_empty() {
-        return (Vec::new(), Vec::new(), Vec::new());
-    }
-
-    let rows = cost_matrix.len();
-    let cols = cost_matrix[0].len();
-
-    let mut matches = Vec::new();
-    let mut unmatched_rows: HashSet<usize> = (0..rows).collect();
-    let mut unmatched_cols: HashSet<usize> = (0..cols).collect();
-
-    let mut costs: Vec<(f32, usize, usize)> = Vec::new();
-    for (r, row) in cost_matrix.iter().enumerate() {
-        for (c, &cost) in row.iter().enumerate() {
-            costs.push((cost, r, c));
-        }
-    }
-    costs.sort_by(|a, b| a.0.total_cmp(&b.0));
-
-    for (cost, trk, det) in costs {
-        if cost > threshold {
-            break;
-        }
-        if unmatched_rows.contains(&trk) && unmatched_cols.contains(&det) {
-            matches.push((det, trk));
-            unmatched_rows.remove(&trk);
-            unmatched_cols.remove(&det);
-        }
-    }
-
-    (
-        matches,
-        unmatched_cols.into_iter().collect(),
-        unmatched_rows.into_iter().collect(),
-    )
+    let (matches, unmatched_rows, unmatched_cols) =
+        crate::utils::assignment::greedy_match(cost_matrix, threshold);
+    let matches = matches.into_iter().map(|(trk, det)| (det, trk)).collect();
+    (matches, unmatched_cols, unmatched_rows)
 }
 
 // ---------------------------------------------------------------------------

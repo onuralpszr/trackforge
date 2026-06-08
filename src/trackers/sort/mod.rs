@@ -2,7 +2,6 @@
 
 use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
-use std::collections::HashSet;
 
 /// Track state enumeration for SORT.
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -261,48 +260,17 @@ impl Sort {
     }
 
     /// Greedy linear assignment.
+    ///
+    /// Rows are tracks and columns are detections; returns matches as
+    /// `(detection, track)` pairs alongside the unmatched detections and tracks.
     fn linear_assignment(
         &self,
         cost_matrix: &[Vec<f32>],
         thresh: f32,
     ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-        if cost_matrix.is_empty() {
-            return (Vec::new(), Vec::new(), Vec::new());
-        }
-
-        let rows = cost_matrix.len(); // tracks
-        let cols = cost_matrix[0].len(); // detections
-
-        let mut matches = Vec::new();
-        let mut unmatched_tracks: HashSet<usize> = (0..rows).collect();
-        let mut unmatched_dets: HashSet<usize> = (0..cols).collect();
-
-        // Collect all costs with indices
-        let mut costs: Vec<(f32, usize, usize)> = Vec::new();
-        for (r, row) in cost_matrix.iter().enumerate() {
-            for (c, &cost) in row.iter().enumerate() {
-                costs.push((cost, r, c));
-            }
-        }
-
-        // Sort by cost (ascending)
-        costs.sort_by(|a, b| a.0.total_cmp(&b.0));
-
-        // Greedy matching
-        for (cost, trk_idx, det_idx) in costs {
-            if cost > thresh {
-                continue;
-            }
-            if unmatched_tracks.contains(&trk_idx) && unmatched_dets.contains(&det_idx) {
-                matches.push((det_idx, trk_idx)); // (detection, track) order
-                unmatched_tracks.remove(&trk_idx);
-                unmatched_dets.remove(&det_idx);
-            }
-        }
-
-        let unmatched_dets: Vec<usize> = unmatched_dets.into_iter().collect();
-        let unmatched_tracks: Vec<usize> = unmatched_tracks.into_iter().collect();
-
+        let (matches, unmatched_tracks, unmatched_dets) =
+            crate::utils::assignment::greedy_match(cost_matrix, thresh);
+        let matches = matches.into_iter().map(|(trk, det)| (det, trk)).collect();
         (matches, unmatched_dets, unmatched_tracks)
     }
 }

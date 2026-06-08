@@ -306,46 +306,15 @@ impl DeepSortTracker {
 }
 
 /// Simple greedy min cost matching (Linear Assignment Problem).
+/// Greedy linear assignment over a cost matrix.
+///
+/// Rows are tracks and columns are detections; returns matches as `(row, col)`
+/// pairs alongside the unmatched rows and columns.
 fn min_cost_matching(
     cost_matrix: &[Vec<f32>],
     threshold: f32,
 ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-    if cost_matrix.is_empty() {
-        return (Vec::new(), Vec::new(), Vec::new());
-    }
-
-    let rows = cost_matrix.len();
-    let cols = cost_matrix[0].len();
-
-    let mut matches = Vec::new();
-    let mut unmatched_rows: HashSet<usize> = (0..rows).collect();
-    let mut unmatched_cols: HashSet<usize> = (0..cols).collect();
-
-    let mut costs = Vec::new();
-    for (r, row) in cost_matrix.iter().enumerate() {
-        for (c, &cost) in row.iter().enumerate() {
-            costs.push((cost, r, c));
-        }
-    }
-
-    costs.sort_by(|a, b| a.0.total_cmp(&b.0));
-
-    for (cost, r, c) in costs {
-        if cost > threshold {
-            continue;
-        }
-        if unmatched_rows.contains(&r) && unmatched_cols.contains(&c) {
-            matches.push((r, c));
-            unmatched_rows.remove(&r);
-            unmatched_cols.remove(&c);
-        }
-    }
-
-    (
-        matches,
-        unmatched_rows.into_iter().collect(),
-        unmatched_cols.into_iter().collect(),
-    )
+    crate::utils::assignment::greedy_match(cost_matrix, threshold)
 }
 
 #[cfg(test)]

@@ -394,49 +394,16 @@ impl ByteTrack {
         )
     }
 
+    /// Greedy linear assignment.
+    ///
+    /// Rows are tracks and columns are detections; returns matches as
+    /// `(track, detection)` pairs alongside the unmatched tracks and detections.
     fn linear_assignment(
         &self,
         cost_matrix: &[Vec<f32>],
         thresh: f32,
     ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-        use std::collections::HashSet;
-
-        if cost_matrix.is_empty() {
-            return (Vec::new(), Vec::new(), Vec::new());
-        }
-
-        let rows = cost_matrix.len();
-        let cols = cost_matrix[0].len();
-
-        // Greedy matching
-        let mut matches = Vec::new();
-        let mut unmatched_tracks = (0..rows).collect::<HashSet<_>>();
-        let mut unmatched_detections = (0..cols).collect::<HashSet<_>>();
-
-        let mut costs = Vec::new();
-        for (r, row) in cost_matrix.iter().enumerate() {
-            for (c, &cost) in row.iter().enumerate() {
-                costs.push((cost, r, c));
-            }
-        }
-        // sort by cost
-        costs.sort_by(|a, b| a.0.total_cmp(&b.0));
-
-        for (cost, r, c) in costs {
-            if cost > thresh {
-                continue;
-            }
-            if unmatched_tracks.contains(&r) && unmatched_detections.contains(&c) {
-                matches.push((r, c));
-                unmatched_tracks.remove(&r);
-                unmatched_detections.remove(&c);
-            }
-        }
-
-        let u_track: Vec<usize> = unmatched_tracks.into_iter().collect();
-        let u_det: Vec<usize> = unmatched_detections.into_iter().collect();
-
-        (matches, u_track, u_det)
+        crate::utils::assignment::greedy_match(cost_matrix, thresh)
     }
 }
 
