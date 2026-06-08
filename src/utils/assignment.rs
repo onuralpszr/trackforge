@@ -4,8 +4,6 @@
 //! every (row, column) cost, sort ascending, and greedily accept a pair when both
 //! its row and column are still free and the cost does not exceed the threshold.
 
-use std::collections::HashSet;
-
 /// Greedily match rows to columns of a cost matrix.
 ///
 /// `cost_matrix[r][c]` is the cost of pairing row `r` with column `c`. Pairs are
@@ -13,7 +11,7 @@ use std::collections::HashSet;
 /// cost is `<= threshold`.
 ///
 /// Returns `(matches, unmatched_rows, unmatched_cols)` where each match is a
-/// `(row, col)` pair. The unmatched vectors are unordered.
+/// `(row, col)` pair. The unmatched vectors are sorted ascending.
 pub fn greedy_match(
     cost_matrix: &[Vec<f32>],
     threshold: f32,
@@ -26,8 +24,10 @@ pub fn greedy_match(
     let cols = cost_matrix[0].len();
 
     let mut matches = Vec::new();
-    let mut unmatched_rows: HashSet<usize> = (0..rows).collect();
-    let mut unmatched_cols: HashSet<usize> = (0..cols).collect();
+    // Membership by index is hotter than the set-up cost of a HashMap here, so
+    // track matched endpoints with flat bool vectors.
+    let mut row_matched = vec![false; rows];
+    let mut col_matched = vec![false; cols];
 
     let mut costs: Vec<(f32, usize, usize)> = Vec::with_capacity(rows * cols);
     for (r, row) in cost_matrix.iter().enumerate() {
@@ -41,18 +41,17 @@ pub fn greedy_match(
         if cost > threshold {
             break;
         }
-        if unmatched_rows.contains(&r) && unmatched_cols.contains(&c) {
+        if !row_matched[r] && !col_matched[c] {
             matches.push((r, c));
-            unmatched_rows.remove(&r);
-            unmatched_cols.remove(&c);
+            row_matched[r] = true;
+            col_matched[c] = true;
         }
     }
 
-    (
-        matches,
-        unmatched_rows.into_iter().collect(),
-        unmatched_cols.into_iter().collect(),
-    )
+    let unmatched_rows = (0..rows).filter(|&r| !row_matched[r]).collect();
+    let unmatched_cols = (0..cols).filter(|&c| !col_matched[c]).collect();
+
+    (matches, unmatched_rows, unmatched_cols)
 }
 
 #[cfg(test)]
