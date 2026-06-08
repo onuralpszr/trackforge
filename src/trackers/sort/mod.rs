@@ -1,6 +1,7 @@
 #![doc = include_str!("README.md")]
 
-use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
+use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
+use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
 use std::collections::HashSet;
 
 /// Track state enumeration for SORT.
@@ -48,7 +49,7 @@ impl SortTrack {
         kf: &KalmanFilter,
         track_id: u64,
     ) -> Self {
-        let measurement = Self::tlwh_to_xyah(&tlwh);
+        let measurement = tlwh_to_xyah(&tlwh);
         let (mean, covariance) = kf.initiate(&measurement);
 
         Self {
@@ -74,12 +75,12 @@ impl SortTrack {
         self.time_since_update += 1;
 
         // Update tlwh from predicted state
-        self.tlwh = Self::xyah_to_tlwh(&self.mean);
+        self.tlwh = xyah_to_tlwh(&self.mean);
     }
 
     /// Update the track with a matched detection.
     fn update(&mut self, detection: &Detection, kf: &KalmanFilter) {
-        let measurement = Self::tlwh_to_xyah(&detection.tlwh);
+        let measurement = tlwh_to_xyah(&detection.tlwh);
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
         self.mean = mean;
         self.covariance = covariance;
@@ -99,22 +100,6 @@ impl SortTrack {
     /// Check if track should be confirmed based on min_hits.
     pub fn is_confirmed(&self) -> bool {
         self.state == SortTrackState::Confirmed
-    }
-
-    fn tlwh_to_xyah(tlwh: &[f32; 4]) -> MeasurementVector {
-        let x = tlwh[0] + tlwh[2] / 2.0;
-        let y = tlwh[1] + tlwh[3] / 2.0;
-        let a = tlwh[2] / tlwh[3].max(1e-6);
-        let h = tlwh[3];
-        MeasurementVector::from_vec(vec![x, y, a, h])
-    }
-
-    fn xyah_to_tlwh(state: &StateVector) -> [f32; 4] {
-        let w = state[2] * state[3];
-        let h = state[3];
-        let x = state[0] - w / 2.0;
-        let y = state[1] - h / 2.0;
-        [x, y, w, h]
     }
 }
 

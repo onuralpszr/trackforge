@@ -1,5 +1,6 @@
 #![doc = include_str!("README.md")]
 
+use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
 use std::collections::HashSet;
 
@@ -150,8 +151,8 @@ impl OcSortTrack {
         }
 
         // Interpolate in TLWH space (reference interpolates in (x,y,w,h), not xyah).
-        let last_tlwh = xyah4_to_tlwh(last_obs);
-        let current_tlwh = xyah4_to_tlwh(current_xyah);
+        let last_tlwh = xyah_to_tlwh(last_obs);
+        let current_tlwh = xyah_to_tlwh(current_xyah);
 
         let (mut mean, mut covariance) = kf.initiate(last_obs);
 
@@ -192,35 +193,6 @@ impl OcSortTrack {
     fn is_confirmed(&self) -> bool {
         self.state == OcSortTrackState::Confirmed
     }
-}
-
-// ---------------------------------------------------------------------------
-// Coordinate helpers
-// ---------------------------------------------------------------------------
-
-fn tlwh_to_xyah(tlwh: &[f32; 4]) -> MeasurementVector {
-    let cx = tlwh[0] + tlwh[2] / 2.0;
-    let cy = tlwh[1] + tlwh[3] / 2.0;
-    let a = tlwh[2] / tlwh[3].max(1e-6);
-    let h = tlwh[3];
-    MeasurementVector::from_vec(vec![cx, cy, a, h])
-}
-
-fn xyah_to_tlwh(state: &StateVector) -> [f32; 4] {
-    let w = state[2] * state[3];
-    let h = state[3];
-    let x = state[0] - w / 2.0;
-    let y = state[1] - h / 2.0;
-    [x, y, w, h]
-}
-
-/// Convert a 4-element xyah measurement vector (cx, cy, aspect, height) to TLWH.
-fn xyah4_to_tlwh(xyah: &MeasurementVector) -> [f32; 4] {
-    let w = xyah[2] * xyah[3];
-    let h = xyah[3];
-    let x = xyah[0] - w / 2.0;
-    let y = xyah[1] - h / 2.0;
-    [x, y, w, h]
 }
 
 // ---------------------------------------------------------------------------
@@ -488,7 +460,7 @@ impl OcSort {
             let left_trk_obs: Vec<[f32; 4]> = unmatched_trks
                 .iter()
                 .map(|&ti| {
-                    xyah4_to_tlwh(
+                    xyah_to_tlwh(
                         &self.tracks[ti]
                             .observations
                             .last()
