@@ -372,20 +372,11 @@ impl ByteTrack {
         let strack_boxes: Vec<[f32; 4]> = stracks.iter().map(|s| s.tlwh).collect();
         let det_boxes: Vec<[f32; 4]> = detections.iter().map(|s| s.tlwh).collect();
 
-        let mut cost_matrix = Vec::new();
         if strack_boxes.is_empty() || det_boxes.is_empty() {
-            return (cost_matrix, vec![], vec![]);
+            return (Vec::new(), vec![], vec![]);
         }
 
-        let ious = crate::utils::geometry::iou_batch(&strack_boxes, &det_boxes);
-
-        for iou_row in ious {
-            let mut row = Vec::new();
-            for iou in iou_row {
-                row.push(1.0 - iou);
-            }
-            cost_matrix.push(row);
-        }
+        let cost_matrix = crate::utils::geometry::iou_cost_matrix(&strack_boxes, &det_boxes);
 
         (
             cost_matrix,
@@ -580,5 +571,16 @@ mod tests {
             out3[0].track_id, id,
             "re-activated track retains its original ID"
         );
+    }
+
+    #[test]
+    fn test_iou_distance_empty_inputs() {
+        // update() guards empty pools before calling iou_distance, so exercise
+        // its own empty guard directly.
+        let tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let (cost, rows, cols) = tracker.iou_distance(&[], &[]);
+        assert!(cost.is_empty());
+        assert!(rows.is_empty());
+        assert!(cols.is_empty());
     }
 }

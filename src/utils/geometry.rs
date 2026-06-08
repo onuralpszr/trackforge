@@ -71,6 +71,18 @@ pub fn iou_batch(bboxes1: &[[f32; 4]], bboxes2: &[[f32; 4]]) -> Vec<Vec<f32>> {
     iou_matrix
 }
 
+/// Build an IoU association cost matrix between track boxes and detection boxes.
+///
+/// `result[i][j] = 1.0 - iou(tracks[i], dets[j])`, the cost used by the
+/// IoU-based trackers. The shape mirrors [`iou_batch`]: one row per track, one
+/// column per detection (so an empty `dets` yields one empty row per track).
+pub fn iou_cost_matrix(tracks: &[[f32; 4]], dets: &[[f32; 4]]) -> Vec<Vec<f32>> {
+    tracks
+        .iter()
+        .map(|t| dets.iter().map(|d| 1.0 - iou(t, d)).collect())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -138,5 +150,31 @@ mod tests {
         assert_eq!(ious[1][0], 0.0);
         assert_eq!(ious[1][1], 0.0);
         assert_eq!(ious[1][2], 0.0);
+    }
+
+    #[test]
+    fn test_iou_cost_matrix() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0], [100.0, 100.0, 10.0, 10.0]];
+        let dets = vec![[0.0, 0.0, 10.0, 10.0], [200.0, 200.0, 10.0, 10.0]];
+
+        let cost = iou_cost_matrix(&tracks, &dets);
+        assert_eq!(cost.len(), 2);
+        assert_eq!(cost[0].len(), 2);
+        // Perfect overlap -> cost 0; no overlap -> cost 1.
+        assert_eq!(cost[0][0], 0.0);
+        assert_eq!(cost[0][1], 1.0);
+        assert_eq!(cost[1][0], 1.0);
+        assert_eq!(cost[1][1], 1.0);
+    }
+
+    #[test]
+    fn test_iou_cost_matrix_empty() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0]];
+        // No detections: one row per track, each empty.
+        let cost = iou_cost_matrix(&tracks, &[]);
+        assert_eq!(cost.len(), 1);
+        assert!(cost[0].is_empty());
+        // No tracks: empty matrix.
+        assert!(iou_cost_matrix(&[], &tracks).is_empty());
     }
 }

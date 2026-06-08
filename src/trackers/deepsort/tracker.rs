@@ -263,8 +263,6 @@ impl DeepSortTracker {
             );
         }
 
-        let mut cost_matrix = Vec::new();
-
         let track_boxes: Vec<[f32; 4]> = track_indices
             .iter()
             .map(|&i| self.tracks[i].to_tlwh())
@@ -277,12 +275,7 @@ impl DeepSortTracker {
             })
             .collect();
 
-        let ious = crate::utils::geometry::iou_batch(&track_boxes, &det_boxes);
-
-        for iou_row in ious {
-            let cost_row: Vec<f32> = iou_row.iter().map(|&iou| 1.0 - iou).collect();
-            cost_matrix.push(cost_row);
-        }
+        let cost_matrix = crate::utils::geometry::iou_cost_matrix(&track_boxes, &det_boxes);
 
         let (local_matches, local_unmatched_tracks, local_unmatched_dets) =
             min_cost_matching(&cost_matrix, self.max_iou_distance);
