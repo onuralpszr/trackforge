@@ -9,15 +9,16 @@
 **Trackforge** is a unified, high-performance computer vision tracking library implemented in Rust with Python bindings. It provides real-time multi-object tracking algorithms, optimized for speed and designed as the CPU "glue" between GPU-based object detectors and your tracking pipeline.
 
 <p align="center">
-    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge.svg" alt="PyPI version" /></a>
-    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/v/trackforge.svg" alt="Crates.io version" /></a>
-    <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/docsrs/trackforge" alt="docs.rs" /></a>
-    <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge" alt="PyPI downloads" /></a>
-    <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://codecov.io/gh/onuralpszr/trackforge/branch/main/graph/badge.svg?token=DHMFYRLJW1" alt="Coverage" /></a>
-    <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg" alt="CI" /></a>
-    <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License" /></a>
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/v/trackforge?logo=rust&logoColor=white&label=crates.io" alt="Crates.io version" /></a>
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/d/trackforge?logo=rust&logoColor=white&label=downloads" alt="Crates.io downloads" /></a>
+    <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/docsrs/trackforge?logo=docsdotrs&logoColor=white" alt="docs.rs" /></a>
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/msrv/trackforge?logo=rust&logoColor=white" alt="MSRV" /></a>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=pypi&logoColor=white" alt="PyPI version" /></a>
+    <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge?logo=python&logoColor=white&label=pip%20downloads" alt="PyPI downloads" /></a>
+    <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
+    <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://img.shields.io/codecov/c/github/onuralpszr/trackforge?logo=codecov&logoColor=white&token=DHMFYRLJW1" alt="Coverage" /></a>
     <a href="https://deps.rs/repo/github/onuralpszr/trackforge"><img src="https://deps.rs/repo/github/onuralpszr/trackforge/status.svg" alt="dependency status" /></a>
-    <a href="https://crates.io/crates/trackforge" style="background-color: #00000000;"><img src="https://img.shields.io/crates/msrv/trackforge.svg?logo=rust&color=black&labelColor=black" alt="MSRV" /></a>
+    <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white" alt="License" /></a>
 </p>
 
 ## Supported Trackers
