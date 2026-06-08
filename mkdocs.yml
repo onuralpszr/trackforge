@@ -52,5 +52,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Examples: examples.md
+  - Parameters: parameters.md
+  - Roadmap: roadmap.md
   - Python API: reference/python.md
   - Rust API: api/

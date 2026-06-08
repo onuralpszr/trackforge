@@ -1,8 +1,9 @@
-//! [![Crates.io](https://img.shields.io/crates/v/trackforge.svg)](https://crates.io/crates/trackforge)
-//! [![docs.rs](https://docs.rs/trackforge/badge.svg)](https://docs.rs/trackforge)
-//! [![CI](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml/badge.svg)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
-//! [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-//! [![MSRV](https://img.shields.io/badge/rustc-1.88%2B-orange.svg)](https://blog.rust-lang.org/2025/05/15/Rust-1.88.0/)
+//! [![Crates.io](https://img.shields.io/crates/v/trackforge?logo=rust&logoColor=white&label=crates.io)](https://crates.io/crates/trackforge)
+//! [![Downloads](https://img.shields.io/crates/d/trackforge?logo=rust&logoColor=white&label=downloads)](https://crates.io/crates/trackforge)
+//! [![docs.rs](https://img.shields.io/docsrs/trackforge?logo=docsdotrs&logoColor=white)](https://docs.rs/trackforge)
+//! [![MSRV](https://img.shields.io/crates/msrv/trackforge?logo=rust&logoColor=white)](https://crates.io/crates/trackforge)
+//! [![CI](https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI)](https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml)
+//! [![License: MIT](https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/MIT)
 //!
 //! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.

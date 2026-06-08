@@ -13,7 +13,7 @@
     <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/d/trackforge?logo=rust&logoColor=white&label=downloads" alt="Crates.io downloads" /></a>
     <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/docsrs/trackforge?logo=docsdotrs&logoColor=white" alt="docs.rs" /></a>
     <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/msrv/trackforge?logo=rust&logoColor=white" alt="MSRV" /></a>
-    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=pypi&logoColor=white" alt="PyPI version" /></a>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=python&logoColor=white&label=PyPI" alt="PyPI version" /></a>
     <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge?logo=python&logoColor=white&label=pip%20downloads" alt="PyPI downloads" /></a>
     <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
     <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://img.shields.io/codecov/c/github/onuralpszr/trackforge?logo=codecov&logoColor=white&token=DHMFYRLJW1" alt="Coverage" /></a>
@@ -25,12 +25,12 @@
 
 ## Supported Trackers
 
-| Tracker                                       | Type                           | Appearance (Re-ID) | Language      | Status         |
-| --------------------------------------------- | ------------------------------ | ------------------ | ------------- | -------------- |
-| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association   | No                 | Python & Rust | ✅ Implemented |
-| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance          | Yes (pluggable)    | Python & Rust | ✅ Implemented |
-| [OC-SORT](https://arxiv.org/abs/2203.14360)   | IoU + velocity direction (OCM) | No                 | Python & Rust | ✅ Implemented |
-| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter            | No                 | Python & Rust | ✅ Implemented |
+| Tracker                                       | Type                           | Appearance (Re-ID) |
+| --------------------------------------------- | ------------------------------ | ------------------ |
+| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association   | No                 |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance          | Yes (pluggable)    |
+| [OC-SORT](https://arxiv.org/abs/2203.14360)   | IoU + velocity direction (OCM) | No                 |
+| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter            | No                 |
 
 ## Features
 
@@ -39,20 +39,6 @@
 - 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, and SORT with a unified API
 - 🔌 **Pluggable Re-ID** DeepSORT's appearance extractor is a trait; plug in any feature model
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
-
-## Architecture
-
-```text
-┌──────────────────┐   bboxes    ┌──────────────────┐   tracks    ┌──────────────────┐
-│  GPU Detectors   │ ──────────▶ │    Trackforge    │ ──────────▶ │      Tracks      │
-│ YOLO / RT-DETR / │             │  (CPU, no GPU    │             │   ID + bbox +    │
-│     custom       │             │   round-trip)    │             │      class       │
-└──────────────────┘             └──────────────────┘             └──────────────────┘
-```
-
-Trackforge is intentionally CPU-bound. It receives bounding boxes from GPU detectors and handles
-association on the CPU no costly device transfers needed. Algorithms like ByteTrack run in under
-1ms per frame.
 
 <!-- prettier-ignore -->
 > [!IMPORTANT]
@@ -149,131 +135,158 @@ for track_id, tlwh, score, class_id in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
-### Rust ByteTrack
+### Rust - ByteTrack
 
 ```rust
 use trackforge::trackers::byte_track::ByteTrack;
 
-fn main() -> anyhow::Result<()> {
-    let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
 
-    let detections = vec![
-        ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
-        ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
-    ];
+// Format: ([x, y, w, h], confidence, class_id)
+let detections = vec![
+    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
+];
 
-    let tracks = tracker.update(detections);
+let tracks = tracker.update(detections);
 
-    for t in tracks {
-        println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
-    }
+for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
 
-    Ok(())
+### Rust - DeepSORT
+
+```rust
+use trackforge::trackers::deepsort::DeepSort;
+
+// `extractor` implements the AppearanceExtractor trait (plug in any Re-ID model).
+let mut tracker = DeepSort::new(extractor, 30, 3, 0.7, 0.2, 100);
+
+let detections = vec![(BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0)];
+let tracks = tracker.update(&image, detections)?;
+
+for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
+}
+```
+
+### Rust - OC-SORT
+
+```rust
+use trackforge::trackers::ocsort::OcSort;
+
+let mut tracker = OcSort::new(30, 3, 0.3, 3, 0.2);
+
+let detections = vec![
+    ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
+];
+
+let tracks = tracker.update(detections);
+
+for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
+
+### Rust - SORT
+
+```rust
+use trackforge::trackers::sort::Sort;
+
+let mut tracker = Sort::new(1, 3, 0.3);
+
+let detections = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+let tracks = tracker.update(detections);
+
+for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
 }
 ```
 
 ## Examples
 
-Complete working examples are included in the repository:
+Runnable demos live under [`examples/`](examples/), with both a Python and a Rust entry per tracker.
 
-### Python Examples
-
-| Example                                                     | Description                                | Requirements                          |
-| ----------------------------------------------------------- | ------------------------------------------ | ------------------------------------- |
-| [ByteTrack + YOLO](examples/python/byte_track_demo.py)      | ByteTrack with Ultralytics YOLO11 on video | `ultralytics`, `opencv-python`        |
-| [DeepSORT + YOLO](examples/python/deepsort_demo.py)         | DeepSORT with YOLO + ResNet18 embeddings   | `ultralytics`, `torch`, `torchvision` |
-| [SORT + RT-DETR](examples/python/sort_rtdetr_demo.py)       | SORT with Hugging Face RT-DETR             | `transformers`, `torch`               |
-| [SORT + YOLO](examples/python/sort_yolo_demo.py)            | SORT with Ultralytics YOLO                 | `ultralytics`, `opencv-python`        |
-| [Tracker Comparison](examples/python/tracker_comparison.py) | side-by-side tracker benchmark             | varies                                |
-
-Run a Python example:
+| Tracker   | Python                                                                                                                              | Rust                                                                                                         |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| ByteTrack | [`byte_track_demo.py`](examples/python/byte_track_demo.py) (YOLO11)                                                                | [`byte_track_demo.rs`](examples/rust/byte_track_demo.rs)                                                     |
+| DeepSORT  | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                           | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX)    |
+| OC-SORT   | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                 | —                                                                                                           |
+| SORT      | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                       |
+| All four  | [`tracker_comparison.py`](examples/python/tracker_comparison.py) side-by-side benchmark                                            | —                                                                                                           |
 
 ```bash
+# Python
 python examples/python/byte_track_demo.py
-```
 
-### Rust Examples
-
-| Example                                            | Description                               | Feature Flag        |
-| -------------------------------------------------- | ----------------------------------------- | ------------------- |
-| [ByteTrack Demo](examples/rust/byte_track_demo.rs) | Basic ByteTrack with simulated detections | none                |
-| [DeepSORT (simple)](examples/deepsort_simple.rs)   | DeepSORT with a mock appearance extractor | none                |
-| [DeepSORT + ONNX](examples/deepsort_ort.rs)        | DeepSORT with RT-DETR + ONNX Re-ID        | `advanced_examples` |
-
-Run a Rust example:
-
-```bash
+# Rust
 cargo run --example byte_track_demo
 cargo run --example deepsort_simple
 cargo run --example deepsort_ort --features advanced_examples
 ```
 
+The Python demos use the usual detector stacks: `ultralytics` (YOLO), `transformers` + `torch`
+(RT-DETR), and `torch` + `torchvision` (ResNet Re-ID); install what a given demo imports. The
+`deepsort_ort` Rust demo needs the `advanced_examples` feature (ONNX Runtime + OpenCV).
+
 ## API Reference
 
-- [Python API](https://onuralpszr.github.io/trackforge/reference/python.html) Full PyO3 class reference
-- [Rust API](https://docs.rs/trackforge) Generated rustdoc
+<a href="https://onuralpszr.github.io/trackforge/reference/python.html"><img src="https://img.shields.io/badge/Python%20API-docs-3776AB?logo=python&logoColor=white" alt="Python API" /></a>
+<a href="https://docs.rs/trackforge"><img src="https://img.shields.io/badge/Rust%20API-docs.rs-000000?logo=docsdotrs&logoColor=white" alt="Rust API" /></a>
 
 ## Parameters
 
-### ByteTrack
-
-| Parameter      | Type  | Default | Description                                     |
-| -------------- | ----- | ------- | ----------------------------------------------- |
-| `track_thresh` | float | 0.5     | High confidence detection threshold             |
-| `track_buffer` | int   | 30      | Frames to keep lost tracks alive                |
-| `match_thresh` | float | 0.8     | IoU threshold for matching                      |
-| `det_thresh`   | float | 0.6     | Minimum detection confidence for initialization |
-
-### DeepSORT
-
-| Parameter             | Type  | Default | Description                                      |
-| --------------------- | ----- | ------- | ------------------------------------------------ |
-| `max_age`             | int   | 70      | Max frames to keep a track without detection     |
-| `n_init`              | int   | 3       | Consecutive detections needed to confirm a track |
-| `max_iou_distance`    | float | 0.7     | Max IoU distance for association                 |
-| `max_cosine_distance` | float | 0.2     | Max cosine distance for Re-ID matching           |
-| `nn_budget`           | int   | 100     | Max appearance feature library size per track    |
-
-### OC-SORT
-
-| Parameter       | Type  | Default | Description                                            |
-| --------------- | ----- | ------- | ------------------------------------------------------ |
-| `max_age`       | int   | 30      | Max frames to keep a lost track alive before deletion  |
-| `min_hits`      | int   | 3       | Consecutive matched frames required to confirm a track |
-| `iou_threshold` | float | 0.3     | IoU threshold for matching                             |
-| `delta_t`       | int   | 3       | Observation window (frames) for velocity computation   |
-| `inertia`       | float | 0.2     | Weight for the direction-consistency cost bonus (OCM)  |
-
-### SORT
-
-| Parameter       | Type  | Default | Description                                  |
-| --------------- | ----- | ------- | -------------------------------------------- |
-| `max_age`       | int   | 1       | Max frames to keep a track without detection |
-| `min_hits`      | int   | 3       | Minimum hits before a track is confirmed     |
-| `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
+Each tracker's parameters and defaults (identical across Python and Rust) are documented on the
+[Parameters page](https://onuralpszr.github.io/trackforge/parameters.html).
 
 ## Development
 
 ### Prerequisites
 
 - Rust 1.88+ (MSRV)
-- Python 3.8+
-- [`maturin`](https://github.com/pyo3/maturin) for Python bindings
+- Python 3.8+ and [`maturin`](https://github.com/pyo3/maturin) for the bindings
+- [`prek`](https://github.com/j178/prek) for git hooks (optional but recommended)
 
-### Build
+### Setup
 
 ```bash
-# Build Python bindings in development mode
-maturin develop
+git clone https://github.com/onuralpszr/trackforge.git
+cd trackforge
 
-# Run Rust tests
+# Rust core
+cargo build
 cargo test
 
-# Format code
-cargo fmt
+# Python bindings (build into the active virtualenv)
+maturin develop
 ```
 
-### Run Python Examples
+### Checks
+
+These mirror CI, run them before opening a PR:
+
+```bash
+cargo fmt --all -- --check          # formatting
+cargo clippy --all-targets -- -D warnings   # lint, warnings are errors
+cargo test                          # unit, integration, and doc tests
+cargo llvm-cov --summary-only       # coverage (cargo install cargo-llvm-cov)
+prek run --all-files                # all pre-commit hooks at once
+```
+
+### Feature flags
+
+- `python` builds the PyO3 bindings.
+- `advanced_examples` enables the ONNX/OpenCV-backed examples (`deepsort_ort`), which need
+  ONNX Runtime and OpenCV on the system.
+
+```bash
+cargo test --features python
+cargo run --example deepsort_ort --features advanced_examples
+```
+
+### Run a Python example
 
 ```bash
 # After `maturin develop`:
@@ -290,25 +303,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ## Roadmap
 
-### Completed
-
-- [x] SORT
-- [x] ByteTrack
-- [x] OC-SORT
-- [x] DeepSORT
-- [x] Python bindings & PyPI package
-- [x] Rust & Python examples
-
-### Planned
-
-- [ ] Norfair Lightweight distance-based tracking
-- [ ] StrongSORT Improved DeepSORT with stronger Re-ID
-- [ ] StrongSORT++ With camera motion compensation
-- [ ] BoT-SORT ByteTrack + Re-ID + camera motion compensation
-- [ ] DeepOCSORT (OC-SORT + appearance)
-- [ ] Joint detection & tracking (FairMOT, CenterTrack)
-- [ ] Transformer-based trackers (TrackFormer, MOTR)
-- [ ] TrackTrack: Focusing on Tracks for Online Multi-Object Tracking
+Planned trackers and milestones live on the [Roadmap page](https://onuralpszr.github.io/trackforge/roadmap.html).
 
 ## License
 

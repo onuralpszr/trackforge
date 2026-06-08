@@ -6,6 +6,16 @@
     </picture>
 </p>
 
+<p align="center">
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/v/trackforge?logo=rust&logoColor=white&label=crates.io" alt="Crates.io version" /></a>
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/d/trackforge?logo=rust&logoColor=white&label=downloads" alt="Crates.io downloads" /></a>
+    <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/docsrs/trackforge?logo=docsdotrs&logoColor=white" alt="docs.rs" /></a>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=python&logoColor=white&label=PyPI" alt="PyPI version" /></a>
+    <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge?logo=python&logoColor=white&label=pip%20downloads" alt="PyPI downloads" /></a>
+    <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
+    <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white" alt="License" /></a>
+</p>
+
 **Trackforge** is a unified, high-performance multi-object tracking library written in Rust and
 exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.
@@ -29,7 +39,7 @@ pip install trackforge
 
 ```toml
 [dependencies]
-trackforge = "0.1"
+trackforge = "0.2"
 ```
 
 To enable the Python bindings feature when building from source:
@@ -298,7 +308,7 @@ struct MyExtractor;
 
 impl AppearanceExtractor for MyExtractor {
     fn extract(
-        &self,
+        &mut self,
         image: &DynamicImage,
         boxes: &[BoundingBox],
     ) -> Result<Vec<Vec<f32>>, Box<dyn std::error::Error>> {

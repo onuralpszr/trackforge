@@ -1,5 +1,11 @@
 # Python API Reference
 
+<p>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=python&logoColor=white&label=PyPI" alt="PyPI version" /></a>
+    <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge?logo=python&logoColor=white&label=pip%20downloads" alt="PyPI downloads" /></a>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/pyversions/trackforge?logo=python&logoColor=white" alt="Python versions" /></a>
+</p>
+
 Trackforge exposes four tracker classes. All are importable directly from the `trackforge`
 module after installing with `pip install trackforge`.
 
