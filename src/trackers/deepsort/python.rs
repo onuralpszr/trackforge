@@ -1,4 +1,3 @@
-use crate::trackers::deepsort::nn_matching::{Metric, NearestNeighborDistanceMetric};
 use crate::trackers::deepsort::tracker::DeepSortTracker;
 use crate::types::BoundingBox;
 use pyo3::prelude::*;
@@ -21,12 +20,13 @@ impl PyDeepSort {
         max_cosine_distance: f32,
         nn_budget: usize,
     ) -> Self {
-        let metric = NearestNeighborDistanceMetric::new(
-            Metric::Cosine,
+        let tracker = super::build_tracker(
+            max_age,
+            n_init,
+            max_iou_distance,
             max_cosine_distance,
-            Some(nn_budget),
+            nn_budget,
         );
-        let tracker = DeepSortTracker::new(metric, max_age, n_init, max_iou_distance);
         Self { tracker }
     }
 
