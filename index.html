@@ -230,6 +230,38 @@
   
   
     <li class="md-tabs__item">
+      <a href="./parameters/" class="md-tabs__link">
+        
+  
+  Parameters
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./roadmap/" class="md-tabs__link">
+        
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
       <a href="./reference/python/" class="md-tabs__link">
         
   
@@ -674,6 +706,58 @@
   
   
     <li class="md-nav__item">
+      <a href="./parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Parameters
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Roadmap
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="./reference/python/" class="md-nav__link">
         
   
@@ -1055,6 +1139,16 @@
     </picture>
 </p>
 
+<p align="center">
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/v/trackforge?logo=rust&logoColor=white&label=crates.io" alt="Crates.io version" /></a>
+    <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/d/trackforge?logo=rust&logoColor=white&label=downloads" alt="Crates.io downloads" /></a>
+    <a href="https://docs.rs/trackforge"><img src="https://img.shields.io/docsrs/trackforge?logo=docsdotrs&logoColor=white" alt="docs.rs" /></a>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=python&logoColor=white&label=PyPI" alt="PyPI version" /></a>
+    <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge?logo=python&logoColor=white&label=pip%20downloads" alt="PyPI downloads" /></a>
+    <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
+    <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white" alt="License" /></a>
+</p>
+
 <p><strong>Trackforge</strong> is a unified, high-performance multi-object tracking library written in Rust and
 exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.</p>
@@ -1071,7 +1165,7 @@ shared Kalman filter, so you can swap trackers without changing your integration
 </span></code></pre></div>
 <h3 id="rust">Rust</h3>
 <div class="language-toml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[dependencies]</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">trackforge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1&quot;</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">trackforge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.2&quot;</span>
 </span></code></pre></div>
 <p>To enable the Python bindings feature when building from source:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>maturin<span class="w"> </span>develop<span class="w"> </span>--features<span class="w"> </span>python
@@ -1442,7 +1536,7 @@ use image::DynamicImage;</p>
 <p>struct MyExtractor;</p>
 <p>impl AppearanceExtractor for MyExtractor {
     fn extract(
-        &amp;self,
+        &amp;mut self,
         image: &amp;DynamicImage,
         boxes: &amp;[BoundingBox],
     ) -&gt; Result<Vec\<Vec\<f32>>, Box\<dyn std::error::Error>> {
