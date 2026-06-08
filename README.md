@@ -19,6 +19,8 @@
     <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://img.shields.io/codecov/c/github/onuralpszr/trackforge?logo=codecov&logoColor=white&token=DHMFYRLJW1" alt="Coverage" /></a>
     <a href="https://deps.rs/repo/github/onuralpszr/trackforge"><img src="https://deps.rs/repo/github/onuralpszr/trackforge/status.svg" alt="dependency status" /></a>
     <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white" alt="License" /></a>
+    <a href="https://www.conventionalcommits.org/en/v1.0.0/"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow?logo=conventionalcommits&logoColor=white" alt="Conventional Commits" /></a>
+    <a href="https://github.com/j178/prek"><img src="https://img.shields.io/badge/managed%20by-prek-FAB040?logo=precommit&logoColor=white" alt="prek" /></a>
 </p>
 
 ## Supported Trackers
