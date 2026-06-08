@@ -6,7 +6,7 @@
 
 ```toml
 [dependencies]
-trackforge = "0.2"
+trackforge = "0.3"
 ```
 
 ### Python
