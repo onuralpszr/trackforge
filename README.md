@@ -61,7 +61,7 @@ Add to your `Cargo.toml`:
 trackforge = "0.3.0"
 ```
 
-To build the Python bindings from source (e.g. via `maturin develop`), enable the `python` feature:
+To build the Python bindings from source (e.g., via `maturin develop`), enable the `python` feature:
 
 ```toml
 [dependencies]
