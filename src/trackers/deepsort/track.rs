@@ -1,15 +1,6 @@
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
 
-/// Life-cycle state of a DeepSORT track.
-#[derive(Debug, Clone, PartialEq, Eq, Copy)]
-pub enum TrackState {
-    /// Newly created; not yet confirmed by `n_init` consecutive hits.
-    Tentative,
-    /// Confirmed and actively tracked.
-    Confirmed,
-    /// Marked for removal; will be pruned at the next update.
-    Deleted,
-}
+pub use crate::trackers::common::TrackState;
 
 /// A single object track maintained by the DeepSORT tracker.
 #[derive(Debug, Clone)]
