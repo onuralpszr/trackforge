@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a problem with trackforge
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in the sections below.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code sample (Rust or Python) that reproduces the problem.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: input
+    id: tracker
+    attributes:
+      label: Tracker
+      description: Which tracker is affected (SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT)?
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: trackforge version, language (Rust/Python) and version, and OS.
+    validations:
+      required: true

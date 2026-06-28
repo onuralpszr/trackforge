@@ -21,6 +21,16 @@ All contributions are welcome. Please include as many details as possible in you
 - Aim for PRs under 500 lines of changes when possible.
 - Separate refactoring, formatting, and functional changes into different PRs.
 
+### Commit messages
+
+We use Commitizen-style Conventional Commits and require a `Signed-off-by` trailer on
+every commit (`git commit -s`). The full rules, including what must never appear in commit
+messages or PR descriptions, are in [docs/COMMIT_GUIDELINES.md](docs/COMMIT_GUIDELINES.md).
+
+In short: commit with `git commit -sm "type(scope): subject"`, use a tracker or area as the
+scope, and keep commit and PR text free of co-author trailers, AI-attribution lines, em
+dashes, and ASCII art.
+
 ### Code formatting
 
 Run `cargo fmt` before committing to ensure that code is consistently formatted.
@@ -89,6 +99,25 @@ cargo fmt --all -- --check
 cargo clippy -- -D warnings
 cargo test
 ```
+
+## Adding a tracker
+
+Every tracker ships for both Rust and Python, is tested in both, is documented, and
+credits the paper and original authors it is based on. The full step-by-step process,
+module layout, API conventions, and credit requirements are in
+[docs/adding-a-tracker.md](docs/adding-a-tracker.md), with a fill-in-the-blanks spec in
+[.github/TRACKER_TEMPLATE.md](.github/TRACKER_TEMPLATE.md).
+
+Open a "New tracker" issue first so the algorithm, scope, and parameters can be agreed
+before you write code. A complete tracker contribution includes:
+
+- The Rust implementation under `src/trackers/<name>/`, reusing the shared
+  `utils::{kalman,geometry,assignment}` and `trackers::common` building blocks.
+- The PyO3 binding and its registration in `src/lib.rs`.
+- Rust unit tests and a block in `tests/test_python_bindings.py`.
+- A per-tracker `README.md`, a `book/src/trackers/<name>.md` guide, a Python example on
+  `examples/python/common.py`, and updates to the README tables and `docs/roadmap.md`.
+- Paper credit: arXiv link, original-implementation reference, and a BibTeX citation.
 
 ## Documentation
 
