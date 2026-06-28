@@ -9,14 +9,13 @@ mod tracker;
 #[cfg(feature = "python")]
 pub mod python;
 
-pub use nn_matching::Metric;
+pub use nn_matching::{Metric, NearestNeighborDistanceMetric};
 pub use track::{Track, TrackState};
 pub use tracker::DeepSortTracker;
 
 use crate::traits::AppearanceExtractor;
 use crate::types::BoundingBox;
 use image::DynamicImage;
-use nn_matching::NearestNeighborDistanceMetric;
 use std::error::Error;
 
 /// Build the inner DeepSORT tracker shared by the Rust and Python constructors.

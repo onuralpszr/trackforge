@@ -26,18 +26,19 @@
 
 ## Supported Trackers
 
-| Tracker                                       | Type                           | Appearance (Re-ID) |
-| --------------------------------------------- | ------------------------------ | ------------------ |
-| [ByteTrack](https://arxiv.org/abs/2110.06864) | IoU + confidence association   | No                 |
-| [DeepSORT](https://arxiv.org/abs/1703.07402)  | IoU + cosine distance          | Yes (pluggable)    |
-| [OC-SORT](https://arxiv.org/abs/2203.14360)   | IoU + velocity direction (OCM) | No                 |
-| [SORT](https://arxiv.org/abs/1602.00763)      | IoU + Kalman filter            | No                 |
+| Tracker                                          | Type                              | Appearance (Re-ID) |
+| ------------------------------------------------ | --------------------------------- | ------------------ |
+| [ByteTrack](https://arxiv.org/abs/2110.06864)    | IoU + confidence association      | No                 |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)     | IoU + cosine distance             | Yes (pluggable)    |
+| [OC-SORT](https://arxiv.org/abs/2203.14360)      | IoU + velocity direction (OCM)    | No                 |
+| [Deep OC-SORT](https://arxiv.org/abs/2302.11813) | IoU + velocity (OCM) + appearance | Yes (pluggable)    |
+| [SORT](https://arxiv.org/abs/1602.00763)         | IoU + Kalman filter               | No                 |
 
 ## Features
 
 - 🚀 **Native Rust Core** Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
 - 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
-- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, and SORT with a unified API
+- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, and SORT with a unified API
 - 🔌 **Pluggable Re-ID** DeepSORT's appearance extractor is a trait; plug in any feature model
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 
@@ -136,6 +137,32 @@ for track_id, tlwh, score, class_id in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
+### Python - Deep OC-SORT
+
+```python
+from trackforge import DEEPOCSORT
+
+tracker = DEEPOCSORT(
+    max_age=30,
+    min_hits=3,
+    iou_threshold=0.3,
+    delta_t=3,
+    inertia=0.2,
+    appearance_weight=0.5,
+    max_cosine_distance=0.2,
+    nn_budget=100,
+)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
+
+# Pass embeddings for appearance-aware tracking, or omit them for motion only.
+tracks = tracker.update(detections, embeddings)
+
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
+```
+
 ### Rust - ByteTrack
 
 ```rust
@@ -185,6 +212,21 @@ let detections = vec![
 ];
 
 let tracks = tracker.update(detections);
+
+for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
+
+### Rust - Deep OC-SORT
+
+```rust,ignore
+use trackforge::trackers::deep_ocsort::DeepOcSort;
+
+// `extractor` implements AppearanceExtractor (plug in any Re-ID model).
+let mut tracker = DeepOcSort::new(extractor, 30, 3, 0.3, 3, 0.2, 0.5, 0.2, 100);
+
+let tracks = tracker.update(&image, detections)?;
 
 for t in tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
@@ -353,6 +395,13 @@ also cite the paper for the tracker you use:
   title={Observation-Centric SORT: Rethinking SORT for Robust Multi-Object Tracking},
   author={Cao, Jinkun and Pang, Jiangmiao and Weng, Xinshuo and Khirodkar, Rawal and Kitani, Kris},
   booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2023}
+}
+
+@inproceedings{maggiolino2023deepocsort,
+  title={Deep OC-SORT: Multi-Pedestrian Tracking by Adaptive Re-Identification},
+  author={Maggiolino, Gerard and Ahmad, Adnan and Cao, Jinkun and Kitani, Kris},
+  booktitle={IEEE International Conference on Image Processing (ICIP)},
   year={2023}
 }
 ```
