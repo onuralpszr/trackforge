@@ -239,6 +239,14 @@ impl Default for Sort {
     }
 }
 
+impl crate::traits::Tracker for Sort {
+    type Track = SortTrack;
+
+    fn update(&mut self, detections: Vec<crate::traits::Detection>) -> Vec<SortTrack> {
+        self.update(detections)
+    }
+}
+
 // Python bindings
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
@@ -404,6 +412,14 @@ mod tests {
         let tracks2 = tracker2.update(det2);
         assert_eq!(tracks2.len(), 1);
         assert_eq!(tracks2[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_sort_tracker_trait() {
+        use crate::traits::Tracker;
+        let mut tracker = Sort::new(1, 1, 0.3);
+        let tracks = Tracker::update(&mut tracker, vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)]);
+        assert_eq!(tracks.len(), 1);
     }
 
     #[test]

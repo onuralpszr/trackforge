@@ -352,6 +352,14 @@ impl ByteTrack {
     }
 }
 
+impl crate::traits::Tracker for ByteTrack {
+    type Track = STrack;
+
+    fn update(&mut self, detections: Vec<crate::traits::Detection>) -> Vec<STrack> {
+        self.update(detections)
+    }
+}
+
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
@@ -488,6 +496,14 @@ mod tests {
         let tracks2 = tracker2.update(det2);
         assert_eq!(tracks2.len(), 1);
         assert_eq!(tracks2[0].track_id, 1);
+    }
+
+    #[test]
+    fn test_bytetrack_tracker_trait() {
+        use crate::traits::Tracker;
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let tracks = Tracker::update(&mut tracker, vec![([10.0, 10.0, 50.0, 100.0], 0.9, 0)]);
+        assert_eq!(tracks.len(), 1);
     }
 
     #[test]

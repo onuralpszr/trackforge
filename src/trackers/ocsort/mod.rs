@@ -491,6 +491,14 @@ impl Default for OcSort {
     }
 }
 
+impl crate::traits::Tracker for OcSort {
+    type Track = OcSortTrack;
+
+    fn update(&mut self, detections: Vec<crate::traits::Detection>) -> Vec<OcSortTrack> {
+        self.update(detections)
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Greedy matching
 // ---------------------------------------------------------------------------
@@ -619,6 +627,14 @@ mod tests {
 
         let tracks = tracker.update(vec![]);
         assert!(tracks.is_empty());
+    }
+
+    #[test]
+    fn test_ocsort_tracker_trait() {
+        use crate::traits::Tracker;
+        let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
+        let tracks = Tracker::update(&mut tracker, vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
+        assert_eq!(tracks.len(), 1);
     }
 
     #[test]
