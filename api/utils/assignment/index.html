@@ -558,6 +558,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#iou_match" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>iou_match</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -603,6 +614,11 @@ its row and column are still free and the cost does not exceed the threshold.</p
 <td>fn</td>
 <td>Greedily match rows to columns of a cost matrix.</td>
 </tr>
+<tr>
+<td><a href="#iou-match"><code>iou_match</code></a></td>
+<td>fn</td>
+<td>Greedily associate track boxes to detection boxes by IoU.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="functions">Functions</h2>
@@ -615,6 +631,16 @@ accepted in ascending cost order while both endpoints are unmatched and the
 cost is <code>&lt;= threshold</code>.</p>
 <p>Returns <code>(matches, unmatched_rows, unmatched_cols)</code> where each match is a
 <code>(row, col)</code> pair. The unmatched vectors are sorted ascending.</p>
+<h3 id="iou_match"><code>iou_match</code></h3>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">iou_match</span><span class="p">(</span><span class="n">track_boxes</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="p">[[</span><span class="kt">f32</span><span class="p">;</span><span class="w"> </span><span class="mi">4</span><span class="p">]],</span><span class="w"> </span><span class="n">det_boxes</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="p">[[</span><span class="kt">f32</span><span class="p">;</span><span class="w"> </span><span class="mi">4</span><span class="p">]],</span><span class="w"> </span><span class="n">cost_threshold</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="kt">usize</span><span class="p">,</span><span class="w"> </span><span class="kt">usize</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Greedily associate track boxes to detection boxes by IoU.</p>
+<p>Builds the <code>1 - IoU</code> cost matrix between <code>track_boxes</code> and <code>det_boxes</code> and runs
+<a href="#greedy-match"><code>greedy_match</code></a> on it. <code>cost_threshold</code> is the maximum acceptable <code>1 - IoU</code> cost,
+so a pair is matched only when <code>IoU &gt;= 1 - cost_threshold</code>.</p>
+<p>Returns <code>(matches, unmatched_tracks, unmatched_dets)</code> where each match is a
+<code>(track, detection)</code> pair. When either side is empty no match is possible and the
+full index range of the non-empty side is returned as unmatched.</p>
 
 
 
