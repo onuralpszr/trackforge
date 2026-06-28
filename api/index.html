@@ -540,7 +540,7 @@
 <a href="https://onuralpszr.github.io/trackforge/book/"><img alt="Guide" src="https://img.shields.io/badge/Guide-mdBook-1F7087?logo=mdbook&amp;logoColor=white" /></a></p>
 <p>Trackforge is a unified, high-performance computer vision tracking library implemented in
 Rust and exposed as a Python package via PyO3.</p>
-<p>It provides four production-ready multi-object tracking algorithms built on a shared
+<p>It provides five production-ready multi-object tracking algorithms built on a shared
 8-dimensional Kalman filter with state <code>[x, y, a, h, vx, vy, va, vh]</code>, where <code>(x, y)</code>
 is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> the height.</p>
 <h1 id="choose-a-tracker">Choose a Tracker</h1>
@@ -577,6 +577,12 @@ is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> 
 <td>Re-ID embeddings</td>
 <td>Appearance + IoU</td>
 <td>Long occlusions, dense crowds</td>
+</tr>
+<tr>
+<td><a href="trackers/deep_ocsort/index.html#deep-ocsort"><code>deep_ocsort</code></a></td>
+<td>Re-ID embeddings</td>
+<td>IoU + velocity + appearance</td>
+<td>Occlusions with re-identification</td>
 </tr>
 </tbody>
 </table>
@@ -666,6 +672,25 @@ for t in &amp;tracks {
 </span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>    println!(&quot;ID: {}, Box: {:?}&quot;, t.track_id, t.tlwh);
 </span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>}
 </span></code></pre></div></p>
+<h1 id="deep-oc-sort">Deep OC-SORT</h1>
+<p>Extends OC-SORT with an appearance term: a cosine distance to a per-track feature
+gallery is blended into the motion cost, scaled by detector confidence. Like
+DeepSORT it needs an <a href="traits/index.html#appearanceextractor"><code>AppearanceExtractor</code></a>, or embeddings passed directly.</p>
+<p>```rust,ignore
+use trackforge::trackers::deep_ocsort::DeepOcSort;</p>
+<p>// extractor implements AppearanceExtractor (plug in any Re-ID model).
+// max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2,
+// appearance_weight=0.5, max_cosine_distance=0.2, nn_budget=100
+let mut tracker = DeepOcSort::new(extractor, 30, 3, 0.3, 3, 0.2, 0.5, 0.2, 100);</p>
+<p>let frame = image::DynamicImage::new_rgb8(640, 480);
+let detections = vec![
+    (trackforge::types::BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0),
+];</p>
+<p>let tracks = tracker.update(&amp;frame, detections).unwrap();
+for t in &amp;tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```</p>
 <h2 id="quick-reference">Quick Reference</h2>
 <table>
 <thead>

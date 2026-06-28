@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-ac227132.js";
+            window.path_to_searchindex_js = "searchindex-a83d3524.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7c2eeb38.js"></script>
+        <script src="toc-6e4d93f5.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -250,7 +250,7 @@ for track_id, tlwh, score, class_id in tracker.update(detections):
 for the current frame.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="trackers"><a class="header" href="#trackers">Trackers</a></h1>
-<p>All four trackers share the same Kalman filter and the same detection input, and differ only in how
+<p>All trackers share the same Kalman filter and the same detection input, and differ only in how
 they associate detections to existing tracks. Pick based on your scene and whether you have a Re-ID
 model.</p>
 <div class="table-wrapper">
@@ -263,6 +263,7 @@ model.</p>
 <tr><td><a href="#bytetrack">ByteTrack</a></td><td>None</td><td>IoU (two-stage)</td><td>Crowded scenes, low-confidence detections, short occlusions</td></tr>
 <tr><td><a href="#oc-sort">OC-SORT</a></td><td>None</td><td>IoU + velocity (OCM)</td><td>Frequent brief occlusions, no Re-ID available</td></tr>
 <tr><td><a href="#deepsort">DeepSORT</a></td><td>Re-ID embeddings</td><td>Appearance + IoU</td><td>Long occlusions, dense crowds, identity-sensitive cases</td></tr>
+<tr><td><a href="#deep-oc-sort">Deep OC-SORT</a></td><td>Re-ID embeddings</td><td>IoU + velocity + appearance</td><td>Occlusions where Re-ID helps recover identities</td></tr>
 </tbody>
 </table>
 </div>
@@ -429,7 +430,64 @@ for track_id, tlwh, score, class_id in tracker.update(detections, embeddings):
 <p><strong>Tuning:</strong> lower <code>max_cosine_distance</code> (~0.15) for stricter Re-ID; raise <code>nn_budget</code> if appearance
 drifts over time; lower <code>n_init</code> to 1 when detections are reliable and you need tracks immediately.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="parameters-4"><a class="header" href="#parameters-4">Parameters</a></h1>
+<h1 id="deep-oc-sort"><a class="header" href="#deep-oc-sort">Deep OC-SORT</a></h1>
+<p><strong>Deep OC-SORT</strong> (<a href="https://arxiv.org/abs/2302.11813">arXiv 2302.11813</a>, ICIP 2023). Extends OC-SORT
+with appearance, blending a Re-ID embedding cost into the motion association:</p>
+<ul>
+<li><strong>OCM</strong> adds a velocity direction-consistency bonus to the IoU before matching.</li>
+<li><strong>ORU</strong> replays interpolated observations to correct the Kalman filter after a track is
+re-associated following a gap.</li>
+<li><strong>Appearance</strong> adds a cosine distance to each track’s feature gallery. The appearance weight
+scales with detector confidence (dynamic appearance) and is gated by <code>max_cosine_distance</code>.</li>
+<li><strong>Camera motion compensation</strong> warps track predictions by a caller-supplied affine transform
+before association, for moving-camera footage.</li>
+</ul>
+<p>With <code>appearance_weight = 0</code> the association reduces to plain OC-SORT, so the appearance term is a
+strict add-on. This is a clean-room implementation. CMC is applied from a transform you supply (for
+example estimated with OpenCV); the tracker does not estimate camera motion itself, which keeps the
+core free of heavy dependencies. Pass the affine as <code>[a, b, tx, c, d, ty]</code> to <code>update</code>.</p>
+<pre><code class="language-python">from trackforge import DEEPOCSORT
+
+tracker = DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2,
+                     appearance_weight=0.5, max_cosine_distance=0.2, nn_budget=100)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
+tracks = tracker.update(detections, embeddings)
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
+</code></pre>
+<h2 id="parameters-4"><a class="header" href="#parameters-4">Parameters</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>max_age</code></td><td>30</td><td>Frames to keep a lost track alive before deletion</td></tr>
+<tr><td><code>min_hits</code></td><td>3</td><td>Consecutive matched frames required to confirm a track</td></tr>
+<tr><td><code>iou_threshold</code></td><td>0.3</td><td>Minimum IoU to associate a detection with a track</td></tr>
+<tr><td><code>delta_t</code></td><td>3</td><td>Observation window (frames) used to compute velocity (OCM)</td></tr>
+<tr><td><code>inertia</code></td><td>0.2</td><td>Weight of the direction-consistency cost bonus (OCM)</td></tr>
+<tr><td><code>appearance_weight</code></td><td>0.5</td><td>Blend weight of the appearance cost, scaled by det. score</td></tr>
+<tr><td><code>max_cosine_distance</code></td><td>0.2</td><td>Maximum cosine distance for the appearance term to apply</td></tr>
+<tr><td><code>nn_budget</code></td><td>100</td><td>Maximum appearance features stored per track</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Tuning:</strong> raise <code>appearance_weight</code> when the Re-ID model is reliable and identities matter; lower
+it (toward 0) to fall back to OC-SORT motion. Tighten <code>max_cosine_distance</code> to only trust strong
+appearance matches. The motion parameters behave as in OC-SORT.</p>
+<h2 id="citation"><a class="header" href="#citation">Citation</a></h2>
+<pre><code class="language-bibtex">@inproceedings{maggiolino2023deepocsort,
+  title={Deep OC-SORT: Multi-Pedestrian Tracking by Adaptive Re-Identification},
+  author={Maggiolino, Gerard and Ahmad, Adnan and Cao, Jinkun and Kitani, Kris},
+  booktitle={IEEE International Conference on Image Processing (ICIP)},
+  year={2023}
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="parameters-5"><a class="header" href="#parameters-5">Parameters</a></h1>
 <p>The parameters are identical across Python and Rust. In Python they are keyword arguments to the
 tracker class; in Rust they are positional arguments to <code>Tracker::new(...)</code>. Each tracker’s chapter
 documents its own parameters and tuning advice:</p>

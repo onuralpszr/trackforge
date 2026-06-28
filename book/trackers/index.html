@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "../searchindex-ac227132.js";
+            window.path_to_searchindex_js = "../searchindex-a83d3524.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-7c2eeb38.js"></script>
+        <script src="../toc-6e4d93f5.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -181,7 +181,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="trackers"><a class="header" href="#trackers">Trackers</a></h1>
-<p>All four trackers share the same Kalman filter and the same detection input, and differ only in how
+<p>All trackers share the same Kalman filter and the same detection input, and differ only in how
 they associate detections to existing tracks. Pick based on your scene and whether you have a Re-ID
 model.</p>
 <div class="table-wrapper">
@@ -194,6 +194,7 @@ model.</p>
 <tr><td><a href="./byte_track.html">ByteTrack</a></td><td>None</td><td>IoU (two-stage)</td><td>Crowded scenes, low-confidence detections, short occlusions</td></tr>
 <tr><td><a href="./ocsort.html">OC-SORT</a></td><td>None</td><td>IoU + velocity (OCM)</td><td>Frequent brief occlusions, no Re-ID available</td></tr>
 <tr><td><a href="./deepsort.html">DeepSORT</a></td><td>Re-ID embeddings</td><td>Appearance + IoU</td><td>Long occlusions, dense crowds, identity-sensitive cases</td></tr>
+<tr><td><a href="./deep_ocsort.html">Deep OC-SORT</a></td><td>Re-ID embeddings</td><td>IoU + velocity + appearance</td><td>Occlusions where Re-ID helps recover identities</td></tr>
 </tbody>
 </table>
 </div>
