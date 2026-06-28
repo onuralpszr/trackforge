@@ -1,7 +1,8 @@
 #![doc = include_str!("README.md")]
 
+use crate::trackers::common::{KalmanTrack, TrackState};
 use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
-use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
+use crate::utils::kalman::{KalmanFilter, MeasurementVector};
 use std::collections::HashSet;
 
 // ---------------------------------------------------------------------------
@@ -9,15 +10,9 @@ use std::collections::HashSet;
 // ---------------------------------------------------------------------------
 
 /// Track lifecycle state for OC-SORT.
-#[derive(Debug, Clone, PartialEq, Eq, Copy)]
-pub enum OcSortTrackState {
-    /// Newly created; not yet confirmed by enough consecutive matches.
-    Tentative,
-    /// Confirmed active track returned to callers.
-    Confirmed,
-    /// Marked for removal.
-    Deleted,
-}
+///
+/// Alias of the shared [`TrackState`].
+pub type OcSortTrackState = TrackState;
 
 // ---------------------------------------------------------------------------
 // Track
@@ -45,9 +40,8 @@ pub struct OcSortTrack {
     /// Total frames since track creation.
     pub age: usize,
 
-    // Kalman filter state (xyah format: cx, cy, aspect, height + velocities)
-    mean: StateVector,
-    covariance: CovarianceMatrix,
+    // Kalman filter state (xyah format: cx, cy, aspect, height + velocities).
+    kalman: KalmanTrack,
 
     // OC-SORT: circular observation history used for OCV and ORU.
     // Stored as (xyah, frame_id) in insertion order; capped at `delta_t + 1` entries.
@@ -64,7 +58,7 @@ impl OcSortTrack {
         kf: &KalmanFilter,
     ) -> Self {
         let xyah = tlwh_to_xyah(&tlwh);
-        let (mean, covariance) = kf.initiate(&xyah);
+        let kalman = KalmanTrack::initiate(&xyah, kf);
         let observations = vec![(xyah, frame_id)];
 
         Self {
@@ -77,8 +71,7 @@ impl OcSortTrack {
             hit_streak: 1,
             time_since_update: 0,
             age: 1,
-            mean,
-            covariance,
+            kalman,
             observations,
         }
     }
@@ -91,20 +84,15 @@ impl OcSortTrack {
         if self.time_since_update > 0 {
             self.hit_streak = 0;
         }
-        let (mean, covariance) = kf.predict(&self.mean, &self.covariance);
-        self.mean = mean;
-        self.covariance = covariance;
+        self.tlwh = self.kalman.predict(kf);
         self.age += 1;
         self.time_since_update += 1;
-        self.tlwh = xyah_to_tlwh(&self.mean);
     }
 
     /// Standard Kalman update with a new matched detection.
     fn update_kf(&mut self, xyah: &MeasurementVector, kf: &KalmanFilter) {
-        let (mean, covariance) = kf.update(&self.mean, &self.covariance, xyah);
-        self.mean = mean;
-        self.covariance = covariance;
-        self.tlwh = xyah_to_tlwh(&self.mean);
+        self.kalman.update(xyah, kf);
+        self.tlwh = xyah_to_tlwh(&self.kalman.mean);
     }
 
     /// OCV: compute normalised 2-D velocity direction `[dy, dx]` over the last
@@ -173,9 +161,9 @@ impl OcSortTrack {
             covariance = uc;
         }
 
-        self.mean = mean;
-        self.covariance = covariance;
-        self.tlwh = xyah_to_tlwh(&self.mean);
+        self.kalman.mean = mean;
+        self.kalman.covariance = covariance;
+        self.tlwh = xyah_to_tlwh(&self.kalman.mean);
     }
 
     /// Record a new observation, keeping the history bounded to `max_obs` entries.
