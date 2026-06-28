@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "trackforge"
+abstract: >-
+  A unified, high-performance computer vision multi-object tracking library
+  implemented in Rust with Python bindings. Provides real-time tracking
+  algorithms (SORT, ByteTrack, OC-SORT, DeepSORT) optimized for speed.
+type: software
+authors:
+  - family-names: "Sezer"
+    given-names: "Onuralp"
+    email: "thunderbirdtr@gmail.com"
+license: MIT
+repository-code: "https://github.com/onuralpszr/trackforge"
+url: "https://github.com/onuralpszr/trackforge"
+keywords:
+  - multi-object-tracking
+  - computer-vision
+  - rust
+  - python
+  - sort
+  - bytetrack
+  - oc-sort
+  - deepsort
