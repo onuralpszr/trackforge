@@ -499,6 +499,14 @@ mod tests {
     }
 
     #[test]
+    fn test_bytetrack_tracker_trait() {
+        use crate::traits::Tracker;
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let tracks = Tracker::update(&mut tracker, vec![([10.0, 10.0, 50.0, 100.0], 0.9, 0)]);
+        assert_eq!(tracks.len(), 1);
+    }
+
+    #[test]
     fn test_bytetrack_id_sequential() {
         let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
 

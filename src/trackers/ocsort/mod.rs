@@ -630,6 +630,14 @@ mod tests {
     }
 
     #[test]
+    fn test_ocsort_tracker_trait() {
+        use crate::traits::Tracker;
+        let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
+        let tracks = Tracker::update(&mut tracker, vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
+        assert_eq!(tracks.len(), 1);
+    }
+
+    #[test]
     fn test_ocsort_two_objects_separate_ids() {
         let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
 

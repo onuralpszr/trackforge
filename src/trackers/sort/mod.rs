@@ -415,6 +415,14 @@ mod tests {
     }
 
     #[test]
+    fn test_sort_tracker_trait() {
+        use crate::traits::Tracker;
+        let mut tracker = Sort::new(1, 1, 0.3);
+        let tracks = Tracker::update(&mut tracker, vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)]);
+        assert_eq!(tracks.len(), 1);
+    }
+
+    #[test]
     fn test_sort_id_sequential() {
         let mut tracker = Sort::new(1, 1, 0.3);
 
