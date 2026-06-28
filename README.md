@@ -21,6 +21,7 @@
     <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/crates/l/trackforge?logo=opensourceinitiative&logoColor=white" alt="License" /></a>
     <a href="https://www.conventionalcommits.org/en/v1.0.0/"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow?logo=conventionalcommits&logoColor=white" alt="Conventional Commits" /></a>
     <a href="https://github.com/j178/prek"><img src="https://img.shields.io/badge/managed%20by-prek-FAB040?logo=precommit&logoColor=white" alt="prek" /></a>
+    <a href="https://github.com/onuralpszr/trackforge/blob/main/CITATION.cff"><img src="https://img.shields.io/badge/Cite%20this-repository-blue?logo=googlescholar&logoColor=white" alt="Cite this repository" /></a>
 </p>
 
 ## Supported Trackers
@@ -305,6 +306,58 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 ## Roadmap
 
 Planned trackers and milestones live on the [Roadmap page](https://onuralpszr.github.io/trackforge/roadmap.html).
+
+## Citation
+
+If you use trackforge in your research or project, please cite it. GitHub's "Cite this
+repository" button reads the [`CITATION.cff`](CITATION.cff) metadata, or use:
+
+```bibtex
+@software{trackforge,
+  author  = {Sezer, Onuralp},
+  title   = {trackforge: A unified, high-performance multi-object tracking library},
+  url     = {https://github.com/onuralpszr/trackforge},
+  license = {MIT}
+}
+```
+
+trackforge provides clean-room implementations of published tracking algorithms. Please
+also cite the paper for the tracker you use:
+
+<details>
+<summary>Per-tracker citations</summary>
+
+```bibtex
+@inproceedings{bewley2016sort,
+  title={Simple Online and Realtime Tracking},
+  author={Bewley, Alex and Ge, Zongyuan and Ott, Lionel and Ramos, Fabio and Upcroft, Ben},
+  booktitle={IEEE International Conference on Image Processing (ICIP)},
+  year={2016}
+}
+
+@inproceedings{wojke2017deepsort,
+  title={Simple Online and Realtime Tracking with a Deep Association Metric},
+  author={Wojke, Nicolai and Bewley, Alex and Paulus, Dietrich},
+  booktitle={IEEE International Conference on Image Processing (ICIP)},
+  year={2017}
+}
+
+@inproceedings{zhang2022bytetrack,
+  title={ByteTrack: Multi-Object Tracking by Associating Every Detection Box},
+  author={Zhang, Yifu and Sun, Peize and Jiang, Yi and Yu, Dongdong and Weng, Fucheng and Yuan, Zehuan and Luo, Ping and Liu, Wenyu and Wang, Xinggang},
+  booktitle={Proceedings of the European Conference on Computer Vision (ECCV)},
+  year={2022}
+}
+
+@inproceedings{cao2023ocsort,
+  title={Observation-Centric SORT: Rethinking SORT for Robust Multi-Object Tracking},
+  author={Cao, Jinkun and Pang, Jiangmiao and Weng, Xinshuo and Khirodkar, Rawal and Kitani, Kris},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2023}
+}
+```
+
+</details>
 
 ## License
 

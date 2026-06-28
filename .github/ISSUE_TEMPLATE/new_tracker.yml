@@ -1,0 +1,50 @@
+name: New tracker proposal
+description: Propose adding a new tracking algorithm to trackforge
+labels: ["new-tracker"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read docs/adding-a-tracker.md before proposing a new tracker.
+  - type: input
+    id: name
+    attributes:
+      label: Tracker name
+      description: The name of the algorithm (for example Deep OC-SORT).
+    validations:
+      required: true
+  - type: input
+    id: paper
+    attributes:
+      label: Paper
+      description: arXiv id or link to the paper.
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Reference implementation
+      description: Link to the original or a well-known reference implementation.
+    validations:
+      required: false
+  - type: textarea
+    id: summary
+    attributes:
+      label: Algorithm summary
+      description: How does it associate detections with tracks? What does it build on (motion, appearance, two-stage matching)?
+    validations:
+      required: true
+  - type: textarea
+    id: builds_on
+    attributes:
+      label: Reuse
+      description: Which existing trackforge building blocks can it reuse (utils::kalman, utils::geometry, utils::assignment, trackers::common, deepsort::nn_matching)?
+    validations:
+      required: false
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: I am willing to help implement this tracker.
+        - label: This tracker appears on the roadmap (docs/roadmap.md).
