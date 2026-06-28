@@ -1,6 +1,6 @@
 //! Per-track state for Deep OC-SORT: OC-SORT motion plus an appearance buffer.
 
-use crate::trackers::common::{KalmanTrack, TrackState};
+use crate::trackers::common::{CameraMotion, KalmanTrack, TrackState};
 use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
 use crate::utils::kalman::{KalmanFilter, MeasurementVector};
 
@@ -82,6 +82,14 @@ impl DeepOcSortTrack {
     pub(super) fn update_kf(&mut self, xyah: &MeasurementVector, kf: &KalmanFilter) {
         self.kalman.update(xyah, kf);
         self.tlwh = xyah_to_tlwh(&self.kalman.mean);
+    }
+
+    /// Warp the predicted state and observation history by a camera motion transform.
+    pub(super) fn apply_camera_motion(&mut self, cmc: &CameraMotion) {
+        self.tlwh = self.kalman.apply_camera_motion(cmc);
+        for (obs, _) in &mut self.observations {
+            cmc.apply_observation(obs);
+        }
     }
 
     /// OCV: normalised `[dy, dx]` velocity direction over the last `delta_t` frames.

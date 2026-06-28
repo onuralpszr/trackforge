@@ -17,16 +17,20 @@ Deep OC-SORT extends OC-SORT by adding an appearance term to the association:
   with the motion cost. The appearance weight scales with detector confidence (dynamic
   appearance) and is gated by `max_cosine_distance`. With `appearance_weight = 0` the
   association reduces to plain OC-SORT.
+- **Camera motion compensation (CMC)** warps track predictions by a caller-supplied
+  affine transform before association, for moving-camera footage. The transform is
+  shared `common::cmc` infrastructure reused by other trackers.
 
-This is a clean-room implementation focused on the motion (OCM/ORU) and adaptive
-appearance association; it does not include camera motion compensation.
+This is a clean-room implementation. The tracker applies a camera-motion transform but
+does not estimate it: the caller supplies the affine (for example from image
+registration), keeping the core free of heavy computer-vision dependencies.
 
 ## Builds on
 
 - `utils::kalman` - the shared 8-dimensional Kalman filter
 - `utils::geometry` - `iou_batch`, `tlwh_to_xyah`, `xyah_to_tlwh`
 - `utils::assignment` - `greedy_match`
-- `trackers::common` - `KalmanTrack` and `TrackState`
+- `trackers::common` - `KalmanTrack`, `TrackState`, and `CameraMotion` (CMC)
 - `trackers::deepsort` - `NearestNeighborDistanceMetric` for the cosine feature gallery
 
 ## Parameters
@@ -74,6 +78,12 @@ tracker = DEEPOCSORT(
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
 tracks = tracker.update(detections, embeddings)
+
+# Moving camera: pass a [a, b, tx, c, d, ty] affine mapping the previous frame
+# to the current one (estimate it however you like, e.g. with OpenCV).
+camera_motion = [1.0, 0.0, 12.0, 0.0, 1.0, -4.0]
+tracks = tracker.update(detections, embeddings, camera_motion)
+
 for track_id, tlwh, score, class_id in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```

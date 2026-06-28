@@ -1,4 +1,5 @@
 use super::DeepOcSortTracker;
+use crate::trackers::common::CameraMotion;
 use pyo3::prelude::*;
 
 type PyTrackingResult = (u64, [f32; 4], f32, i64);
@@ -54,14 +55,18 @@ impl PyDeepOcSort {
     ///     detections (list): List of ([x, y, w, h], score, class_id) tuples.
     ///     embeddings (list): Appearance vectors, one per detection. Pass an empty
     ///         list to track on motion only.
+    ///     camera_motion (list, optional): Six affine coefficients
+    ///         [a, b, tx, c, d, ty] mapping the previous frame to the current one,
+    ///         for moving-camera footage. Defaults to no camera motion.
     ///
     /// Returns:
     ///     list: Confirmed tracks as (track_id, [x, y, w, h], score, class_id) tuples.
-    #[pyo3(signature = (detections, embeddings=Vec::new()))]
+    #[pyo3(signature = (detections, embeddings=Vec::new(), camera_motion=None))]
     fn update(
         &mut self,
         detections: Vec<([f32; 4], f32, i64)>,
         embeddings: Vec<Vec<f32>>,
+        camera_motion: Option<[f32; 6]>,
     ) -> PyResult<Vec<PyTrackingResult>> {
         if !embeddings.is_empty() && embeddings.len() != detections.len() {
             return Err(pyo3::exceptions::PyValueError::new_err(
@@ -69,7 +74,12 @@ impl PyDeepOcSort {
             ));
         }
 
-        let tracks = self.tracker.update(&detections, &embeddings);
+        let cmc = camera_motion
+            .map(|m| CameraMotion::new(m[0], m[1], m[2], m[3], m[4], m[5]))
+            .unwrap_or_default();
+        let tracks = self
+            .tracker
+            .update_with_camera_motion(&detections, &embeddings, &cmc);
         Ok(tracks
             .into_iter()
             .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))

@@ -8,10 +8,13 @@ with appearance, blending a Re-ID embedding cost into the motion association:
   re-associated following a gap.
 - **Appearance** adds a cosine distance to each track's feature gallery. The appearance weight
   scales with detector confidence (dynamic appearance) and is gated by `max_cosine_distance`.
+- **Camera motion compensation** warps track predictions by a caller-supplied affine transform
+  before association, for moving-camera footage.
 
 With `appearance_weight = 0` the association reduces to plain OC-SORT, so the appearance term is a
-strict add-on. This is a clean-room implementation of the motion and appearance association; it does
-not include camera motion compensation.
+strict add-on. This is a clean-room implementation. CMC is applied from a transform you supply (for
+example estimated with OpenCV); the tracker does not estimate camera motion itself, which keeps the
+core free of heavy dependencies. Pass the affine as `[a, b, tx, c, d, ty]` to `update`.
 
 ```python
 from trackforge import DEEPOCSORT

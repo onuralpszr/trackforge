@@ -1,6 +1,6 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
-__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT"]
+__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT", "DEEPOCSORT"]
 
 class BYTETRACK:
     """
@@ -203,4 +203,5 @@ class DEEPOCSORT:
         self,
         detections: List[Tuple[List[float], float, int]],
         embeddings: List[List[float]] = ...,
+        camera_motion: Optional[List[float]] = ...,
     ) -> List[Tuple[int, List[float], float, int]]: ...

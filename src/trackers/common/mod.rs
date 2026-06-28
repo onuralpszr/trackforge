@@ -2,7 +2,12 @@
 //!
 //! [`TrackState`] is the common confirm/delete lifecycle used by the IoU and
 //! appearance trackers, and [`KalmanTrack`] wraps the per-track Kalman state with
-//! the predict/update mechanics they all repeat.
+//! the predict/update mechanics they all repeat. [`cmc`] holds the shared camera
+//! motion compensation transform.
+
+pub mod cmc;
+
+pub use cmc::CameraMotion;
 
 use crate::utils::geometry::xyah_to_tlwh;
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
@@ -55,5 +60,11 @@ impl KalmanTrack {
         let (mean, covariance) = kf.update(&self.mean, &self.covariance, measurement);
         self.mean = mean;
         self.covariance = covariance;
+    }
+
+    /// Warp the Kalman state by a camera motion transform and return the new TLWH box.
+    pub fn apply_camera_motion(&mut self, cmc: &CameraMotion) -> [f32; 4] {
+        cmc.apply_state(&mut self.mean, &mut self.covariance);
+        xyah_to_tlwh(&self.mean)
     }
 }

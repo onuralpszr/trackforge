@@ -201,3 +201,15 @@ def test_deepocsort_mismatched_embeddings_raises():
     t = trackforge.DEEPOCSORT(min_hits=1)
     with pytest.raises(ValueError):
         t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)], [[1.0], [2.0]])
+
+
+def test_deepocsort_camera_motion_keeps_id():
+    t = trackforge.DEEPOCSORT(min_hits=1)
+    first = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
+    track_id = first[0][0]
+    # Camera pans right by 200px; the object now appears at x=300. The affine
+    # [a, b, tx, c, d, ty] warps the prediction so the track is kept.
+    camera_motion = [1.0, 0.0, 200.0, 0.0, 1.0, 0.0]
+    second = t.update([([300.0, 100.0, 50.0, 100.0], 0.9, 0)], [], camera_motion)
+    assert len(second) == 1
+    assert second[0][0] == track_id

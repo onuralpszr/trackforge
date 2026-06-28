@@ -1,6 +1,7 @@
 //! Deep OC-SORT association: OC-SORT motion plus an appearance affinity term.
 
 use super::track::DeepOcSortTrack;
+use crate::trackers::common::CameraMotion;
 use crate::trackers::deepsort::NearestNeighborDistanceMetric;
 use crate::utils::assignment::greedy_match;
 use crate::utils::geometry::{iou_batch, tlwh_to_xyah, xyah_to_tlwh};
@@ -73,6 +74,19 @@ impl DeepOcSortTracker {
         detections: &[([f32; 4], f32, i64)],
         embeddings: &[Vec<f32>],
     ) -> Vec<DeepOcSortTrack> {
+        self.update_with_camera_motion(detections, embeddings, &CameraMotion::identity())
+    }
+
+    /// Update the tracker, first warping track predictions by `camera_motion`.
+    ///
+    /// `camera_motion` maps the previous frame's coordinates into the current frame
+    /// (see [`CameraMotion`]); pass [`CameraMotion::identity`] for a static camera.
+    pub fn update_with_camera_motion(
+        &mut self,
+        detections: &[([f32; 4], f32, i64)],
+        embeddings: &[Vec<f32>],
+        camera_motion: &CameraMotion,
+    ) -> Vec<DeepOcSortTrack> {
         self.frame_count += 1;
 
         let use_appearance = !embeddings.is_empty() && embeddings.len() == detections.len();
@@ -85,8 +99,12 @@ impl DeepOcSortTracker {
             })
             .collect();
 
+        let warp = !camera_motion.is_identity();
         for track in &mut self.tracks {
             track.predict(&self.kf);
+            if warp {
+                track.apply_camera_motion(camera_motion);
+            }
         }
 
         let (matches, unmatched_dets, unmatched_trks) =

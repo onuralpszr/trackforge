@@ -9,6 +9,7 @@ pub mod python;
 pub use track::DeepOcSortTrack;
 pub use tracker::DeepOcSortTracker;
 
+use crate::trackers::common::CameraMotion;
 use crate::trackers::deepsort::{Metric, NearestNeighborDistanceMetric};
 use crate::traits::AppearanceExtractor;
 use crate::types::BoundingBox;
@@ -103,6 +104,29 @@ impl<E: AppearanceExtractor> DeepOcSort<E> {
         image: &DynamicImage,
         detections: Vec<(BoundingBox, f32, i64)>,
     ) -> Result<Vec<DeepOcSortTrack>, Box<dyn Error>> {
+        self.run(image, detections, &CameraMotion::identity())
+    }
+
+    /// Update the tracker, first warping track predictions by `camera_motion`.
+    ///
+    /// Use this on moving-camera footage; estimate the affine transform between the
+    /// previous and current frame (for example with image registration) and pass it
+    /// in. See [`CameraMotion`].
+    pub fn update_with_camera_motion(
+        &mut self,
+        image: &DynamicImage,
+        detections: Vec<(BoundingBox, f32, i64)>,
+        camera_motion: &CameraMotion,
+    ) -> Result<Vec<DeepOcSortTrack>, Box<dyn Error>> {
+        self.run(image, detections, camera_motion)
+    }
+
+    fn run(
+        &mut self,
+        image: &DynamicImage,
+        detections: Vec<(BoundingBox, f32, i64)>,
+        camera_motion: &CameraMotion,
+    ) -> Result<Vec<DeepOcSortTrack>, Box<dyn Error>> {
         let bboxes: Vec<BoundingBox> = detections.iter().map(|(bbox, _, _)| *bbox).collect();
         let embeddings = if bboxes.is_empty() {
             Vec::new()
@@ -115,7 +139,9 @@ impl<E: AppearanceExtractor> DeepOcSort<E> {
             .map(|(b, score, class_id)| ([b.x, b.y, b.width, b.height], *score, *class_id))
             .collect();
 
-        Ok(self.tracker.update(&det_tuples, &embeddings))
+        Ok(self
+            .tracker
+            .update_with_camera_motion(&det_tuples, &embeddings, camera_motion))
     }
 }
 
@@ -224,6 +250,29 @@ mod tests {
     }
 
     #[test]
+    fn wrapper_applies_camera_motion() {
+        let mut tracker = DeepOcSort::new(MockExtractor, 30, 1, 0.3, 3, 0.2, 0.5, 0.2, 100);
+        let image = DynamicImage::new_rgb8(800, 400);
+        let id = tracker
+            .update(
+                &image,
+                vec![(BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0)],
+            )
+            .unwrap()[0]
+            .track_id;
+        let cmc = CameraMotion::new(1.0, 0.0, 200.0, 0.0, 1.0, 0.0);
+        let tracks = tracker
+            .update_with_camera_motion(
+                &image,
+                vec![(BoundingBox::new(300.0, 100.0, 50.0, 100.0), 0.9, 0)],
+                &cmc,
+            )
+            .unwrap();
+        assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].track_id, id);
+    }
+
+    #[test]
     fn wrapper_handles_empty_detections() {
         let mut tracker = DeepOcSort::new_default(MockExtractor);
         let image = DynamicImage::new_rgb8(200, 200);
@@ -283,6 +332,27 @@ mod tests {
         // Track 1 (at the origin) was deleted; the new track confirms here.
         let tracks = tracker.update(&[det(500.0, 500.0, 50.0, 100.0, 0.9)], &[]);
         assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].track_id, 2);
+    }
+
+    #[test]
+    fn camera_motion_warps_prediction_for_matching() {
+        // Establish a track, then pan the camera right by 200px so the same object
+        // appears at x=300. The warp moves the prediction with it, keeping the id.
+        let mut tracker = build_tracker(30, 1, 0.3, 3, 0.2, 0.0, 0.2, 100);
+        let id = tracker.update(&[det(100.0, 100.0, 50.0, 100.0, 0.9)], &[])[0].track_id;
+        let cmc = CameraMotion::new(1.0, 0.0, 200.0, 0.0, 1.0, 0.0);
+        let tracks =
+            tracker.update_with_camera_motion(&[det(300.0, 100.0, 50.0, 100.0, 0.9)], &[], &cmc);
+        assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].track_id, id);
+    }
+
+    #[test]
+    fn without_camera_motion_a_large_shift_starts_a_new_track() {
+        let mut tracker = build_tracker(30, 1, 0.3, 3, 0.2, 0.0, 0.2, 100);
+        tracker.update(&[det(100.0, 100.0, 50.0, 100.0, 0.9)], &[]);
+        let tracks = tracker.update(&[det(300.0, 100.0, 50.0, 100.0, 0.9)], &[]);
         assert_eq!(tracks[0].track_id, 2);
     }
 
