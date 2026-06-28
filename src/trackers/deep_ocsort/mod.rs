@@ -183,6 +183,25 @@ mod tests {
         }
     }
 
+    struct FailingExtractor;
+    impl AppearanceExtractor for FailingExtractor {
+        fn extract(
+            &mut self,
+            _image: &DynamicImage,
+            _bboxes: &[BoundingBox],
+        ) -> Result<Vec<Vec<f32>>, Box<dyn Error>> {
+            Err("extraction failed".into())
+        }
+    }
+
+    #[test]
+    fn wrapper_propagates_extractor_error() {
+        let mut tracker = DeepOcSort::new_default(FailingExtractor);
+        let image = DynamicImage::new_rgb8(200, 200);
+        let dets = vec![(BoundingBox::new(10.0, 10.0, 20.0, 40.0), 0.9, 0)];
+        assert!(tracker.update(&image, dets).is_err());
+    }
+
     #[test]
     fn extractor_wrapper_confirms_track() {
         let mut tracker = DeepOcSort::new(MockExtractor, 30, 1, 0.3, 3, 0.2, 0.5, 0.2, 100);
@@ -190,5 +209,98 @@ mod tests {
         let dets = vec![(BoundingBox::new(10.0, 10.0, 20.0, 40.0), 0.9, 0)];
         let tracks = tracker.update(&image, dets).unwrap();
         assert_eq!(tracks.len(), 1);
+    }
+
+    #[test]
+    fn new_default_runs_through_wrapper() {
+        let mut tracker = DeepOcSort::new_default(MockExtractor);
+        let image = DynamicImage::new_rgb8(200, 200);
+        let dets = vec![(BoundingBox::new(10.0, 10.0, 20.0, 40.0), 0.9, 0)];
+        // n_init default is 3, so confirmation needs three matched frames.
+        for _ in 0..2 {
+            assert!(tracker.update(&image, dets.clone()).unwrap().is_empty());
+        }
+        assert_eq!(tracker.update(&image, dets).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn wrapper_handles_empty_detections() {
+        let mut tracker = DeepOcSort::new_default(MockExtractor);
+        let image = DynamicImage::new_rgb8(200, 200);
+        assert!(tracker.update(&image, vec![]).unwrap().is_empty());
+    }
+
+    #[test]
+    fn round2_rematch_and_oru_after_gap() {
+        // Build a strong rightward velocity with overlapping steps, drop two frames
+        // so the Kalman prediction overshoots well past the object, then re-detect at
+        // the last observed position. Round 1 misses; the round-2 pass on the last
+        // observation recovers the track and runs the ORU re-update.
+        // Large boxes and steps so the damped Kalman velocity still drifts the
+        // prediction off the object during the gap.
+        let mut tracker = build_tracker(20, 1, 0.3, 3, 0.2, 0.0, 0.2, 100);
+        for step in 0..8 {
+            let x = step as f32 * 200.0;
+            tracker.update(&[det(x, 0.0, 400.0, 100.0, 0.9)], &[]);
+        }
+        for _ in 0..4 {
+            tracker.update(&[], &[]);
+        }
+        let tracks = tracker.update(&[det(1400.0, 0.0, 400.0, 100.0, 0.9)], &[]);
+        assert!(!tracks.is_empty());
+        assert_eq!(tracks[0].track_id, 1);
+    }
+
+    #[test]
+    fn oru_runs_on_rematch_after_gap() {
+        // A track misses one frame and is re-detected at the same position. Round 1
+        // matches, and because it was lost the ORU re-update runs.
+        let mut tracker = build_tracker(10, 1, 0.3, 3, 0.2, 0.0, 0.2, 100);
+        let id = tracker.update(&[det(100.0, 100.0, 50.0, 100.0, 0.9)], &[])[0].track_id;
+        tracker.update(&[], &[]);
+        let tracks = tracker.update(&[det(100.0, 100.0, 50.0, 100.0, 0.9)], &[]);
+        assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].track_id, id);
+    }
+
+    #[test]
+    fn track_deleted_after_max_age() {
+        let mut tracker = build_tracker(2, 1, 0.3, 3, 0.2, 0.0, 0.2, 100);
+        tracker.update(&[det(100.0, 100.0, 50.0, 100.0, 0.9)], &[]);
+        for _ in 0..4 {
+            tracker.update(&[], &[]);
+        }
+        assert!(tracker.update(&[], &[]).is_empty());
+    }
+
+    #[test]
+    fn unmatched_tentative_is_deleted() {
+        // min_hits = 2 keeps the first track tentative; a far detection on the next
+        // frame leaves it unmatched, so it is dropped and a new track starts.
+        let mut tracker = build_tracker(30, 2, 0.3, 3, 0.2, 0.0, 0.2, 100);
+        tracker.update(&[det(0.0, 0.0, 50.0, 100.0, 0.9)], &[]);
+        tracker.update(&[det(500.0, 500.0, 50.0, 100.0, 0.9)], &[]);
+        // Track 1 (at the origin) was deleted; the new track confirms here.
+        let tracks = tracker.update(&[det(500.0, 500.0, 50.0, 100.0, 0.9)], &[]);
+        assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].track_id, 2);
+    }
+
+    #[test]
+    fn appearance_gated_when_dissimilar() {
+        // A tiny max_cosine_distance gates out a dissimilar embedding, so the match
+        // falls back to motion only and the track id persists.
+        let mut tracker = build_tracker(30, 1, 0.3, 3, 0.2, 0.5, 0.05, 100);
+        let id = tracker.update(
+            &[det(100.0, 100.0, 50.0, 100.0, 0.9)],
+            &[vec![1.0, 0.0, 0.0]],
+        )[0]
+        .track_id;
+        let tracks = tracker.update(
+            &[det(103.0, 100.0, 50.0, 100.0, 0.9)],
+            &[vec![0.0, 1.0, 0.0]],
+        );
+        assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].track_id, id);
     }
 }

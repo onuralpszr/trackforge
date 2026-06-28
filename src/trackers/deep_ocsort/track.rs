@@ -117,11 +117,10 @@ impl DeepOcSortTrack {
         current_frame: usize,
         kf: &KalmanFilter,
     ) {
-        let n = self.observations.len();
-        if n == 0 {
-            return;
-        }
-        let (last_obs, last_frame) = &self.observations[n - 1];
+        let (last_obs, last_frame) = self
+            .observations
+            .last()
+            .expect("observations is non-empty by invariant");
         let gap = (current_frame as isize - *last_frame as isize).max(1) as usize;
         if gap <= 1 {
             return;
@@ -182,5 +181,61 @@ impl DeepOcSortTrack {
 
     pub(super) fn is_confirmed(&self) -> bool {
         self.state == TrackState::Confirmed
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_track() -> DeepOcSortTrack {
+        let kf = KalmanFilter::default();
+        DeepOcSortTrack::new(
+            [100.0, 100.0, 50.0, 100.0],
+            0.9,
+            0,
+            1,
+            1,
+            Some(vec![1.0, 0.0]),
+            &kf,
+        )
+    }
+
+    #[test]
+    fn obs_direction_needs_two_observations() {
+        let mut track = make_track();
+        assert!(track.obs_direction(3).is_none());
+        track.push_observation(tlwh_to_xyah(&[110.0, 100.0, 50.0, 100.0]), 2, 4);
+        let dir = track.obs_direction(3).unwrap();
+        assert!(dir[0].abs() < 0.01 && (dir[1] - 1.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn push_observation_is_bounded() {
+        let mut track = make_track();
+        for frame in 2..12 {
+            track.push_observation(tlwh_to_xyah(&[100.0, 100.0, 50.0, 100.0]), frame, 4);
+        }
+        // History stays bounded, so a direction is still computable without panic.
+        assert!(track.obs_direction(3).is_some());
+    }
+
+    #[test]
+    fn our_re_update_stays_finite_after_gap() {
+        let kf = KalmanFilter::default();
+        let mut track = make_track();
+        for _ in 0..5 {
+            track.predict(&kf);
+        }
+        track.our_re_update(&tlwh_to_xyah(&[130.0, 100.0, 50.0, 100.0]), 7, &kf);
+        assert!(track.tlwh.iter().all(|v| v.is_finite()));
+    }
+
+    #[test]
+    fn take_features_drains_buffer() {
+        let mut track = make_track();
+        track.push_feature(vec![0.5, 0.5]);
+        assert_eq!(track.take_features().len(), 2);
+        assert!(track.take_features().is_empty());
     }
 }
