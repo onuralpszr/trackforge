@@ -1110,20 +1110,23 @@
 </span><span id="__span-57-4"><a id="__codelineno-57-4" name="__codelineno-57-4" href="#__codelineno-57-4"></a><span class="w">    </span><span class="n">Deleted</span><span class="p">,</span>
 </span><span id="__span-57-5"><a id="__codelineno-57-5" name="__codelineno-57-5" href="#__codelineno-57-5"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>Life-cycle state of a DeepSORT track.</p>
+<p>Lifecycle state of a track.</p>
+<p>A track starts <a href="TrackState::Tentative"><code>Tentative</code></a>, becomes
+<a href="TrackState::Confirmed"><code>Confirmed</code></a> once it has accumulated enough matches, and
+is <a href="TrackState::Deleted"><code>Deleted</code></a> when it ages out or fails confirmation.</p>
 <h4 id="variants">Variants</h4>
 <ul>
 <li><strong><code>Tentative</code></strong></li>
 </ul>
-<p>Newly created; not yet confirmed by <code>n_init</code> consecutive hits.</p>
+<p>Newly created; not yet confirmed by enough matches.</p>
 <ul>
 <li><strong><code>Confirmed</code></strong></li>
 </ul>
-<p>Confirmed and actively tracked.</p>
+<p>Confirmed active track returned to callers.</p>
 <ul>
 <li><strong><code>Deleted</code></strong></li>
 </ul>
-<p>Marked for removal; will be pruned at the next update.</p>
+<p>Marked for removal.</p>
 <h4 id="trait-implementations_4">Trait Implementations</h4>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-58-1"><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="k">impl</span><span class="w"> </span><span class="nb">Clone</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">TrackState</span>
 </span></code></pre></div>
