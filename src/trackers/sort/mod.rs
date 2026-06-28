@@ -239,6 +239,14 @@ impl Default for Sort {
     }
 }
 
+impl crate::traits::Tracker for Sort {
+    type Track = SortTrack;
+
+    fn update(&mut self, detections: Vec<crate::traits::Detection>) -> Vec<SortTrack> {
+        self.update(detections)
+    }
+}
+
 // Python bindings
 #[cfg(feature = "python")]
 use pyo3::prelude::*;

@@ -352,6 +352,14 @@ impl ByteTrack {
     }
 }
 
+impl crate::traits::Tracker for ByteTrack {
+    type Track = STrack;
+
+    fn update(&mut self, detections: Vec<crate::traits::Detection>) -> Vec<STrack> {
+        self.update(detections)
+    }
+}
+
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
