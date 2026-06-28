@@ -4,6 +4,7 @@
 
 pub mod byte_track;
 pub mod common;
+pub mod deep_ocsort;
 pub mod deepsort;
 pub mod ocsort;
 pub mod sort;

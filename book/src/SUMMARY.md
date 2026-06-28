@@ -8,5 +8,6 @@
   - [ByteTrack](./trackers/byte_track.md)
   - [OC-SORT](./trackers/ocsort.md)
   - [DeepSORT](./trackers/deepsort.md)
+  - [Deep OC-SORT](./trackers/deep_ocsort.md)
 - [Parameters](./parameters.md)
 - [Examples](./examples.md)

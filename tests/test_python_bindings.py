@@ -151,3 +151,65 @@ def test_sort_update_confirmed_after_min_hits():
         t.update(det)
     tracks = t.update(det)
     assert len(tracks) == 1
+
+
+# ---------------------------------------------------------------------------
+# DEEPOCSORT
+# ---------------------------------------------------------------------------
+
+
+def test_deepocsort_constructor():
+    t = trackforge.DEEPOCSORT(
+        max_age=30,
+        min_hits=1,
+        iou_threshold=0.3,
+        delta_t=3,
+        inertia=0.2,
+        appearance_weight=0.5,
+        max_cosine_distance=0.2,
+        nn_budget=100,
+    )
+    assert t is not None
+
+
+def test_deepocsort_update_empty():
+    t = trackforge.DEEPOCSORT(min_hits=1)
+    assert t.update([]) == []
+
+
+def test_deepocsort_motion_only():
+    # No embeddings: tracks on motion alone (pure OC-SORT behaviour).
+    t = trackforge.DEEPOCSORT(min_hits=1)
+    tracks = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
+    assert len(tracks) == 1
+    track_id, tlwh, score, class_id = tracks[0]
+    assert track_id == 1
+    assert len(tlwh) == 4
+
+
+def test_deepocsort_with_embeddings_keeps_id():
+    t = trackforge.DEEPOCSORT(min_hits=1, max_cosine_distance=0.3)
+    emb = [[1.0, 0.0, 0.0]]
+    first = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)], emb)
+    track_id = first[0][0]
+    second = t.update([([104.0, 100.0, 50.0, 100.0], 0.9, 0)], emb)
+    assert len(second) == 1
+    assert second[0][0] == track_id
+
+
+def test_deepocsort_mismatched_embeddings_raises():
+    t = trackforge.DEEPOCSORT(min_hits=1)
+    with pytest.raises(ValueError):
+        t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)], [[1.0], [2.0]])
+
+
+def test_deepocsort_camera_motion_keeps_id():
+    t = trackforge.DEEPOCSORT(min_hits=1)
+    first = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
+    track_id = first[0][0]
+    # Camera pans right by 200px; the object now appears at x=300. The affine
+    # [a, b, tx, c, d, ty] warps the prediction so the track is kept.
+    camera_motion = [1.0, 0.0, 200.0, 0.0, 1.0, 0.0]
+    second = t.update([([300.0, 100.0, 50.0, 100.0], 0.9, 0)], [], camera_motion)
+    assert len(second) == 1
+    assert second[0][0] == track_id

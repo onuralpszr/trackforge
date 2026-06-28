@@ -9,7 +9,7 @@
 //! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.
 //!
-//! It provides four production-ready multi-object tracking algorithms built on a shared
+//! It provides five production-ready multi-object tracking algorithms built on a shared
 //! 8-dimensional Kalman filter with state `[x, y, a, h, vx, vy, va, vh]`, where `(x, y)`
 //! is the bounding-box centre, `a` the aspect ratio, and `h` the height.
 //!
@@ -21,6 +21,7 @@
 //! | [`byte_track`] | None | IoU two-stage | Crowded scenes, low-confidence detections |
 //! | [`ocsort`] | None | IoU + velocity correction | Scenes with frequent occlusions |
 //! | [`deepsort`] | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds |
+//! | [`deep_ocsort`] | Re-ID embeddings | IoU + velocity + appearance | Occlusions with re-identification |
 //!
 //! # SORT
 //!
@@ -126,10 +127,36 @@
 //! }
 //! ```
 //!
+//! # Deep OC-SORT
+//!
+//! Extends OC-SORT with an appearance term: a cosine distance to a per-track feature
+//! gallery is blended into the motion cost, scaled by detector confidence. Like
+//! DeepSORT it needs an [`AppearanceExtractor`], or embeddings passed directly.
+//!
+//! ```rust,ignore
+//! use trackforge::trackers::deep_ocsort::DeepOcSort;
+//!
+//! // extractor implements AppearanceExtractor (plug in any Re-ID model).
+//! // max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2,
+//! // appearance_weight=0.5, max_cosine_distance=0.2, nn_budget=100
+//! let mut tracker = DeepOcSort::new(extractor, 30, 3, 0.3, 3, 0.2, 0.5, 0.2, 100);
+//!
+//! let frame = image::DynamicImage::new_rgb8(640, 480);
+//! let detections = vec![
+//!     (trackforge::types::BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0),
+//! ];
+//!
+//! let tracks = tracker.update(&frame, detections).unwrap();
+//! for t in &tracks {
+//!     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+//! }
+//! ```
+//!
 //! [`sort`]: trackers::sort
 //! [`byte_track`]: trackers::byte_track
 //! [`ocsort`]: trackers::ocsort
 //! [`deepsort`]: trackers::deepsort
+//! [`deep_ocsort`]: trackers::deep_ocsort
 //! [`AppearanceExtractor`]: traits::AppearanceExtractor
 
 pub mod trackers;
@@ -148,5 +175,6 @@ fn trackforge(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<trackers::sort::PySort>()?;
     m.add_class::<trackers::deepsort::python::PyDeepSort>()?;
     m.add_class::<trackers::ocsort::PyOcSort>()?;
+    m.add_class::<trackers::deep_ocsort::python::PyDeepOcSort>()?;
     Ok(())
 }

@@ -1,6 +1,6 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
-__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT"]
+__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT", "DEEPOCSORT"]
 
 class BYTETRACK:
     """
@@ -151,4 +151,57 @@ class DEEPSORT:
         self,
         detections: List[Tuple[List[float], float, int]],
         embeddings: List[List[float]],
+    ) -> List[Tuple[int, List[float], float, int]]: ...
+
+class DEEPOCSORT:
+    """
+    Deep OC-SORT tracker: OC-SORT motion with appearance association.
+
+    Blends a cosine distance to a per-track feature gallery into the OC-SORT
+    motion cost. Pass embeddings for appearance-aware tracking, or omit them to
+    track on motion only.
+
+    **Usage Example:**
+
+    ```python
+    from trackforge import DEEPOCSORT
+
+    tracker = DEEPOCSORT(
+        max_age=30,
+        min_hits=3,
+        iou_threshold=0.3,
+        delta_t=3,
+        inertia=0.2,
+        appearance_weight=0.5,
+        max_cosine_distance=0.2,
+        nn_budget=100,
+    )
+
+    detections = [
+        ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ]
+    embeddings = [[0.1, 0.2, 0.3]]
+
+    tracks = tracker.update(detections, embeddings)
+    for track_id, box, score, class_id in tracks:
+        print(f"Track ID: {track_id}, Box: {box}")
+    ```
+    """
+
+    def __init__(
+        self,
+        max_age: int = 30,
+        min_hits: int = 3,
+        iou_threshold: float = 0.3,
+        delta_t: int = 3,
+        inertia: float = 0.2,
+        appearance_weight: float = 0.5,
+        max_cosine_distance: float = 0.2,
+        nn_budget: int = 100,
+    ) -> None: ...
+    def update(
+        self,
+        detections: List[Tuple[List[float], float, int]],
+        embeddings: List[List[float]] = ...,
+        camera_motion: Optional[List[float]] = ...,
     ) -> List[Tuple[int, List[float], float, int]]: ...
