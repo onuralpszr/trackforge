@@ -6,7 +6,7 @@ use crate::utils::kalman::KalmanFilter;
 
 /// Track state enumeration for SORT.
 ///
-/// Alias of the shared [`TrackState`](crate::trackers::common::TrackState).
+/// Alias of the shared [`TrackState`].
 pub type SortTrackState = TrackState;
 
 /// A single track in SORT.
