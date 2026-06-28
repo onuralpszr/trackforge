@@ -1,18 +1,13 @@
 #![doc = include_str!("README.md")]
 
-use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
-use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
+use crate::trackers::common::{KalmanTrack, TrackState};
+use crate::utils::geometry::tlwh_to_xyah;
+use crate::utils::kalman::KalmanFilter;
 
 /// Track state enumeration for SORT.
-#[derive(Debug, Clone, PartialEq, Eq, Copy)]
-pub enum SortTrackState {
-    /// Track is tentative (not yet confirmed).
-    Tentative,
-    /// Track is confirmed and active.
-    Confirmed,
-    /// Track is deleted.
-    Deleted,
-}
+///
+/// Alias of the shared [`TrackState`](crate::trackers::common::TrackState).
+pub type SortTrackState = TrackState;
 
 /// A single track in SORT.
 #[derive(Debug, Clone)]
@@ -35,8 +30,7 @@ pub struct SortTrack {
     pub age: usize,
 
     // Kalman Filter state
-    mean: StateVector,
-    covariance: CovarianceMatrix,
+    kalman: KalmanTrack,
 }
 
 impl SortTrack {
@@ -49,7 +43,7 @@ impl SortTrack {
         track_id: u64,
     ) -> Self {
         let measurement = tlwh_to_xyah(&tlwh);
-        let (mean, covariance) = kf.initiate(&measurement);
+        let kalman = KalmanTrack::initiate(&measurement, kf);
 
         Self {
             tlwh,
@@ -60,29 +54,21 @@ impl SortTrack {
             hits: 1,
             time_since_update: 0,
             age: 1,
-            mean,
-            covariance,
+            kalman,
         }
     }
 
     /// Predict the next state using Kalman filter.
     pub fn predict(&mut self, kf: &KalmanFilter) {
-        let (mean, covariance) = kf.predict(&self.mean, &self.covariance);
-        self.mean = mean;
-        self.covariance = covariance;
+        self.tlwh = self.kalman.predict(kf);
         self.age += 1;
         self.time_since_update += 1;
-
-        // Update tlwh from predicted state
-        self.tlwh = xyah_to_tlwh(&self.mean);
     }
 
     /// Update the track with a matched detection.
     fn update(&mut self, detection: &Detection, kf: &KalmanFilter) {
         let measurement = tlwh_to_xyah(&detection.tlwh);
-        let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
-        self.mean = mean;
-        self.covariance = covariance;
+        self.kalman.update(&measurement, kf);
 
         self.tlwh = detection.tlwh;
         self.score = detection.score;
