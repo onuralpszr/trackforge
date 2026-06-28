@@ -238,18 +238,11 @@ impl ByteTrack {
         strack_pool.extend_from_slice(&tracked_stracks);
         strack_pool.extend_from_slice(&self.lost_stracks);
 
-        // First matching
+        // First matching: high-confidence detections against tracked + lost tracks.
+        let pool_boxes: Vec<[f32; 4]> = strack_pool.iter().map(|s| s.tlwh).collect();
+        let high_boxes: Vec<[f32; 4]> = detections_high.iter().map(|s| s.tlwh).collect();
         let (matches, u_track, u_detection) =
-            if strack_pool.is_empty() || detections_high.is_empty() {
-                (
-                    Vec::new(),
-                    (0..strack_pool.len()).collect(),
-                    (0..detections_high.len()).collect(),
-                )
-            } else {
-                let (dists, _, _) = self.iou_distance(&strack_pool, &detections_high);
-                self.linear_assignment(&dists, self.match_thresh) // Use struct match_thresh (0.8)
-            };
+            crate::utils::assignment::iou_match(&pool_boxes, &high_boxes, self.match_thresh);
 
         for (itrack, idet) in matches {
             let track = &mut strack_pool[itrack];
@@ -282,17 +275,11 @@ impl ByteTrack {
             }
         }
 
+        // Second matching: low-confidence detections against still-tracked leftovers.
+        let r_tracked_boxes: Vec<[f32; 4]> = r_tracked_stracks.iter().map(|s| s.tlwh).collect();
+        let low_boxes: Vec<[f32; 4]> = detections_low.iter().map(|s| s.tlwh).collect();
         let (matches, u_track_second, _) =
-            if r_tracked_stracks.is_empty() || detections_low.is_empty() {
-                (
-                    Vec::new(),
-                    (0..r_tracked_stracks.len()).collect(),
-                    (0..detections_low.len()).collect(),
-                )
-            } else {
-                let (dists, _, _) = self.iou_distance(&r_tracked_stracks, &detections_low);
-                self.linear_assignment(&dists, 0.5) // 0.5 low thresh
-            };
+            crate::utils::assignment::iou_match(&r_tracked_boxes, &low_boxes, 0.5);
 
         for (itrack, idet) in matches {
             let track = &mut r_tracked_stracks[itrack];
@@ -362,39 +349,6 @@ impl ByteTrack {
 
         // Return *tracked* stracks
         output_stracks
-    }
-
-    fn iou_distance(
-        &self,
-        stracks: &[STrack],
-        detections: &[STrack],
-    ) -> (Vec<Vec<f32>>, Vec<usize>, Vec<usize>) {
-        let strack_boxes: Vec<[f32; 4]> = stracks.iter().map(|s| s.tlwh).collect();
-        let det_boxes: Vec<[f32; 4]> = detections.iter().map(|s| s.tlwh).collect();
-
-        if strack_boxes.is_empty() || det_boxes.is_empty() {
-            return (Vec::new(), vec![], vec![]);
-        }
-
-        let cost_matrix = crate::utils::geometry::iou_cost_matrix(&strack_boxes, &det_boxes);
-
-        (
-            cost_matrix,
-            (0..strack_boxes.len()).collect(),
-            (0..det_boxes.len()).collect(),
-        )
-    }
-
-    /// Greedy linear assignment.
-    ///
-    /// Rows are tracks and columns are detections; returns matches as
-    /// `(track, detection)` pairs alongside the unmatched tracks and detections.
-    fn linear_assignment(
-        &self,
-        cost_matrix: &[Vec<f32>],
-        thresh: f32,
-    ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-        crate::utils::assignment::greedy_match(cost_matrix, thresh)
     }
 }
 
@@ -571,16 +525,5 @@ mod tests {
             out3[0].track_id, id,
             "re-activated track retains its original ID"
         );
-    }
-
-    #[test]
-    fn test_iou_distance_empty_inputs() {
-        // update() guards empty pools before calling iou_distance, so exercise
-        // its own empty guard directly.
-        let tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
-        let (cost, rows, cols) = tracker.iou_distance(&[], &[]);
-        assert!(cost.is_empty());
-        assert!(rows.is_empty());
-        assert!(cols.is_empty());
     }
 }

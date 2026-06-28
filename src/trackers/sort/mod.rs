@@ -233,35 +233,15 @@ impl Sort {
     }
 
     /// Associate detections to existing tracks using IoU.
+    ///
+    /// Returns matches as `(detection, track)` pairs alongside the unmatched
+    /// detections and tracks.
     fn associate(&self, detections: &[Detection]) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-        if self.tracks.is_empty() {
-            return (Vec::new(), (0..detections.len()).collect(), Vec::new());
-        }
-
-        if detections.is_empty() {
-            return (Vec::new(), Vec::new(), (0..self.tracks.len()).collect());
-        }
-
-        // Compute IoU cost matrix
         let track_boxes: Vec<[f32; 4]> = self.tracks.iter().map(|t| t.tlwh).collect();
         let det_boxes: Vec<[f32; 4]> = detections.iter().map(|d| d.tlwh).collect();
 
-        let cost_matrix = crate::utils::geometry::iou_cost_matrix(&track_boxes, &det_boxes);
-
-        self.linear_assignment(&cost_matrix, 1.0 - self.iou_threshold)
-    }
-
-    /// Greedy linear assignment.
-    ///
-    /// Rows are tracks and columns are detections; returns matches as
-    /// `(detection, track)` pairs alongside the unmatched detections and tracks.
-    fn linear_assignment(
-        &self,
-        cost_matrix: &[Vec<f32>],
-        thresh: f32,
-    ) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
         let (matches, unmatched_tracks, unmatched_dets) =
-            crate::utils::assignment::greedy_match(cost_matrix, thresh);
+            crate::utils::assignment::iou_match(&track_boxes, &det_boxes, 1.0 - self.iou_threshold);
         let matches = matches.into_iter().map(|(trk, det)| (det, trk)).collect();
         (matches, unmatched_dets, unmatched_tracks)
     }

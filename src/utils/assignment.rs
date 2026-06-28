@@ -4,6 +4,8 @@
 //! every (row, column) cost, sort ascending, and greedily accept a pair when both
 //! its row and column are still free and the cost does not exceed the threshold.
 
+use crate::utils::geometry::iou_cost_matrix;
+
 /// Greedily match rows to columns of a cost matrix.
 ///
 /// `cost_matrix[r][c]` is the cost of pairing row `r` with column `c`. Pairs are
@@ -54,6 +56,32 @@ pub fn greedy_match(
     (matches, unmatched_rows, unmatched_cols)
 }
 
+/// Greedily associate track boxes to detection boxes by IoU.
+///
+/// Builds the `1 - IoU` cost matrix between `track_boxes` and `det_boxes` and runs
+/// [`greedy_match`] on it. `cost_threshold` is the maximum acceptable `1 - IoU` cost,
+/// so a pair is matched only when `IoU >= 1 - cost_threshold`.
+///
+/// Returns `(matches, unmatched_tracks, unmatched_dets)` where each match is a
+/// `(track, detection)` pair. When either side is empty no match is possible and the
+/// full index range of the non-empty side is returned as unmatched.
+pub fn iou_match(
+    track_boxes: &[[f32; 4]],
+    det_boxes: &[[f32; 4]],
+    cost_threshold: f32,
+) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
+    if track_boxes.is_empty() || det_boxes.is_empty() {
+        return (
+            Vec::new(),
+            (0..track_boxes.len()).collect(),
+            (0..det_boxes.len()).collect(),
+        );
+    }
+
+    let cost_matrix = iou_cost_matrix(track_boxes, det_boxes);
+    greedy_match(&cost_matrix, cost_threshold)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -96,5 +124,42 @@ mod tests {
         ur.sort();
         assert_eq!(ur, vec![1, 2]);
         assert!(uc.is_empty());
+    }
+
+    #[test]
+    fn iou_match_pairs_overlapping_boxes() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0], [100.0, 100.0, 10.0, 10.0]];
+        let dets = vec![[100.0, 100.0, 10.0, 10.0], [0.0, 0.0, 10.0, 10.0]];
+        let (mut m, ut, ud) = iou_match(&tracks, &dets, 1.0 - 0.3);
+        m.sort();
+        // track 0 overlaps det 1, track 1 overlaps det 0.
+        assert_eq!(m, vec![(0, 1), (1, 0)]);
+        assert!(ut.is_empty());
+        assert!(ud.is_empty());
+    }
+
+    #[test]
+    fn iou_match_leaves_non_overlapping_unmatched() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0]];
+        let dets = vec![[500.0, 500.0, 10.0, 10.0]];
+        let (m, ut, ud) = iou_match(&tracks, &dets, 1.0 - 0.3);
+        assert!(m.is_empty());
+        assert_eq!(ut, vec![0]);
+        assert_eq!(ud, vec![0]);
+    }
+
+    #[test]
+    fn iou_match_handles_empty_sides() {
+        let tracks = vec![[0.0, 0.0, 10.0, 10.0]];
+        // No detections: the single track is unmatched.
+        let (m, ut, ud) = iou_match(&tracks, &[], 0.7);
+        assert!(m.is_empty());
+        assert_eq!(ut, vec![0]);
+        assert!(ud.is_empty());
+        // No tracks: the single detection is unmatched.
+        let (m, ut, ud) = iou_match(&[], &tracks, 0.7);
+        assert!(m.is_empty());
+        assert!(ut.is_empty());
+        assert_eq!(ud, vec![0]);
     }
 }
