@@ -1,98 +1,86 @@
 # Python Examples
 
-This directory contains Python examples demonstrating trackforge's tracking capabilities with various object detection models.
+Runnable demos for every trackforge tracker. Each demo reads a video, runs a detector, feeds detections to a tracker, and writes an annotated video. They share the same command-line interface and the same drawing/plumbing helpers.
 
 ## Prerequisites
 
 ```bash
-# Install trackforge
+# Core
 pip install trackforge
 
-# For YOLO examples
+# YOLO demos (SORT, ByteTrack, OC-SORT, Deep SORT, Deep OC-SORT, comparison)
 pip install ultralytics opencv-python
 
-# For RT-DETR examples
-pip install transformers torch pillow opencv-python
+# RT-DETR demo
+pip install transformers torch pillow
 
-# For Deep SORT examples (appearance embeddings)
-pip install torch torchvision
+# Appearance demos (Deep SORT, Deep OC-SORT) need a Re-ID backbone
+pip install torch torchvision pillow
 ```
 
 ## Examples
 
-| Example                                          | Description                        | Tracker     | Detector               | Input            | Output                   |
-| ------------------------------------------------ | ---------------------------------- | ----------- | ---------------------- | ---------------- | ------------------------ |
-| [`byte_track_demo.py`](byte_track_demo.py)       | ByteTrack multi-object tracking    | `ByteTrack` | YOLO11n                | `test_video.mp4` | `output_tracking.mp4`    |
-| [`sort_yolo_demo.py`](sort_yolo_demo.py)         | SORT tracking with YOLO            | `Sort`      | YOLO11n                | `people.mp4`     | `output_sort_yolo.mp4`   |
-| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py)     | SORT tracking with RT-DETR         | `Sort`      | RT-DETR (Transformers) | `people.mp4`     | `output_sort_rtdetr.mp4` |
-| [`deepsort_demo.py`](deepsort_demo.py)           | Deep SORT with appearance features | `DeepSort`  | YOLO11n + ResNet18     | `people.mp4`     | `output_deepsort.mp4`    |
-| [`tracker_comparison.py`](tracker_comparison.py) | Side-by-side ByteTrack vs SORT     | Both        | YOLO11n                | `people.mp4`     | `output_comparison.mp4`  |
+| Example                                          | Tracker              | Detector           | Output                   |
+| ------------------------------------------------ | -------------------- | ------------------ | ------------------------ |
+| [`sort_yolo_demo.py`](sort_yolo_demo.py)         | `SORT`               | YOLO11n            | `output_sort_yolo.mp4`   |
+| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py)     | `SORT`               | RT-DETR            | `output_sort_rtdetr.mp4` |
+| [`byte_track_demo.py`](byte_track_demo.py)       | `BYTETRACK`          | YOLO11n            | `output_bytetrack.mp4`   |
+| [`ocsort_demo.py`](ocsort_demo.py)               | `OCSORT`             | YOLO11n            | `output_ocsort.mp4`      |
+| [`deepsort_demo.py`](deepsort_demo.py)           | `DEEPSORT`           | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
+| [`deep_ocsort_demo.py`](deep_ocsort_demo.py)     | `DEEPOCSORT`         | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
+| [`tracker_comparison.py`](tracker_comparison.py) | `BYTETRACK` + `SORT` | YOLO11n            | `output_comparison.mp4`  |
+
+Two shared modules back the demos (not runnable on their own):
+
+- [`common.py`](common.py) - video load, MP4 writer, YOLO-to-`tlwh` conversion, color palette, box/label drawing, progress logging.
+- [`reid.py`](reid.py) - ResNet18 appearance embedder shared by the Deep SORT and Deep OC-SORT demos.
+
+## Running
+
+Every demo takes the same options and defaults to `people.mp4`:
+
+```bash
+python sort_yolo_demo.py --video people.mp4 --output tracked.mp4 --model yolo11n.pt
+```
+
+`deep_ocsort_demo.py` also accepts `--no-reid` to track on motion alone (pure OC-SORT behavior). `sort_rtdetr_demo.py` takes a Hugging Face model id via `--model` (default `PekingU/rtdetr_r50vd`).
 
 ## Quick Start
 
-### ByteTrack with YOLO
-
 ```python
 import trackforge
 from ultralytics import YOLO
 
 model = YOLO("yolo11n.pt")
-tracker = trackforge.ByteTrack(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6)
+tracker = trackforge.SORT(max_age=30, min_hits=3, iou_threshold=0.3)
 
-# Process detections
-results = model.predict(frame, verbose=False)
-detections = [(box.tlwh, box.conf, box.cls) for box in results[0].boxes]
+results = model.predict(frame, verbose=False, classes=[0])
+detections = []
+for box in results[0].boxes:
+    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+    detections.append(([float(x1), float(y1), float(x2 - x1), float(y2 - y1)],
+                       float(box.conf[0]), int(box.cls[0])))
+
 tracks = tracker.update(detections)
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID {track_id}: {tlwh}")
 ```
 
-### SORT with YOLO
+Swap the tracker line for any of the others:
 
 ```python
-import trackforge
-from ultralytics import YOLO
-
-model = YOLO("yolo11n.pt")
-tracker = trackforge.Sort(max_age=30, min_hits=3, iou_threshold=0.3)
-
-# Process detections
-results = model.predict(frame, verbose=False)
-detections = [(box.tlwh, box.conf, box.cls) for box in results[0].boxes]
-tracks = tracker.update(detections)
+trackforge.BYTETRACK(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6)
+trackforge.OCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2)
+trackforge.DEEPSORT(max_age=70, n_init=3, max_iou_distance=0.7, max_cosine_distance=0.2, nn_budget=100)
+trackforge.DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2,
+                      appearance_weight=0.5, max_cosine_distance=0.2, nn_budget=100)
 ```
 
-### Deep SORT with Appearance Embeddings
-
-```python
-import trackforge
-from ultralytics import YOLO
-
-model = YOLO("yolo11n.pt")
-tracker = trackforge.DeepSort(
-    max_age=70,
-    n_init=3,
-    max_iou_distance=0.7,
-    max_cosine_distance=0.2,
-    nn_budget=100
-)
-
-# Process detections
-results = model.predict(frame, verbose=False)
-detections = [(box.tlwh, box.conf, box.cls) for box in results[0].boxes]
-
-# Extract appearance embeddings (e.g., using ResNet18)
-embeddings = extract_features(frame, detections)  # Your feature extractor
-
-# Update tracker with detections AND embeddings
-tracks = tracker.update(detections, embeddings)
-
-# Access track attributes
-for track in tracks:
-    print(f"ID: {track.track_id}, Box: {track.tlwh}")
-```
+`DEEPSORT` and `DEEPOCSORT` take a parallel list of appearance embeddings: `tracker.update(detections, embeddings)`. For `DEEPOCSORT` the embeddings are optional (omit them to track on motion only).
 
 ## API Reference
 
-### ByteTrack
+### BYTETRACK
 
 | Parameter      | Type  | Default | Description                            |
 | -------------- | ----- | ------- | -------------------------------------- |
@@ -101,7 +89,7 @@ for track in tracks:
 | `match_thresh` | float | 0.8     | IoU threshold for matching             |
 | `det_thresh`   | float | 0.6     | Threshold for new track initialization |
 
-### Sort
+### SORT
 
 | Parameter       | Type  | Default | Description                                  |
 | --------------- | ----- | ------- | -------------------------------------------- |
@@ -109,7 +97,17 @@ for track in tracks:
 | `min_hits`      | int   | 3       | Min consecutive hits to confirm track        |
 | `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
 
-### DeepSort
+### OCSORT
+
+| Parameter       | Type  | Default | Description                                  |
+| --------------- | ----- | ------- | -------------------------------------------- |
+| `max_age`       | int   | 30      | Max frames without detection before deletion |
+| `min_hits`      | int   | 3       | Min consecutive hits to confirm track        |
+| `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
+| `delta_t`       | int   | 3       | Frame window for velocity direction (OCM)    |
+| `inertia`       | float | 0.2     | Weight of the velocity-direction bonus       |
+
+### DEEPSORT
 
 | Parameter             | Type  | Default | Description                                  |
 | --------------------- | ----- | ------- | -------------------------------------------- |
@@ -119,28 +117,28 @@ for track in tracks:
 | `max_cosine_distance` | float | 0.2     | Max cosine distance for appearance matching  |
 | `nn_budget`           | int   | 100     | Max appearance features stored per track     |
 
+### DEEPOCSORT
+
+| Parameter             | Type  | Default | Description                                    |
+| --------------------- | ----- | ------- | ---------------------------------------------- |
+| `max_age`             | int   | 30      | Max frames without detection before deletion   |
+| `min_hits`            | int   | 3       | Min consecutive hits to confirm track          |
+| `iou_threshold`       | float | 0.3     | IoU threshold for matching                     |
+| `delta_t`             | int   | 3       | Frame window for velocity direction (OCM)      |
+| `inertia`             | float | 0.2     | Weight of the velocity-direction bonus         |
+| `appearance_weight`   | float | 0.5     | Blend weight for the appearance cost (0 = off) |
+| `max_cosine_distance` | float | 0.2     | Gate above which appearance is ignored         |
+| `nn_budget`           | int   | 100     | Max appearance features stored per track       |
+
 ## Output Format
 
-### ByteTrack / Sort
-
-Both trackers return a list of tracks as tuples:
+Every tracker returns a list of tuples:
 
 ```python
 (track_id, [x, y, w, h], score, class_id)
 ```
 
-- `track_id`: Unique integer identifier for the track
-- `[x, y, w, h]`: Bounding box in TLWH format (top-left x, y, width, height)
-- `score`: Detection confidence score
-- `class_id`: Object class ID from the detector
-
-### DeepSort
-
-Returns a list of `DeepSortTrack` objects with attributes:
-
-```python
-track.track_id  # Unique integer identifier
-track.tlwh      # Bounding box [x, y, w, h]
-track.score     # Detection confidence
-track.class_id  # Object class ID
-```
+- `track_id`: unique integer identifier for the track
+- `[x, y, w, h]`: bounding box in TLWH format (top-left x, y, width, height)
+- `score`: detection confidence
+- `class_id`: object class id from the detector
