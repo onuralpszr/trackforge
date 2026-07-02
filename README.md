@@ -15,6 +15,7 @@
     <a href="https://crates.io/crates/trackforge"><img src="https://img.shields.io/crates/msrv/trackforge?logo=rust&logoColor=white" alt="MSRV" /></a>
     <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/v/trackforge?logo=python&logoColor=white&label=PyPI" alt="PyPI version" /></a>
     <a href="https://pypi.org/project/trackforge/#downloads"><img src="https://img.shields.io/pypi/dm/trackforge?logo=python&logoColor=white&label=pip%20downloads" alt="PyPI downloads" /></a>
+    <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/pyversions/trackforge?logo=python&logoColor=white&label=python" alt="Python versions" /></a>
     <a href="https://github.com/onuralpszr/trackforge/actions/workflows/CI.yml"><img src="https://img.shields.io/github/actions/workflow/status/onuralpszr/trackforge/CI.yml?branch=main&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
     <a href="https://codecov.io/gh/onuralpszr/trackforge"><img src="https://img.shields.io/codecov/c/github/onuralpszr/trackforge?logo=codecov&logoColor=white&token=DHMFYRLJW1" alt="Coverage" /></a>
     <a href="https://deps.rs/repo/github/onuralpszr/trackforge"><img src="https://deps.rs/repo/github/onuralpszr/trackforge/status.svg" alt="dependency status" /></a>
@@ -252,13 +253,14 @@ for t in tracks {
 
 Runnable demos live under [`examples/`](examples/), with both a Python and a Rust entry per tracker.
 
-| Tracker   | Python                                                                                                                                  | Rust                                                                                                      |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| ByteTrack | [`byte_track_demo.py`](examples/python/byte_track_demo.py) (YOLO11)                                                                     | [`byte_track_demo.rs`](examples/rust/byte_track_demo.rs)                                                  |
-| DeepSORT  | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                                | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX) |
-| OC-SORT   | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                      | —                                                                                                         |
-| SORT      | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
-| All four  | [`tracker_comparison.py`](examples/python/tracker_comparison.py) (side-by-side benchmark)                                               | —                                                                                                         |
+| Tracker      | Python                                                                                                                                  | Rust                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| ByteTrack    | [`byte_track_demo.py`](examples/python/byte_track_demo.py) (YOLO11)                                                                     | [`byte_track_demo.rs`](examples/rust/byte_track_demo.rs)                                                  |
+| DeepSORT     | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                                | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX) |
+| OC-SORT      | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                      | —                                                                                                         |
+| Deep OC-SORT | [`deep_ocsort_demo.py`](examples/python/deep_ocsort_demo.py) (YOLO + ResNet18)                                                          | —                                                                                                         |
+| SORT         | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
+| Comparison   | [`tracker_comparison.py`](examples/python/tracker_comparison.py) (ByteTrack vs SORT side-by-side)                                       | —                                                                                                         |
 
 ```bash
 # Python
