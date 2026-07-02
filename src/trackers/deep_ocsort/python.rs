@@ -1,8 +1,6 @@
 use super::DeepOcSortTracker;
-use crate::trackers::common::CameraMotion;
+use crate::trackers::common::{CameraMotion, PyTrackingResult};
 use pyo3::prelude::*;
-
-type PyTrackingResult = (u64, [f32; 4], f32, i64);
 
 /// Python-exposed Deep OC-SORT tracker.
 #[pyclass(name = "DEEPOCSORT")]
