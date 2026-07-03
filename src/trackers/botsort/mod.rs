@@ -3,26 +3,12 @@
 use crate::trackers::byte_track::TrackState;
 use crate::trackers::common::{CameraMotion, KalmanTrack};
 use crate::utils::assignment::{greedy_match, iou_match};
+use crate::utils::features::{cosine_distance, l2_normalize};
 use crate::utils::geometry::{iou_batch, tlwh_to_xyah};
 use crate::utils::kalman::KalmanFilter;
 
 /// Exponential moving-average weight for the per-track appearance feature.
 const FEATURE_MOMENTUM: f32 = 0.9;
-
-/// L2-normalise a feature vector, returning zeros unchanged.
-fn l2_normalize(feature: &[f32]) -> Vec<f32> {
-    let norm = feature.iter().map(|v| v * v).sum::<f32>().sqrt();
-    if norm <= 1e-12 {
-        return feature.to_vec();
-    }
-    feature.iter().map(|v| v / norm).collect()
-}
-
-/// Cosine distance between two L2-normalised vectors, clamped to `[0, 2]`.
-fn cosine_distance(a: &[f32], b: &[f32]) -> f32 {
-    let dot: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
-    (1.0 - dot).clamp(0.0, 2.0)
-}
 
 /// A detection with an optional appearance embedding.
 struct Detection {
@@ -91,8 +77,8 @@ impl BotTrack {
         self.tracklet_len = 0;
     }
 
-    /// Correct a matched track with a new detection.
-    fn update(&mut self, det: &Detection, frame_id: usize, kf: &KalmanFilter) {
+    /// Kalman-correct with a matched detection and adopt its box, score, and class.
+    fn absorb(&mut self, det: &Detection, frame_id: usize, kf: &KalmanFilter) {
         self.kalman.update(&tlwh_to_xyah(&det.tlwh), kf);
         self.tlwh = det.tlwh;
         self.score = det.score;
@@ -100,25 +86,21 @@ impl BotTrack {
         self.state = TrackState::Tracked;
         self.is_activated = true;
         self.frame_id = frame_id;
-        self.tracklet_len += 1;
         if let Some(f) = &det.feature {
             self.update_features(f);
         }
     }
 
+    /// Continue an already-tracked track (extends the tracklet).
+    fn update(&mut self, det: &Detection, frame_id: usize, kf: &KalmanFilter) {
+        self.absorb(det, frame_id, kf);
+        self.tracklet_len += 1;
+    }
+
     /// Bring a lost track back with a matched detection, keeping its id.
     fn re_activate(&mut self, det: &Detection, frame_id: usize, kf: &KalmanFilter) {
-        self.kalman.update(&tlwh_to_xyah(&det.tlwh), kf);
-        self.tlwh = det.tlwh;
-        self.score = det.score;
-        self.class_id = det.class_id;
-        self.state = TrackState::Tracked;
-        self.is_activated = true;
-        self.frame_id = frame_id;
+        self.absorb(det, frame_id, kf);
         self.tracklet_len = 0;
-        if let Some(f) = &det.feature {
-            self.update_features(f);
-        }
     }
 
     /// Kalman-predict one step forward, damping height velocity while not tracked.
@@ -421,7 +403,7 @@ impl BotSort {
         }
         let tf = track.smooth_feat.as_ref()?;
         let df = det.feature.as_ref()?;
-        let mut emb = cosine_distance(tf, &l2_normalize(df));
+        let mut emb = cosine_distance(tf, df);
         if emb > self.appearance_thresh || iou_dist > self.proximity_thresh {
             emb = 1.0;
         }
@@ -679,13 +661,6 @@ mod tests {
             &[vec![1.0], vec![2.0]],
         );
         assert_eq!(tracks.len(), 1);
-    }
-
-    #[test]
-    fn l2_normalize_handles_zero_vector() {
-        assert_eq!(l2_normalize(&[0.0, 0.0, 0.0]), vec![0.0, 0.0, 0.0]);
-        let unit = l2_normalize(&[3.0, 4.0]);
-        assert!((unit[0] - 0.6).abs() < 1e-6 && (unit[1] - 0.8).abs() < 1e-6);
     }
 
     #[test]
