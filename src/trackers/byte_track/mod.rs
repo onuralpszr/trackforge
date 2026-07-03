@@ -501,4 +501,22 @@ mod tests {
             "re-activated track retains its original ID"
         );
     }
+
+    #[test]
+    fn test_bytetrack_lost_track_kept_within_buffer() {
+        // Frame 1 activates a track. Frame 2 misses it, so it becomes Lost. Frame 3
+        // misses it again while still inside the buffer, exercising the branch that
+        // keeps a first-round lost track alive. Frame 4 re-detects it and recovers
+        // the original id from the buffer.
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let d = ([10.0, 10.0, 50.0, 100.0], 0.9_f32, 0_i64);
+        let id = tracker.update(vec![d])[0].track_id;
+
+        assert!(tracker.update(vec![]).is_empty());
+        assert!(tracker.update(vec![]).is_empty());
+
+        let out = tracker.update(vec![d]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].track_id, id, "track recovered from the lost buffer");
+    }
 }

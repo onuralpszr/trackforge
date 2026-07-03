@@ -419,16 +419,8 @@ mod tests {
         track.push_observation(tlwh_to_xyah(&tlwh2), 2, 4);
 
         let dir = track.obs_direction(3).unwrap();
-        assert!(
-            dir[0].abs() < 0.01,
-            "Expected dy direction ~0.0, got {}",
-            dir[0]
-        );
-        assert!(
-            (dir[1] - 1.0).abs() < 0.01,
-            "Expected dx direction ~1.0, got {}",
-            dir[1]
-        );
+        assert!(dir[0].abs() < 0.01);
+        assert!((dir[1] - 1.0).abs() < 0.01);
     }
 
     #[test]
