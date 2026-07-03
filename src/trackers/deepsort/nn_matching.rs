@@ -96,7 +96,7 @@ impl NearestNeighborDistanceMetric {
         for sample in samples {
             let dist = match self.metric {
                 Metric::Euclidean => euclidean_distance(sample, feature),
-                Metric::Cosine => cosine_distance(sample, feature),
+                Metric::Cosine => crate::utils::features::cosine_distance(sample, feature),
             };
             if dist < min_dist {
                 min_dist = dist;
@@ -118,25 +118,6 @@ fn euclidean_distance(a: &[f32], b: &[f32]) -> f32 {
     sum.sqrt()
 }
 
-fn cosine_distance(a: &[f32], b: &[f32]) -> f32 {
-    // 1 - (a . b) / (|a| * |b|)
-    // Assuming normalized features, it's just 1 - a . b
-    // But let's be safe and compute norms.
-    let dot: f32 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
-    let norm_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
-    let norm_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
-
-    let cosine_sim = if norm_a > 1e-6 && norm_b > 1e-6 {
-        dot / (norm_a * norm_b)
-    } else {
-        0.0
-    };
-
-    // Clamp to [0, 1] for safety in case of float errors, though dot/norms should be <= 1.
-    // Distance is 1 - similarity.
-    (1.0 - cosine_sim).max(0.0)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -146,42 +127,6 @@ mod tests {
         let a = vec![0.0, 0.0];
         let b = vec![3.0, 4.0];
         assert!((euclidean_distance(&a, &b) - 5.0).abs() < 1e-5);
-    }
-
-    #[test]
-    fn test_cosine() {
-        let a = vec![1.0, 0.0];
-        let b = vec![0.0, 1.0];
-        // Orthogonal -> dist 1.0
-        assert!((cosine_distance(&a, &b) - 1.0).abs() < 1e-5);
-
-        let c = vec![1.0, 0.0];
-        // Same -> dist 0.0
-        assert!((cosine_distance(&a, &c)).abs() < 1e-5);
-    }
-
-    #[test]
-    fn test_cosine_parallel() {
-        // Parallel vectors should have distance ~0
-        let a = vec![1.0, 1.0];
-        let b = vec![2.0, 2.0]; // Same direction, different magnitude
-        assert!(cosine_distance(&a, &b) < 0.01);
-    }
-
-    #[test]
-    fn test_cosine_opposite() {
-        // Opposite vectors should have distance ~2
-        let a = vec![1.0, 0.0];
-        let b = vec![-1.0, 0.0];
-        assert!((cosine_distance(&a, &b) - 2.0).abs() < 0.01);
-    }
-
-    #[test]
-    fn test_cosine_zero_norm() {
-        // Zero vector should return 1.0 (no similarity)
-        let a = vec![0.0, 0.0];
-        let b = vec![1.0, 1.0];
-        assert!((cosine_distance(&a, &b) - 1.0).abs() < 0.01);
     }
 
     #[test]
