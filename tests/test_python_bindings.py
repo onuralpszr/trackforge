@@ -213,3 +213,61 @@ def test_deepocsort_camera_motion_keeps_id():
     second = t.update([([300.0, 100.0, 50.0, 100.0], 0.9, 0)], [], camera_motion)
     assert len(second) == 1
     assert second[0][0] == track_id
+
+
+# ---------------------------------------------------------------------------
+# BOTSORT
+# ---------------------------------------------------------------------------
+
+
+def test_botsort_constructor():
+    t = trackforge.BOTSORT(
+        track_thresh=0.5,
+        track_buffer=30,
+        match_thresh=0.8,
+        det_thresh=0.6,
+        proximity_thresh=0.5,
+        appearance_thresh=0.25,
+    )
+    assert t is not None
+
+
+def test_botsort_update_empty():
+    t = trackforge.BOTSORT()
+    assert t.update([]) == []
+
+
+def test_botsort_motion_only():
+    t = trackforge.BOTSORT()
+    tracks = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
+    assert len(tracks) == 1
+    track_id, tlwh, score, class_id = tracks[0]
+    assert track_id == 1
+    assert len(tlwh) == 4
+
+
+def test_botsort_with_embeddings_keeps_id():
+    t = trackforge.BOTSORT()
+    emb = [[1.0, 0.0, 0.0]]
+    first = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)], emb)
+    track_id = first[0][0]
+    second = t.update([([106.0, 100.0, 50.0, 100.0], 0.9, 0)], emb)
+    assert len(second) == 1
+    assert second[0][0] == track_id
+
+
+def test_botsort_mismatched_embeddings_raises():
+    t = trackforge.BOTSORT()
+    with pytest.raises(ValueError):
+        t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)], [[1.0], [2.0]])
+
+
+def test_botsort_camera_motion_keeps_id():
+    t = trackforge.BOTSORT()
+    first = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
+    track_id = first[0][0]
+    # Camera pans right by 200px; the object now appears at x=300.
+    camera_motion = [1.0, 0.0, 200.0, 0.0, 1.0, 0.0]
+    second = t.update([([300.0, 100.0, 50.0, 100.0], 0.9, 0)], [], camera_motion)
+    assert len(second) == 1
+    assert second[0][0] == track_id

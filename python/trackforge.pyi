@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple
 
-__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT", "DEEPOCSORT"]
+__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT", "DEEPOCSORT", "BOTSORT"]
 
 class BYTETRACK:
     """
@@ -198,6 +198,55 @@ class DEEPOCSORT:
         appearance_weight: float = 0.5,
         max_cosine_distance: float = 0.2,
         nn_budget: int = 100,
+    ) -> None: ...
+    def update(
+        self,
+        detections: List[Tuple[List[float], float, int]],
+        embeddings: List[List[float]] = ...,
+        camera_motion: Optional[List[float]] = ...,
+    ) -> List[Tuple[int, List[float], float, int]]: ...
+
+class BOTSORT:
+    """
+    BoT-SORT tracker: ByteTrack with camera motion and appearance fusion.
+
+    Adds camera motion compensation and an appearance-fused first association stage
+    on top of ByteTrack's two-stage cascade. Pass embeddings for appearance-aware
+    tracking, or omit them to track on motion only.
+
+    **Usage Example:**
+
+    ```python
+    from trackforge import BOTSORT
+
+    tracker = BOTSORT(
+        track_thresh=0.5,
+        track_buffer=30,
+        match_thresh=0.8,
+        det_thresh=0.6,
+        proximity_thresh=0.5,
+        appearance_thresh=0.25,
+    )
+
+    detections = [
+        ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ]
+    embeddings = [[0.1, 0.2, 0.3]]
+
+    tracks = tracker.update(detections, embeddings)
+    for track_id, box, score, class_id in tracks:
+        print(f"Track ID: {track_id}, Box: {box}")
+    ```
+    """
+
+    def __init__(
+        self,
+        track_thresh: float = 0.5,
+        track_buffer: int = 30,
+        match_thresh: float = 0.8,
+        det_thresh: float = 0.6,
+        proximity_thresh: float = 0.5,
+        appearance_thresh: float = 0.25,
     ) -> None: ...
     def update(
         self,

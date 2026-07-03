@@ -2,6 +2,7 @@
 //!
 //! This module contains the core tracking logic for algorithms like ByteTrack, SORT, DeepSORT, and OC-SORT.
 
+pub mod botsort;
 pub mod byte_track;
 pub mod common;
 pub mod deep_ocsort;
