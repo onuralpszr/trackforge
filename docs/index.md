@@ -17,14 +17,14 @@
 </p>
 
 **Trackforge** is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements six production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.
 
 ## Features
 
 - **High Performance** — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.
 - **Python Bindings** — Install from PyPI, import, and track in three lines.
-- **Four Algorithms** — SORT, ByteTrack, OC-SORT, and DeepSORT cover the full speed-accuracy spectrum.
+- **Six Algorithms** — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, and BoT-SORT cover the full speed-accuracy spectrum.
 - **Unified API** — All trackers accept `(tlwh, score, class_id)` detection tuples.
 
 ## Installation
@@ -52,16 +52,18 @@ maturin develop --features python
 
 ## Choosing a Tracker
 
-| Tracker       | Appearance       | Matching             | When to use                                                 |
-| ------------- | ---------------- | -------------------- | ----------------------------------------------------------- |
-| **SORT**      | None             | IoU                  | Simple scenes, highest speed, no occlusions                 |
-| **ByteTrack** | None             | IoU (2-stage)        | Crowded scenes, low-confidence detections, short occlusions |
-| **OC-SORT**   | None             | IoU + velocity (OCM) | Scenes with frequent brief occlusions, no Re-ID available   |
-| **DeepSORT**  | Re-ID embeddings | Appearance + IoU     | Long occlusions, dense crowds, identity-sensitive use cases |
+| Tracker          | Appearance       | Matching                         | When to use                                                 |
+| ---------------- | ---------------- | -------------------------------- | ----------------------------------------------------------- |
+| **SORT**         | None             | IoU                              | Simple scenes, highest speed, no occlusions                 |
+| **ByteTrack**    | None             | IoU (2-stage)                    | Crowded scenes, low-confidence detections, short occlusions |
+| **OC-SORT**      | None             | IoU + velocity (OCM)             | Scenes with frequent brief occlusions, no Re-ID available   |
+| **DeepSORT**     | Re-ID embeddings | Appearance + IoU                 | Long occlusions, dense crowds, identity-sensitive use cases |
+| **Deep OC-SORT** | Re-ID embeddings | IoU + velocity + appearance      | Occlusions where OC-SORT motion plus Re-ID helps            |
+| **BoT-SORT**     | Re-ID embeddings | IoU + appearance + camera motion | Moving cameras, panning and zoom, with optional Re-ID       |
 
 All trackers share the same detection input format:
 
-```
+```text
 (tlwh: [f32; 4], score: f32, class_id: i64)
 ```
 
@@ -83,7 +85,7 @@ overlap.
 | `min_hits`      | `usize` | `3`     | Consecutive matched frames required before a track is confirmed |
 | `iou_threshold` | `f32`   | `0.3`   | Minimum IoU required to associate a detection with a track      |
 
-**Tuning tips**
+#### Tuning tips
 
 - Increase `max_age` to bridge short occlusions (at the cost of more false tracks).
 - Decrease `iou_threshold` when objects are densely packed (more permissive matching).
@@ -138,14 +140,15 @@ recall improvement over SORT with minimal added cost.
 
 ### Configuration
 
-| Parameter      | Type    | Default | Description                                                         |
-| -------------- | ------- | ------- | ------------------------------------------------------------------- |
-| `track_thresh` | `f32`   | `0.5`   | Confidence threshold separating high- and low-confidence detections |
-| `track_buffer` | `usize` | `30`    | Frames a lost track is buffered before deletion                     |
-| `match_thresh` | `f32`   | `0.8`   | IoU threshold for stage-1 (high-confidence) matching                |
-| `det_thresh`   | `f32`   | `0.6`   | Minimum confidence to initialise a new track                        |
+| Parameter             | Type    | Default | Description                                                         |
+| --------------------- | ------- | ------- | ------------------------------------------------------------------- |
+| `track_thresh`        | `f32`   | `0.5`   | Confidence threshold separating high- and low-confidence detections |
+| `track_buffer`        | `usize` | `30`    | Frames a lost track is buffered before deletion                     |
+| `match_thresh`        | `f32`   | `0.8`   | Stage-1 match cutoff as a maximum IoU distance (lower is stricter)  |
+| `det_thresh`          | `f32`   | `0.6`   | Minimum confidence to initialise a new track                        |
+| `second_match_thresh` | `f32`   | `0.5`   | Stage-2 match cutoff for recovering low-confidence detections       |
 
-**Tuning tips**
+#### Tuning tips
 
 - Lower `track_thresh` (e.g. `0.3`) to include more low-confidence detections in stage 2.
 - Increase `track_buffer` (e.g. `60`) when your detector produces intermittent misses.
@@ -219,7 +222,7 @@ common but Re-ID is unavailable.
 | `delta_t`       | `usize` | `3`     | Observation window (frames) used to compute velocity for OCV         |
 | `inertia`       | `f32`   | `0.2`   | Weight for the direction-consistency cost bonus during OCM (0.0-1.0) |
 
-**Tuning tips**
+#### Tuning tips
 
 - Increase `max_age` (e.g. `60`) when objects undergo long occlusions.
 - Increase `delta_t` for smoother velocity at the cost of responsiveness to rapid direction changes.
@@ -287,7 +290,7 @@ to IoU matching. Provides robust long-term identity maintenance.
 | `max_cosine_distance` | `f32`   | `0.2`   | Cosine distance threshold for appearance matching               |
 | `nn_budget`           | `usize` | `100`   | Maximum number of appearance embeddings stored per track (FIFO) |
 
-**Tuning tips**
+#### Tuning tips
 
 - Lower `max_cosine_distance` (e.g. `0.15`) for stricter Re-ID — reduces ID switches at the cost
   of more unmatched detections.
@@ -377,7 +380,7 @@ for t in &tracks {
 
 All trackers use the same detection tuple format:
 
-```
+```text
 ([x, y, w, h], score, class_id)
 ```
 
