@@ -672,11 +672,11 @@ fn angle_cost(t: &Track, d: &Det) -> f32 {
     let dcy = d.tlwh[1] + d.tlwh[3] * 0.5;
     let dir = (dcx - tcx, dcy - tcy);
     let nv = (vx * vx + vy * vy).sqrt();
-    let nd = (dir.0 * dir.0 + dir.1 * dir.1).sqrt();
-    if nv < 1e-5 || nd < 1e-5 {
+    let and = (dir.0 * dir.0 + dir.1 * dir.1).sqrt();
+    if nv < 1e-5 || and < 1e-5 {
         return 0.0;
     }
-    let cos = ((vx * dir.0 + vy * dir.1) / (nv * nd)).clamp(-1.0, 1.0);
+    let cos = ((vx * dir.0 + vy * dir.1) / (nv * and)).clamp(-1.0, 1.0);
     (cos.acos().abs() / std::f32::consts::PI) * d.score
 }
 
