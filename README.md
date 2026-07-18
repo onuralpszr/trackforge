@@ -27,20 +27,21 @@
 
 ## Supported Trackers
 
-| Tracker                                          | Type                              | Appearance (Re-ID) |
-| ------------------------------------------------ | --------------------------------- | ------------------ |
-| [ByteTrack](https://arxiv.org/abs/2110.06864)    | IoU + confidence association      | No                 |
-| [DeepSORT](https://arxiv.org/abs/1703.07402)     | IoU + cosine distance             | Yes (pluggable)    |
-| [OC-SORT](https://arxiv.org/abs/2203.14360)      | IoU + velocity direction (OCM)    | No                 |
-| [Deep OC-SORT](https://arxiv.org/abs/2302.11813) | IoU + velocity (OCM) + appearance | Yes (pluggable)    |
-| [BoT-SORT](https://arxiv.org/abs/2206.14651)     | IoU + appearance + camera motion  | Yes (pluggable)    |
-| [SORT](https://arxiv.org/abs/1602.00763)         | IoU + Kalman filter               | No                 |
+| Tracker                                                                                                                                         | Type                                             | Appearance (Re-ID) |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------ |
+| [ByteTrack](https://arxiv.org/abs/2110.06864)                                                                                                   | IoU + confidence association                     | No                 |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)                                                                                                    | IoU + cosine distance                            | Yes (pluggable)    |
+| [OC-SORT](https://arxiv.org/abs/2203.14360)                                                                                                     | IoU + velocity direction (OCM)                   | No                 |
+| [Deep OC-SORT](https://arxiv.org/abs/2302.11813)                                                                                                | IoU + velocity (OCM) + appearance                | Yes (pluggable)    |
+| [BoT-SORT](https://arxiv.org/abs/2206.14651)                                                                                                    | IoU + appearance + camera motion                 | Yes (pluggable)    |
+| [TrackTrack](https://openaccess.thecvf.com/content/CVPR2025/html/Shim_Focusing_on_Tracks_for_Online_Multi-Object_Tracking_CVPR_2025_paper.html) | Track-perspective association + track-aware init | Yes (pluggable)    |
+| [SORT](https://arxiv.org/abs/1602.00763)                                                                                                        | IoU + Kalman filter                              | No                 |
 
 ## Features
 
 - 🚀 **Native Rust Core** Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
 - 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
-- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and SORT with a unified API
+- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, TrackTrack, and SORT with a unified API
 - 🔌 **Pluggable Re-ID** The appearance matching is always available; you pass in embeddings. The image based extractor that runs a model over a frame is an opt-in `reid-model` feature, so the base build stays light
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 

@@ -6,7 +6,7 @@
     <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/pyversions/trackforge?logo=python&logoColor=white" alt="Python versions" /></a>
 </p>
 
-Trackforge exposes six tracker classes. All are importable directly from the `trackforge`
+Trackforge exposes seven tracker classes. All are importable directly from the `trackforge`
 module after installing with `pip install trackforge`.
 
 ```python
@@ -19,6 +19,7 @@ trackforge.OCSORT
 trackforge.DEEPSORT
 trackforge.DEEPOCSORT
 trackforge.BOTSORT
+trackforge.TRACKTRACK
 ```
 
 ---
@@ -364,6 +365,50 @@ tracks = tracker.update(
 ```
 
 Same input and output format as `DEEPOCSORT.update`.
+
+---
+
+## `TRACKTRACK`
+
+TrackTrack (CVPR 2025). A track-centric tracker whose contributions are a track-perspective association, where each track picks its own best detection and matches only on mutual agreement, and a track-aware initialization that suppresses spurious new tracks. Accepts optional embeddings; pass an empty list to track on motion only.
+
+### Constructor
+
+```python
+trackforge.TRACKTRACK(
+    det_thresh: float   = 0.6,
+    match_thresh: float = 0.7,
+    track_buffer: int   = 30,
+    min_hits: int       = 3,
+    init_thresh: float  = 0.7,
+    tai_thresh: float   = 0.55,
+    penalty_low: float  = 0.2,
+    reduce_step: float  = 0.05,
+)
+```
+
+| Parameter      | Type    | Default | Description                                                        |
+| -------------- | ------- | ------- | ------------------------------------------------------------------ |
+| `det_thresh`   | `float` | `0.6`   | Score above which a detection is high confidence and matched first |
+| `match_thresh` | `float` | `0.7`   | Association cost gate, lower is stricter                           |
+| `track_buffer` | `int`   | `30`    | Frames a lost track is kept alive                                  |
+| `min_hits`     | `int`   | `3`     | Matched frames in a row before a new track is confirmed            |
+| `init_thresh`  | `float` | `0.7`   | Smallest score a leftover detection needs to start a new track     |
+| `tai_thresh`   | `float` | `0.55`  | Overlap gate for track-aware initialization, a maximum IoU         |
+| `penalty_low`  | `float` | `0.2`   | Extra cost added to low confidence detections during association   |
+| `reduce_step`  | `float` | `0.05`  | How much the cost gate tightens per matching round                 |
+
+### `update`
+
+```python
+tracks = tracker.update(
+    detections: list[tuple[list[float], float, int]],
+    embeddings: list[list[float]] = [],
+    camera_motion: list[float] | None = None,
+) -> list[tuple[int, list[float], float, int]]
+```
+
+Same input and output format as `BOTSORT.update`.
 
 ---
 

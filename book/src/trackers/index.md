@@ -11,6 +11,8 @@ model.
 | [OC-SORT](./ocsort.md)           | None             | IoU + velocity (OCM)        | Frequent brief occlusions, no Re-ID available               |
 | [DeepSORT](./deepsort.md)        | Re-ID embeddings | Appearance + IoU            | Long occlusions, dense crowds, identity-sensitive cases     |
 | [Deep OC-SORT](./deep_ocsort.md) | Re-ID embeddings | IoU + velocity + appearance | Occlusions where Re-ID helps recover identities             |
+| [BoT-SORT](./botsort.md)         | Re-ID embeddings | IoU + appearance + camera motion | Moving cameras, panning and zoom, optional Re-ID        |
+| [TrackTrack](./tracktrack.md)    | Re-ID embeddings | Track-perspective association | Crowded scenes needing strong identity, optional Re-ID     |
 
 The Kalman filter uses an 8-dimensional state `[x, y, a, h, vx, vy, va, vh]`, where `(x, y)` is the
 box centre, `a` is the aspect ratio, and `h` is the height. Detections in `[x, y, w, h]` (top-left)

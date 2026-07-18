@@ -8,6 +8,7 @@
 - [DeepSORT](https://arxiv.org/abs/1703.07402)
 - [Deep OC-SORT](https://arxiv.org/abs/2302.11813)
 - [BoT-SORT](https://arxiv.org/abs/2206.14651)
+- [TrackTrack](https://openaccess.thecvf.com/content/CVPR2025/html/Shim_Focusing_on_Tracks_for_Online_Multi-Object_Tracking_CVPR_2025_paper.html)
 - Python bindings and PyPI package
 - Rust and Python examples
 
@@ -18,13 +19,12 @@ Every tracker ships for both Python and Rust and is tested in both.
 These build on the shared `utils::kalman`, `utils::geometry`, and `utils::assignment` cores, so
 most of the work is the association logic specific to each method.
 
-| Tracker      | Builds on                               | Paper                                          | Reference                                                     |
-| ------------ | --------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
-| StrongSORT   | DeepSORT + stronger Re-ID               | [2202.13514](https://arxiv.org/abs/2202.13514) | [dyhBUPT/StrongSORT](https://github.com/dyhBUPT/StrongSORT)   |
-| StrongSORT++ | StrongSORT + camera motion (AFLink/GSI) | [2202.13514](https://arxiv.org/abs/2202.13514) | [dyhBUPT/StrongSORT](https://github.com/dyhBUPT/StrongSORT)   |
-| TrackTrack   | Track-centric online association        | [CVPR 2025](https://arxiv.org/abs/2504.20083)  | [kamkyu94/TrackTrack](https://github.com/kamkyu94/TrackTrack) |
-| FastTracker  | Lightweight real-time association       | [2507.06310](https://arxiv.org/abs/2507.06310) | upstream reference                                            |
-| Norfair      | Distance-based, detector-agnostic       | -                                              | [tryolabs/norfair](https://github.com/tryolabs/norfair)       |
+| Tracker      | Builds on                               | Paper                                          | Reference                                                   |
+| ------------ | --------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| StrongSORT   | DeepSORT + stronger Re-ID               | [2202.13514](https://arxiv.org/abs/2202.13514) | [dyhBUPT/StrongSORT](https://github.com/dyhBUPT/StrongSORT) |
+| StrongSORT++ | StrongSORT + camera motion (AFLink/GSI) | [2202.13514](https://arxiv.org/abs/2202.13514) | [dyhBUPT/StrongSORT](https://github.com/dyhBUPT/StrongSORT) |
+| FastTracker  | Lightweight real-time association       | [2507.06310](https://arxiv.org/abs/2507.06310) | upstream reference                                          |
+| Norfair      | Distance-based, detector-agnostic       | -                                              | [tryolabs/norfair](https://github.com/tryolabs/norfair)     |
 
 ## Exploring
 
