@@ -434,4 +434,21 @@ mod tests {
         let tracks2 = tracker.update(det2);
         assert_eq!(tracks2[0].track_id, 2);
     }
+
+    #[test]
+    fn storage_stays_bounded_under_churn() {
+        // A fresh, non-matching object each frame. Tracks must be deleted after
+        // max_age misses, keeping the internal vector bounded by that window.
+        let max_age = 20;
+        let mut tracker = Sort::new(max_age, 3, 0.3);
+        for f in 0..3000 {
+            let x = 5.0 + (f % 100) as f32 * 40.0;
+            let _ = tracker.update(vec![([x, 10.0, 20.0, 40.0], 0.9, 0)]);
+            assert!(
+                tracker.tracks.len() <= max_age + 5,
+                "storage grew to {} at frame {f}",
+                tracker.tracks.len()
+            );
+        }
+    }
 }

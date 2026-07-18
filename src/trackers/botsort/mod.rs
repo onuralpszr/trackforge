@@ -690,4 +690,21 @@ mod tests {
         assert_eq!(tracks.len(), 1);
         assert_eq!(tracks[0].track_id, id);
     }
+
+    #[test]
+    fn storage_stays_bounded_under_churn() {
+        // A fresh object each frame that never re-matches. Lost tracks must age out
+        // of the buffer rather than accumulate with the frame count.
+        let buffer = 30;
+        let mut t = BotSort::new(0.5, buffer, 0.8, 0.6, 0.5, 0.25);
+        for f in 0..3000 {
+            let x = 5.0 + (f % 100) as f32 * 40.0;
+            let _ = t.update(vec![det(x, 10.0, 20.0, 40.0, 0.9)], &[]);
+            let stored = t.tracked_stracks.len() + t.lost_stracks.len();
+            assert!(
+                stored <= buffer + 5,
+                "storage grew to {stored} at frame {f}, buffer is {buffer}"
+            );
+        }
+    }
 }
