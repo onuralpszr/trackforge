@@ -15,10 +15,10 @@ pub mod python;
 pub use crate::trackers::common::ObsTrack as DeepOcSortTrack;
 pub use tracker::DeepOcSortTracker;
 
-#[cfg(any(feature = "python", feature = "reid-model"))]
-use crate::trackers::deepsort::{Metric, NearestNeighborDistanceMetric};
 #[cfg(feature = "reid-model")]
 use crate::trackers::common::CameraMotion;
+#[cfg(any(feature = "python", feature = "reid-model"))]
+use crate::trackers::deepsort::{Metric, NearestNeighborDistanceMetric};
 #[cfg(feature = "reid-model")]
 use crate::traits::AppearanceExtractor;
 #[cfg(feature = "reid-model")]

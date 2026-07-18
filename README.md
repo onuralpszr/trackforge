@@ -76,11 +76,11 @@ trackforge = { version = "0.3.0", features = ["python"] }
 
 The default build is light and pulls no image codecs. Every tracker works on detections you pass in, and the appearance trackers work on embeddings you pass in.
 
-| Feature | What it adds | Extra dependency |
-| ------- | ------------ | ---------------- |
-| default | All trackers, embedding based appearance matching, Kalman core | none |
-| `reid-model` | The `AppearanceExtractor` trait plus the `DeepSort` and `DeepOcSort` wrappers that run a model over a frame to produce embeddings | `image` |
-| `python` | PyO3 bindings for the Python package | `pyo3` |
+| Feature      | What it adds                                                                                                                      | Extra dependency |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| default      | All trackers, embedding based appearance matching, Kalman core                                                                    | none             |
+| `reid-model` | The `AppearanceExtractor` trait plus the `DeepSort` and `DeepOcSort` wrappers that run a model over a frame to produce embeddings | `image`          |
+| `python`     | PyO3 bindings for the Python package                                                                                              | `pyo3`           |
 
 Enable the image based extractor when you want the library to produce embeddings for you:
 
