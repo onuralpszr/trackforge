@@ -147,8 +147,6 @@ impl STrack {
 ///     println!("Track ID: {}, Box: {:?}", track.track_id, track.tlwh);
 /// }
 /// ```
-///
-/// ## Abstract
 pub struct ByteTrack {
     tracked_stracks: Vec<STrack>,
     lost_stracks: Vec<STrack>,
@@ -256,22 +254,13 @@ impl ByteTrack {
             }
         }
 
-        // Second matching
-        let mut detections_second = Vec::new();
-        for &i in &u_detection {
-            detections_second.push(detections_high[i].clone());
-        }
-        // Actually second matching is with LOW confidence detections and UNMATCHED tracks from first round (that were TRACKED, not lost)
-        // Wait, standard ByteTrack:
-        // 1. Match high_det with (tracked + lost) -> matches, u_track, u_det
-        // 2. Match low_det with (remainder of tracked from u_track)
-
-        // Let's filter u_track to separate tracked and lost
-        let mut r_tracked_stracks = Vec::new(); // these are from strack_pool indices
+        // Second matching: low-confidence detections against the tracks that were
+        // still Tracked but left unmatched by the first round.
+        let mut r_tracked_stracks = Vec::new();
         for &i in &u_track {
             let track = &strack_pool[i];
             if track.state == TrackState::Tracked {
-                r_tracked_stracks.push(track.clone()); // Need to clone or manage ownership better
+                r_tracked_stracks.push(track.clone());
             }
         }
 
@@ -301,9 +290,7 @@ impl ByteTrack {
             }
         }
 
-        // Deal with unmatched high detections -> New Tracks
-        // Correct logic: High det unmatched in FIRST step.
-        // My previous code put unmatched high indices in u_detection.
+        // Unmatched high-confidence detections above det_thresh start new tracks.
         for &i in &u_detection {
             let det = &detections_high[i];
             if det.score < self.det_thresh {
@@ -316,39 +303,26 @@ impl ByteTrack {
             activated_stracks.push(new_track);
         }
 
-        // Deal with lost tracks from first round that were NOT matched
+        // Keep first-round lost tracks alive until they exceed the buffer.
         for &i in &u_track {
             let track = &strack_pool[i];
-            if track.state == TrackState::Lost {
-                // If it was already lost and not matched in first round, it stays lost or removed
-                // We need to check if we should remove it
-                if self.frame_id - track.frame_id <= self.buffer_size {
-                    lost_stracks.push(track.clone());
-                }
+            if track.state == TrackState::Lost && self.frame_id - track.frame_id <= self.buffer_size
+            {
+                lost_stracks.push(track.clone());
             }
         }
 
-        // Update self state
+        // Commit the frame state: matched and refound tracks are active, the rest lost.
         self.tracked_stracks = activated_stracks;
         self.tracked_stracks.extend(refind_stracks);
-
-        // Removed ones
-        // In this logic, removed are implicit by not adding to tracked/lost lists?
-        // Actually we need to maintain lost_stracks list.
         self.lost_stracks = lost_stracks;
-        // Also remove duplicates if any?
-        // Basic unique check or simple assignment is fine for now.
 
-        // Output
-        let mut output_stracks = Vec::new();
-        for track in &self.tracked_stracks {
-            if track.is_activated {
-                output_stracks.push(track.clone());
-            }
-        }
-
-        // Return *tracked* stracks
-        output_stracks
+        // Output the activated tracks for this frame.
+        self.tracked_stracks
+            .iter()
+            .filter(|t| t.is_activated)
+            .cloned()
+            .collect()
     }
 }
 
@@ -452,32 +426,17 @@ mod tests {
 
     #[test]
     fn test_bytetrack_low_conf_match() {
+        // A low-confidence detection (below track_thresh) is recovered by the
+        // second association round and keeps the existing track id.
         let mut tracker = ByteTrack::new(0.6, 30, 0.8, 0.6);
         let d1 = ([10.0, 10.0, 50.0, 50.0], 0.9, 0);
         let out1 = tracker.update(vec![d1]);
         assert_eq!(out1.len(), 1);
         let id = out1[0].track_id;
 
-        // Frame 2: Low conf (below track_thresh 0.6, but above implicit low thresh)
-        // Note: Code uses 0.5 as low thresh in matches
-        let d2 = ([12.0, 12.0, 50.0, 50.0], 0.4, 0); // 0.4 < 0.6 but maybe matched?
-        // Wait, ByteTrack hardcoded 0.5 low thresh in `linear_assignment` call for second matching?
-        // In my code: `self.linear_assignment(&dists, 0.5)`
-
+        // Frame 2: same object at low confidence; second-round IoU match keeps the id.
+        let d2 = ([12.0, 12.0, 50.0, 50.0], 0.4, 0);
         let output2 = tracker.update(vec![d2]);
-        // If 0.4 < 0.5 (low thresh), it might be ignored if detections are filtered out before matching?
-        // Code: Detections are split. High >= track_thresh. Low is else.
-        // So d2 is low.
-        // Then predict.
-        // Match high -> none.
-        // Match low -> d2 is low. Matches with tracked track.
-        // Only if cost < 0.5. IoU should be high (dist low).
-
-        // Let's verify if 0.4 is kept.
-        // Assuming default logic doesn't drop low confidence completely unless very low?
-        // Standard code usually has a `filter_thresh` or similar. My `update` takes all.
-
-        // Ideally it should match.
         assert_eq!(output2.len(), 1, "Expected 1 track, got {}", output2.len());
         assert_eq!(output2[0].track_id, id);
     }
@@ -541,5 +500,23 @@ mod tests {
             out3[0].track_id, id,
             "re-activated track retains its original ID"
         );
+    }
+
+    #[test]
+    fn test_bytetrack_lost_track_kept_within_buffer() {
+        // Frame 1 activates a track. Frame 2 misses it, so it becomes Lost. Frame 3
+        // misses it again while still inside the buffer, exercising the branch that
+        // keeps a first-round lost track alive. Frame 4 re-detects it and recovers
+        // the original id from the buffer.
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let d = ([10.0, 10.0, 50.0, 100.0], 0.9_f32, 0_i64);
+        let id = tracker.update(vec![d])[0].track_id;
+
+        assert!(tracker.update(vec![]).is_empty());
+        assert!(tracker.update(vec![]).is_empty());
+
+        let out = tracker.update(vec![d]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].track_id, id, "track recovered from the lost buffer");
     }
 }

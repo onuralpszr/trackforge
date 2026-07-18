@@ -1,12 +1,18 @@
 #![doc = include_str!("README.md")]
 
-mod track;
 mod tracker;
 
 #[cfg(feature = "python")]
 pub mod python;
 
-pub use track::DeepOcSortTrack;
+/// A single tracked object managed by Deep OC-SORT.
+///
+/// Alias of the shared observation-centric [`ObsTrack`], which carries the Kalman
+/// state, observation history (OCM/ORU), and the appearance-embedding buffer Deep
+/// OC-SORT flushes into its feature gallery.
+///
+/// [`ObsTrack`]: crate::trackers::common::ObsTrack
+pub use crate::trackers::common::ObsTrack as DeepOcSortTrack;
 pub use tracker::DeepOcSortTracker;
 
 use crate::trackers::common::CameraMotion;

@@ -1,10 +1,10 @@
 //! Deep OC-SORT association: OC-SORT motion plus an appearance affinity term.
 
-use super::track::DeepOcSortTrack;
-use crate::trackers::common::CameraMotion;
+use crate::trackers::common::association::{last_observation_rematch, ocm_angle_bonus};
+use crate::trackers::common::{CameraMotion, ObsTrack as DeepOcSortTrack, TrackState};
 use crate::trackers::deepsort::NearestNeighborDistanceMetric;
 use crate::utils::assignment::greedy_match;
-use crate::utils::geometry::{iou_batch, tlwh_to_xyah, xyah_to_tlwh};
+use crate::utils::geometry::{iou_batch, tlwh_to_xyah};
 use crate::utils::kalman::KalmanFilter;
 use std::collections::HashSet;
 
@@ -120,13 +120,7 @@ impl DeepOcSortTracker {
             }
             track.update_kf(&xyah, &self.kf);
             track.push_observation(xyah, self.frame_count, self.delta_t + 1);
-
-            track.tlwh = det.tlwh;
-            track.score = det.score;
-            track.class_id = det.class_id;
-            track.hits += 1;
-            track.hit_streak += 1;
-            track.time_since_update = 0;
+            track.record_match(det.tlwh, det.score, det.class_id);
 
             if use_appearance {
                 track.push_feature(embeddings[*det_idx].clone());
@@ -151,7 +145,7 @@ impl DeepOcSortTracker {
 
         for track in &mut self.tracks {
             if track.time_since_update == 0 && track.hit_streak >= self.min_hits {
-                track.state = crate::trackers::common::TrackState::Confirmed;
+                track.state = TrackState::Confirmed;
             }
             if track.time_since_update > self.max_age {
                 track.mark_deleted();
@@ -160,15 +154,12 @@ impl DeepOcSortTracker {
 
         let unmatched_set: HashSet<usize> = unmatched_trks.into_iter().collect();
         for (i, track) in self.tracks.iter_mut().enumerate() {
-            if unmatched_set.contains(&i)
-                && track.state == crate::trackers::common::TrackState::Tentative
-            {
+            if unmatched_set.contains(&i) && track.state == TrackState::Tentative {
                 track.mark_deleted();
             }
         }
 
-        self.tracks
-            .retain(|t| t.state != crate::trackers::common::TrackState::Deleted);
+        self.tracks.retain(|t| t.state != TrackState::Deleted);
 
         self.flush_gallery();
 
@@ -218,29 +209,16 @@ impl DeepOcSortTracker {
 
         let pred_boxes: Vec<[f32; 4]> = self.tracks.iter().map(|t| t.tlwh).collect();
         let det_boxes: Vec<[f32; 4]> = detections.iter().map(|d| d.tlwh).collect();
-        let ious = iou_batch(&pred_boxes, &det_boxes);
+        let det_scores: Vec<f32> = detections.iter().map(|d| d.score).collect();
 
-        // OCM direction-consistency bonus, identical to OC-SORT.
-        let mut angle_diff: Vec<Vec<f32>> = vec![vec![0.0_f32; n_dets]; n_trks];
-        for (i, track) in self.tracks.iter().enumerate() {
-            let vel_dir = match track.obs_direction(self.delta_t) {
-                Some(v) => v,
-                None => continue,
-            };
-            let last = track.last_observation();
-            let (last_cx, last_cy) = (last[0], last[1]);
-            for (j, det) in detections.iter().enumerate() {
-                let det_cx = det.tlwh[0] + det.tlwh[2] / 2.0;
-                let det_cy = det.tlwh[1] + det.tlwh[3] / 2.0;
-                let dy = det_cy - last_cy;
-                let dx = det_cx - last_cx;
-                let norm = (dy * dy + dx * dx).sqrt() + 1e-6;
-                let dot = (vel_dir[0] * (dy / norm) + vel_dir[1] * (dx / norm)).clamp(-1.0, 1.0);
-                let angle = dot.acos();
-                let normalized = (std::f32::consts::FRAC_PI_2 - angle.abs()) / std::f32::consts::PI;
-                angle_diff[i][j] = (normalized * self.inertia * det.score).max(0.0);
-            }
-        }
+        let ious = iou_batch(&pred_boxes, &det_boxes);
+        let angle_diff = ocm_angle_bonus(
+            &self.tracks,
+            &det_boxes,
+            &det_scores,
+            self.delta_t,
+            self.inertia,
+        );
 
         // Appearance cost matrix (n_trks x n_dets) of cosine distances, or empty.
         let app_cost = if use_appearance {
@@ -250,6 +228,7 @@ impl DeepOcSortTracker {
             Vec::new()
         };
 
+        // Round 1: motion (IoU + OCM) blended with the gated appearance cost.
         let cost_matrix: Vec<Vec<f32>> = (0..n_trks)
             .map(|i| {
                 (0..n_dets)
@@ -268,43 +247,22 @@ impl DeepOcSortTracker {
             })
             .collect();
 
-        let (matches_td, mut unmatched_trks, mut unmatched_dets) =
+        let (matches_raw, mut unmatched_trks, mut unmatched_dets) =
             greedy_match(&cost_matrix, 1.0 - self.iou_threshold);
-        let mut matches: Vec<(usize, usize)> = matches_td
+        let mut matches: Vec<(usize, usize)> = matches_raw
             .into_iter()
             .map(|(trk, det)| (det, trk))
             .collect();
 
         // Round 2: motion-only re-match on last observed positions.
-        if !unmatched_dets.is_empty() && !unmatched_trks.is_empty() {
-            let left_det_boxes: Vec<[f32; 4]> = unmatched_dets
-                .iter()
-                .map(|&di| detections[di].tlwh)
-                .collect();
-            let left_trk_obs: Vec<[f32; 4]> = unmatched_trks
-                .iter()
-                .map(|&ti| xyah_to_tlwh(self.tracks[ti].last_observation()))
-                .collect();
-            let iou_left = iou_batch(&left_trk_obs, &left_det_boxes);
-            let max_iou = iou_left
-                .iter()
-                .flat_map(|r| r.iter())
-                .cloned()
-                .fold(f32::NEG_INFINITY, f32::max);
-
-            if max_iou > self.iou_threshold {
-                let cost_left: Vec<Vec<f32>> = iou_left
-                    .iter()
-                    .map(|row| row.iter().map(|&v| 1.0 - v).collect())
-                    .collect();
-                let (r2_matches, r2_ut, r2_ud) = greedy_match(&cost_left, 1.0 - self.iou_threshold);
-                for (trk_local, det_local) in r2_matches {
-                    matches.push((unmatched_dets[det_local], unmatched_trks[trk_local]));
-                }
-                unmatched_dets = r2_ud.into_iter().map(|di| unmatched_dets[di]).collect();
-                unmatched_trks = r2_ut.into_iter().map(|ti| unmatched_trks[ti]).collect();
-            }
-        }
+        last_observation_rematch(
+            &self.tracks,
+            &det_boxes,
+            &mut matches,
+            &mut unmatched_dets,
+            &mut unmatched_trks,
+            self.iou_threshold,
+        );
 
         (matches, unmatched_dets, unmatched_trks)
     }

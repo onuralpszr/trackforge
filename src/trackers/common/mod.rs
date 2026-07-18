@@ -5,11 +5,21 @@
 //! the predict/update mechanics they all repeat. [`cmc`] holds the shared camera
 //! motion compensation transform.
 
+pub mod association;
 pub mod cmc;
+pub mod obs_track;
 
 pub use cmc::CameraMotion;
+pub use obs_track::ObsTrack;
 
 use crate::utils::geometry::xyah_to_tlwh;
+
+/// A track as returned to Python: `(track_id, tlwh, score, class_id)`.
+///
+/// Every Python binding maps its confirmed tracks into this shape, so the type is
+/// shared here rather than redeclared per tracker.
+#[cfg(feature = "python")]
+pub type PyTrackingResult = (u64, [f32; 4], f32, i64);
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
 
 /// Lifecycle state of a track.

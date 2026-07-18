@@ -1,202 +1,30 @@
 #![doc = include_str!("README.md")]
 
-use crate::trackers::common::{KalmanTrack, TrackState};
-use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
-use crate::utils::kalman::{KalmanFilter, MeasurementVector};
+use crate::trackers::common::association::{last_observation_rematch, ocm_angle_bonus};
+use crate::trackers::common::{ObsTrack, TrackState};
+use crate::utils::assignment::greedy_match;
+use crate::utils::geometry::{iou_batch, tlwh_to_xyah};
 use std::collections::HashSet;
-
-// ---------------------------------------------------------------------------
-// Track state
-// ---------------------------------------------------------------------------
 
 /// Track lifecycle state for OC-SORT.
 ///
 /// Alias of the shared [`TrackState`].
 pub type OcSortTrackState = TrackState;
 
-// ---------------------------------------------------------------------------
-// Track
-// ---------------------------------------------------------------------------
-
 /// A single tracked object managed by OC-SORT.
-#[derive(Debug, Clone)]
-pub struct OcSortTrack {
-    /// Bounding box in TLWH (top-left x, top-left y, width, height) format.
-    pub tlwh: [f32; 4],
-    /// Detection confidence of the most recent match.
-    pub score: f32,
-    /// Class label of the most recent match.
-    pub class_id: i64,
-    /// Unique monotonically increasing track identifier.
-    pub track_id: u64,
-    /// Current lifecycle state.
-    pub state: OcSortTrackState,
-    /// Total number of detection matches over the track lifetime.
-    pub hits: usize,
-    /// Consecutive detection matches without interruption (resets to 0 on any missed frame).
-    pub hit_streak: usize,
-    /// Frames elapsed since the last detection match.
-    pub time_since_update: usize,
-    /// Total frames since track creation.
-    pub age: usize,
+///
+/// Alias of the shared observation-centric [`ObsTrack`], which carries the Kalman
+/// state and observation history that OC-SORT's velocity (OCM) and re-update (ORU)
+/// logic operate on.
+pub type OcSortTrack = ObsTrack;
 
-    // Kalman filter state (xyah format: cx, cy, aspect, height + velocities).
-    kalman: KalmanTrack,
-
-    // OC-SORT: circular observation history used for OCV and ORU.
-    // Stored as (xyah, frame_id) in insertion order; capped at `delta_t + 1` entries.
-    observations: Vec<(MeasurementVector, usize)>,
-}
-
-impl OcSortTrack {
-    fn new(
-        tlwh: [f32; 4],
-        score: f32,
-        class_id: i64,
-        track_id: u64,
-        frame_id: usize,
-        kf: &KalmanFilter,
-    ) -> Self {
-        let xyah = tlwh_to_xyah(&tlwh);
-        let kalman = KalmanTrack::initiate(&xyah, kf);
-        let observations = vec![(xyah, frame_id)];
-
-        Self {
-            tlwh,
-            score,
-            class_id,
-            track_id,
-            state: OcSortTrackState::Tentative,
-            hits: 1,
-            hit_streak: 1,
-            time_since_update: 0,
-            age: 1,
-            kalman,
-            observations,
-        }
-    }
-
-    /// Kalman-predict one step forward.
-    ///
-    /// Resets `hit_streak` when the track missed the previous frame, matching the
-    /// reference OC-SORT behaviour where consecutive-hit count is used for confirmation.
-    fn predict(&mut self, kf: &KalmanFilter) {
-        if self.time_since_update > 0 {
-            self.hit_streak = 0;
-        }
-        self.tlwh = self.kalman.predict(kf);
-        self.age += 1;
-        self.time_since_update += 1;
-    }
-
-    /// Standard Kalman update with a new matched detection.
-    fn update_kf(&mut self, xyah: &MeasurementVector, kf: &KalmanFilter) {
-        self.kalman.update(xyah, kf);
-        self.tlwh = xyah_to_tlwh(&self.kalman.mean);
-    }
-
-    /// OCV: compute normalised 2-D velocity direction `[dy, dx]` over the last
-    /// `delta_t` frames.
-    ///
-    /// Returns `None` when fewer than two observations are available.
-    /// The direction vector is normalised to unit length (L2 + 1e-6 epsilon).
-    fn obs_direction(&self, delta_t: usize) -> Option<[f32; 2]> {
-        let n = self.observations.len();
-        if n < 2 {
-            return None;
-        }
-        let anchor_idx = n.saturating_sub(delta_t + 1);
-        let (obs_old, _) = &self.observations[anchor_idx];
-        let (obs_new, _) = &self.observations[n - 1];
-        // xyah[0] = cx, xyah[1] = cy
-        let dy = obs_new[1] - obs_old[1];
-        let dx = obs_new[0] - obs_old[0];
-        let norm = (dy * dy + dx * dx).sqrt() + 1e-6;
-        Some([dy / norm, dx / norm])
-    }
-
-    /// ORU: replay interpolated observations to correct KF drift after re-association.
-    ///
-    /// Linearly interpolates between the last recorded observation and the current
-    /// detection in TLWH space (matching the reference implementation), converts each
-    /// virtual observation to xyah, then replays predict → update through the KF so
-    /// that future predictions start from a corrected state.
-    fn our_re_update(
-        &mut self,
-        current_xyah: &MeasurementVector,
-        current_frame: usize,
-        kf: &KalmanFilter,
-    ) {
-        let n = self.observations.len();
-        if n == 0 {
-            return;
-        }
-        let (last_obs, last_frame) = &self.observations[n - 1];
-        let gap = (current_frame as isize - *last_frame as isize).max(1) as usize;
-
-        if gap <= 1 {
-            return;
-        }
-
-        // Interpolate in TLWH space (reference interpolates in (x,y,w,h), not xyah).
-        let last_tlwh = xyah_to_tlwh(last_obs);
-        let current_tlwh = xyah_to_tlwh(current_xyah);
-
-        let (mut mean, mut covariance) = kf.initiate(last_obs);
-
-        for step in 1..=gap {
-            let t = step as f32 / gap as f32;
-            let virtual_tlwh = [
-                last_tlwh[0] + (current_tlwh[0] - last_tlwh[0]) * t,
-                last_tlwh[1] + (current_tlwh[1] - last_tlwh[1]) * t,
-                last_tlwh[2] + (current_tlwh[2] - last_tlwh[2]) * t,
-                last_tlwh[3] + (current_tlwh[3] - last_tlwh[3]) * t,
-            ];
-            let virtual_xyah = tlwh_to_xyah(&virtual_tlwh);
-            let (pm, pc) = kf.predict(&mean, &covariance);
-            mean = pm;
-            covariance = pc;
-            let (um, uc) = kf.update(&mean, &covariance, &virtual_xyah);
-            mean = um;
-            covariance = uc;
-        }
-
-        self.kalman.mean = mean;
-        self.kalman.covariance = covariance;
-        self.tlwh = xyah_to_tlwh(&self.kalman.mean);
-    }
-
-    /// Record a new observation, keeping the history bounded to `max_obs` entries.
-    fn push_observation(&mut self, xyah: MeasurementVector, frame_id: usize, max_obs: usize) {
-        self.observations.push((xyah, frame_id));
-        if self.observations.len() > max_obs {
-            self.observations.remove(0);
-        }
-    }
-
-    fn mark_deleted(&mut self) {
-        self.state = OcSortTrackState::Deleted;
-    }
-
-    fn is_confirmed(&self) -> bool {
-        self.state == OcSortTrackState::Confirmed
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Internal detection wrapper
-// ---------------------------------------------------------------------------
-
+/// Internal detection wrapper.
 #[derive(Debug, Clone)]
 struct Detection {
     tlwh: [f32; 4],
     score: f32,
     class_id: i64,
 }
-
-// ---------------------------------------------------------------------------
-// Tracker
-// ---------------------------------------------------------------------------
 
 /// OC-SORT tracker.
 ///
@@ -233,7 +61,7 @@ pub struct OcSort {
     delta_t: usize,
     /// Momentum weight applied to the direction-consistency cost bonus.
     inertia: f32,
-    kf: KalmanFilter,
+    kf: crate::utils::kalman::KalmanFilter,
     next_id: u64,
     frame_count: usize,
 }
@@ -262,7 +90,7 @@ impl OcSort {
             iou_threshold,
             delta_t,
             inertia: inertia.clamp(0.0, 1.0),
-            kf: KalmanFilter::default(),
+            kf: crate::utils::kalman::KalmanFilter::default(),
             next_id: 1,
             frame_count: 0,
         }
@@ -294,7 +122,7 @@ impl OcSort {
             track.predict(&self.kf);
         }
 
-        // 2. Match detections to tracks (OCM direction-consistency bonus + second-round re-match).
+        // 2. Match detections to tracks (OCM direction-consistency bonus + round-2 re-match).
         let (matches, unmatched_dets, unmatched_trks) = self.associate(&detections);
 
         // 3. Update matched tracks.
@@ -303,22 +131,13 @@ impl OcSort {
             let xyah = tlwh_to_xyah(&det.tlwh);
             let track = &mut self.tracks[*trk_idx];
 
-            let was_lost = track.time_since_update > 0;
-
             // ORU: correct KF drift if the track was re-found after a gap.
-            if was_lost {
+            if track.time_since_update > 0 {
                 track.our_re_update(&xyah, self.frame_count, &self.kf);
             }
-
             track.update_kf(&xyah, &self.kf);
             track.push_observation(xyah, self.frame_count, self.delta_t + 1);
-
-            track.tlwh = det.tlwh;
-            track.score = det.score;
-            track.class_id = det.class_id;
-            track.hits += 1;
-            track.hit_streak += 1;
-            track.time_since_update = 0;
+            track.record_match(det.tlwh, det.score, det.class_id);
         }
 
         // 4. Initialise new tracks for unmatched detections.
@@ -330,6 +149,7 @@ impl OcSort {
                 det.class_id,
                 self.next_id,
                 self.frame_count,
+                None,
                 &self.kf,
             );
             self.next_id += 1;
@@ -340,7 +160,7 @@ impl OcSort {
         for track in &mut self.tracks {
             // Confirm using hit_streak (consecutive hits), matching the reference behaviour.
             if track.time_since_update == 0 && track.hit_streak >= self.min_hits {
-                track.state = OcSortTrackState::Confirmed;
+                track.state = TrackState::Confirmed;
             }
             if track.time_since_update > self.max_age {
                 track.mark_deleted();
@@ -350,12 +170,12 @@ impl OcSort {
         // Delete unmatched tentative tracks immediately.
         let unmatched_trks_set: HashSet<usize> = unmatched_trks.into_iter().collect();
         for (i, track) in self.tracks.iter_mut().enumerate() {
-            if unmatched_trks_set.contains(&i) && track.state == OcSortTrackState::Tentative {
+            if unmatched_trks_set.contains(&i) && track.state == TrackState::Tentative {
                 track.mark_deleted();
             }
         }
 
-        self.tracks.retain(|t| t.state != OcSortTrackState::Deleted);
+        self.tracks.retain(|t| t.state != TrackState::Deleted);
 
         // 6. Return confirmed tracks matched this frame.
         self.tracks
@@ -367,14 +187,10 @@ impl OcSort {
 
     /// Associate detections with tracks.
     ///
-    /// Round 1 IoU on KF-predicted boxes plus an OCM direction-consistency bonus:
-    /// for each (track, detection) pair where the track has a stored velocity direction,
-    /// a bonus proportional to `cos_similarity * inertia * det_score` is added to the
-    /// IoU value before assignment.
-    ///
-    /// Round 2 for still-unmatched pairs, a second IoU pass is run using each
-    /// track's last *observed* position (not the KF prediction), matching the reference
-    /// OC-SORT second-round re-matching step.
+    /// Round 1 is IoU on the KF-predicted boxes plus an OCM direction-consistency
+    /// bonus; round 2 rematches leftovers on each track's last observed position.
+    /// Returns matches as `(detection, track)` pairs plus the unmatched detections
+    /// and tracks.
     fn associate(&self, detections: &[Detection]) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
         let n_trks = self.tracks.len();
         let n_dets = detections.len();
@@ -386,48 +202,20 @@ impl OcSort {
             return (Vec::new(), Vec::new(), (0..n_trks).collect());
         }
 
-        // IoU matrix: rows = tracks, cols = detections.
         let pred_boxes: Vec<[f32; 4]> = self.tracks.iter().map(|t| t.tlwh).collect();
         let det_boxes: Vec<[f32; 4]> = detections.iter().map(|d| d.tlwh).collect();
-        let ious = crate::utils::geometry::iou_batch(&pred_boxes, &det_boxes);
+        let det_scores: Vec<f32> = detections.iter().map(|d| d.score).collect();
 
-        // OCM direction-consistency cost: angle bonus added to IoU before assignment.
-        // For track i and detection j:
-        //   candidate_dir = normalised vector from track's last observation to detection centre
-        //   cos_sim       = dot(stored_velocity_dir, candidate_dir)
-        //   bonus         = (pi/2 - |arccos(cos_sim)|) / pi * inertia * det_score
-        let mut angle_diff: Vec<Vec<f32>> = vec![vec![0.0_f32; n_dets]; n_trks];
+        let ious = iou_batch(&pred_boxes, &det_boxes);
+        let angle_diff = ocm_angle_bonus(
+            &self.tracks,
+            &det_boxes,
+            &det_scores,
+            self.delta_t,
+            self.inertia,
+        );
 
-        for (i, track) in self.tracks.iter().enumerate() {
-            let vel_dir = match track.obs_direction(self.delta_t) {
-                Some(v) => v,
-                None => continue,
-            };
-
-            let (last_xyah, _) = track
-                .observations
-                .last()
-                .expect("observations is non-empty by invariant");
-            let last_cx = last_xyah[0];
-            let last_cy = last_xyah[1];
-
-            for (j, det) in detections.iter().enumerate() {
-                let det_cx = det.tlwh[0] + det.tlwh[2] / 2.0;
-                let det_cy = det.tlwh[1] + det.tlwh[3] / 2.0;
-                let dy = det_cy - last_cy;
-                let dx = det_cx - last_cx;
-                let norm = (dy * dy + dx * dx).sqrt() + 1e-6;
-                let cand_dy = dy / norm;
-                let cand_dx = dx / norm;
-
-                let dot = (vel_dir[0] * cand_dy + vel_dir[1] * cand_dx).clamp(-1.0, 1.0);
-                let angle = dot.acos();
-                let normalized = (std::f32::consts::FRAC_PI_2 - angle.abs()) / std::f32::consts::PI;
-                angle_diff[i][j] = (normalized * self.inertia * det.score).max(0.0);
-            }
-        }
-
-        // Build combined cost matrix and run round-1 assignment.
+        // Round 1: IoU plus the OCM bonus.
         let cost_matrix: Vec<Vec<f32>> = (0..n_trks)
             .map(|i| {
                 (0..n_dets)
@@ -436,50 +224,22 @@ impl OcSort {
             })
             .collect();
 
-        let (mut matches, mut unmatched_dets, mut unmatched_trks) =
+        let (matches_raw, mut unmatched_trks, mut unmatched_dets) =
             greedy_match(&cost_matrix, 1.0 - self.iou_threshold);
+        let mut matches: Vec<(usize, usize)> = matches_raw
+            .into_iter()
+            .map(|(trk, det)| (det, trk))
+            .collect();
 
-        // Round 2: re-match using last observed positions for tracks not matched in round 1.
-        if !unmatched_dets.is_empty() && !unmatched_trks.is_empty() {
-            let left_det_boxes: Vec<[f32; 4]> = unmatched_dets
-                .iter()
-                .map(|&di| detections[di].tlwh)
-                .collect();
-            let left_trk_obs: Vec<[f32; 4]> = unmatched_trks
-                .iter()
-                .map(|&ti| {
-                    xyah_to_tlwh(
-                        &self.tracks[ti]
-                            .observations
-                            .last()
-                            .expect("observations is non-empty by invariant")
-                            .0,
-                    )
-                })
-                .collect();
-
-            let iou_left = crate::utils::geometry::iou_batch(&left_trk_obs, &left_det_boxes);
-
-            let max_iou = iou_left
-                .iter()
-                .flat_map(|r| r.iter())
-                .cloned()
-                .fold(f32::NEG_INFINITY, f32::max);
-
-            if max_iou > self.iou_threshold {
-                let cost_left: Vec<Vec<f32>> = iou_left
-                    .iter()
-                    .map(|row| row.iter().map(|&v| 1.0 - v).collect())
-                    .collect();
-                let (r2_matches, r2_ud, r2_ut) = greedy_match(&cost_left, 1.0 - self.iou_threshold);
-
-                for (det_local, trk_local) in r2_matches {
-                    matches.push((unmatched_dets[det_local], unmatched_trks[trk_local]));
-                }
-                unmatched_dets = r2_ud.into_iter().map(|di| unmatched_dets[di]).collect();
-                unmatched_trks = r2_ut.into_iter().map(|ti| unmatched_trks[ti]).collect();
-            }
-        }
+        // Round 2: rematch leftovers on last observed positions.
+        last_observation_rematch(
+            &self.tracks,
+            &det_boxes,
+            &mut matches,
+            &mut unmatched_dets,
+            &mut unmatched_trks,
+            self.iou_threshold,
+        );
 
         (matches, unmatched_dets, unmatched_trks)
     }
@@ -500,32 +260,11 @@ impl crate::traits::Tracker for OcSort {
 }
 
 // ---------------------------------------------------------------------------
-// Greedy matching
-// ---------------------------------------------------------------------------
-
-/// Greedy assignment for OC-SORT.
-///
-/// Rows are tracks and columns are detections; returns matches as
-/// `(detection, track)` pairs alongside the unmatched detections and tracks.
-fn greedy_match(
-    cost_matrix: &[Vec<f32>],
-    threshold: f32,
-) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
-    let (matches, unmatched_rows, unmatched_cols) =
-        crate::utils::assignment::greedy_match(cost_matrix, threshold);
-    let matches = matches.into_iter().map(|(trk, det)| (det, trk)).collect();
-    (matches, unmatched_cols, unmatched_rows)
-}
-
-// ---------------------------------------------------------------------------
 // Python bindings
 // ---------------------------------------------------------------------------
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
-
-#[cfg(feature = "python")]
-type PyTrackingResult = (u64, [f32; 4], f32, i64);
 
 /// Python-exposed OC-SORT tracker.
 #[cfg(feature = "python")]
@@ -566,7 +305,10 @@ impl PyOcSort {
     ///
     /// Returns:
     ///     list: Confirmed tracks as (track_id, [x, y, w, h], score, class_id) tuples.
-    fn update(&mut self, detections: Vec<([f32; 4], f32, i64)>) -> PyResult<Vec<PyTrackingResult>> {
+    fn update(
+        &mut self,
+        detections: Vec<([f32; 4], f32, i64)>,
+    ) -> PyResult<Vec<crate::trackers::common::PyTrackingResult>> {
         let tracks = self.inner.update(detections);
         Ok(tracks
             .into_iter()
@@ -575,13 +317,10 @@ impl PyOcSort {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utils::kalman::KalmanFilter;
 
     fn det(x: f32, y: f32, w: f32, h: f32, s: f32) -> ([f32; 4], f32, i64) {
         ([x, y, w, h], s, 0)
@@ -647,7 +386,7 @@ mod tests {
         ]);
 
         assert_eq!(tracks.len(), 2);
-        let ids: std::collections::HashSet<u64> = tracks.iter().map(|t| t.track_id).collect();
+        let ids: HashSet<u64> = tracks.iter().map(|t| t.track_id).collect();
         assert_eq!(ids.len(), 2);
     }
 
@@ -670,49 +409,31 @@ mod tests {
     fn test_ocsort_ocv_velocity_computed() {
         let kf = KalmanFilter::default();
         let tlwh = [100.0_f32, 100.0, 50.0, 100.0];
-        // cx=125, cy=150
-        let mut track = OcSortTrack::new(tlwh, 0.9, 0, 1, 1, &kf);
+        let mut track = OcSortTrack::new(tlwh, 0.9, 0, 1, 1, None, &kf);
 
         // Single observation: no direction yet.
         assert!(track.obs_direction(3).is_none());
 
         // Add a second observation: object moved 10px to the right.
         let tlwh2 = [110.0_f32, 100.0, 50.0, 100.0];
-        // cx2=135, cy2=150 → dx=10, dy=0 → direction=[0.0, 1.0]
-        let xyah2 = tlwh_to_xyah(&tlwh2);
-        track.push_observation(xyah2, 2, 4);
+        track.push_observation(tlwh_to_xyah(&tlwh2), 2, 4);
 
-        let dir = track.obs_direction(3);
-        assert!(dir.is_some());
-        let d = dir.unwrap();
-        assert!(
-            d[0].abs() < 0.01,
-            "Expected dy direction ~0.0, got {}",
-            d[0]
-        );
-        assert!(
-            (d[1] - 1.0).abs() < 0.01,
-            "Expected dx direction ~1.0, got {}",
-            d[1]
-        );
+        let dir = track.obs_direction(3).unwrap();
+        assert!(dir[0].abs() < 0.01);
+        assert!((dir[1] - 1.0).abs() < 0.01);
     }
 
     #[test]
     fn test_ocsort_our_does_not_panic_on_re_association() {
         let kf = KalmanFilter::default();
         let tlwh = [100.0_f32, 100.0, 50.0, 100.0];
-        let mut track = OcSortTrack::new(tlwh, 0.9, 0, 1, 1, &kf);
+        let mut track = OcSortTrack::new(tlwh, 0.9, 0, 1, 1, None, &kf);
 
-        // Simulate 5 frames of predict (no observations).
         for _ in 0..5 {
             track.predict(&kf);
         }
 
-        // Re-associate at frame 7.
-        let xyah_new = tlwh_to_xyah(&[130.0_f32, 100.0, 50.0, 100.0]);
-        track.our_re_update(&xyah_new, 7, &kf);
-
-        // Check tlwh is finite.
+        track.our_re_update(&tlwh_to_xyah(&[130.0_f32, 100.0, 50.0, 100.0]), 7, &kf);
         assert!(track.tlwh.iter().all(|v| v.is_finite()));
     }
 
@@ -743,13 +464,9 @@ mod tests {
     fn test_ocsort_hit_streak_resets_on_miss() {
         let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
 
-        // Frame 1: confirm track (min_hits=1).
         tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
-
-        // Frame 2: no detection — track predicts, hit_streak should reset.
         tracker.update(vec![]);
 
-        // Frame 3: detection re-appears; hit_streak restarts from 1.
         let tracks = tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
         assert_eq!(tracks.len(), 1);
         assert_eq!(tracks[0].hit_streak, 1);
@@ -761,15 +478,12 @@ mod tests {
         // Round-2 matching (using last observed position) should recover it.
         let mut tracker = OcSort::new(5, 1, 0.3, 3, 0.2);
 
-        // Establish a confirmed track.
         for _ in 0..2 {
             tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
         }
 
-        // One frame gap.
         tracker.update(vec![]);
 
-        // Reappear at same location — should re-match via round-2 (last observed pos).
         let tracks = tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
         assert_eq!(tracks.len(), 1, "Track should be re-matched after gap");
         assert_eq!(tracks[0].track_id, 1, "Should be the same track");
@@ -777,29 +491,22 @@ mod tests {
 
     #[test]
     fn test_ocsort_ocm_direction_bonus_path() {
-        // After two consecutive matches the track has 2 observations, so
-        // obs_direction() returns Some.  On frame 3 associate() runs with
-        // that track → the angle-diff block at line ~441 is entered and
-        // observations.last() at line ~450 is reached.
+        // Two consecutive matches give the track a direction, so associate() enters
+        // the OCM angle-bonus path on the third frame.
         let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
-        tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]); // obs 1
-        tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]); // obs 2 → Some direction
+        tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
+        tracker.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)]);
         let tracks = tracker.update(vec![det(105.0, 100.0, 50.0, 100.0, 0.9)]);
         assert_eq!(tracks.len(), 1);
     }
 
     #[test]
     fn test_ocsort_round2_observations_last_reached() {
-        // Build a track with 2 observations at position A.  On the next frame
-        // supply a detection at a distant position B (IoU = 0 with A).  Round-1
-        // leaves both unmatched, so the round-2 block (lines ~484-521) is entered
-        // and observations.last() at line ~495 is called for the unmatched track.
+        // Build a track with 2 observations, then supply a distant detection so
+        // round 1 leaves it unmatched and the round-2 last-observation path runs.
         let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
-        tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]); // obs 1 at A
-        tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]); // obs 2 at A
-        // Detection far from A: track is unmatched in round 1 → round-2 block entered.
+        tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]);
+        tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]);
         tracker.update(vec![det(10000.0, 0.0, 50.0, 100.0, 0.9)]);
-        // Track at A is now age-1 unmatched; new track created at B.
-        // Just verify no panic — coverage of line ~495 is the goal.
     }
 }
