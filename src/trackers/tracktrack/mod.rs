@@ -3,7 +3,7 @@
 use crate::trackers::byte_track::TrackState;
 use crate::trackers::common::{CameraMotion, CommonParams, KalmanTrack};
 use crate::utils::features::{cosine_distance, l2_normalize};
-use crate::utils::geometry::tlwh_to_xyah;
+use crate::utils::geometry::{iou, tlwh_to_tlbr, tlwh_to_xyah};
 use crate::utils::kalman::KalmanFilter;
 
 /// Adaptive exponential moving-average base for the per-track appearance feature.
@@ -169,28 +169,10 @@ impl Track {
     }
 }
 
-/// Convert a TLWH box to `[x1, y1, x2, y2]`.
-fn xyxy(b: [f32; 4]) -> [f32; 4] {
-    [b[0], b[1], b[0] + b[2], b[1] + b[3]]
-}
-
-/// Plain IoU of two TLWH boxes.
-fn iou(a: [f32; 4], b: [f32; 4]) -> f32 {
-    let a = xyxy(a);
-    let b = xyxy(b);
-    let iw = (a[2].min(b[2]) - a[0].max(b[0])).max(0.0);
-    let ih = (a[3].min(b[3]) - a[1].max(b[1])).max(0.0);
-    let inter = iw * ih;
-    let area_a = ((a[2] - a[0]) * (a[3] - a[1])).max(0.0);
-    let area_b = ((b[2] - b[0]) * (b[3] - b[1])).max(0.0);
-    let union = area_a + area_b - inter;
-    if union > 0.0 { inter / union } else { 0.0 }
-}
-
 /// Height-modulated IoU: plain IoU scaled by the 1-D vertical overlap ratio.
 fn hmiou(a: [f32; 4], b: [f32; 4]) -> f32 {
-    let ax = xyxy(a);
-    let bx = xyxy(b);
+    let ax = tlwh_to_tlbr(&a);
+    let bx = tlwh_to_tlbr(&b);
     let h_inter = ax[3].min(bx[3]) - ax[1].max(bx[1]);
     let h_union = ax[3].max(bx[3]) - ax[1].min(bx[1]);
     let h_iou = if h_union > 0.0 {
@@ -198,7 +180,7 @@ fn hmiou(a: [f32; 4], b: [f32; 4]) -> f32 {
     } else {
         0.0
     };
-    h_iou * iou(a, b)
+    h_iou * iou(&a, &b)
 }
 
 /// Track-perspective mutual-nearest-neighbour matching under a fixed threshold.
@@ -481,7 +463,7 @@ impl TrackTrack {
                     .enumerate()
                     .map(|(col, &di)| {
                         let d = &dets[di];
-                        let iou_sim = iou(t.tlwh, d.tlwh);
+                        let iou_sim = iou(&t.tlwh, &d.tlwh);
                         if iou_sim <= IOU_GATE {
                             return 1.0;
                         }
@@ -534,7 +516,7 @@ impl TrackTrack {
             // Do not spawn a duplicate of an already active track.
             if active_boxes
                 .iter()
-                .any(|tb| iou(box_idx, *tb) > self.tai_thresh)
+                .any(|tb| iou(&box_idx, tb) > self.tai_thresh)
             {
                 allow[idx] = false;
                 continue;
@@ -544,7 +526,7 @@ impl TrackTrack {
                 if idx != jdx
                     && allow[jdx]
                     && dets[candidates[idx]].score > dets[candidates[jdx]].score
-                    && iou(box_idx, dets[candidates[jdx]].tlwh) > self.tai_thresh
+                    && iou(&box_idx, &dets[candidates[jdx]].tlwh) > self.tai_thresh
                 {
                     allow[jdx] = false;
                 }
