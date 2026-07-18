@@ -2,7 +2,7 @@ use crate::trackers::deepsort::tracker::DeepSortTracker;
 use crate::types::BoundingBox;
 use pyo3::prelude::*;
 
-type PyTrackingResult = (u64, [f32; 4], f32, i64);
+use crate::trackers::common::PyTrackingResult;
 
 #[pyclass(name = "DEEPSORT")]
 pub struct PyDeepSort {
