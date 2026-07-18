@@ -13,6 +13,7 @@ yanked = "warn"
 ignore = [
     # Add advisory IDs or yanked crates to ignore here
     # { crate = "some-crate@1.0.0", reason = "explanation" },
+    { id = "RUSTSEC-2026-0192", reason = "ttf-parser is unmaintained but reached only through the optional usls example dependency, and the ab_glyph and imageproc chain has no maintained replacement to move to yet" },
 ]
 
 # This section is considered when running `cargo deny check licenses`
