@@ -256,3 +256,22 @@ class BOTSORT:
         embeddings: List[List[float]] = ...,
         camera_motion: Optional[List[float]] = ...,
     ) -> List[Tuple[int, List[float], float, int]]: ...
+
+class TRACKTRACK:
+    def __init__(
+        self,
+        det_thresh: float = 0.6,
+        match_thresh: float = 0.7,
+        track_buffer: int = 30,
+        min_hits: int = 3,
+        init_thresh: float = 0.7,
+        tai_thresh: float = 0.55,
+        penalty_low: float = 0.2,
+        reduce_step: float = 0.05,
+    ) -> None: ...
+    def update(
+        self,
+        detections: List[Tuple[List[float], float, int]],
+        embeddings: List[List[float]] = ...,
+        camera_motion: Optional[List[float]] = ...,
+    ) -> List[Tuple[int, List[float], float, int]]: ...

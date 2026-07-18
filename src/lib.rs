@@ -178,5 +178,6 @@ fn trackforge(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<trackers::ocsort::PyOcSort>()?;
     m.add_class::<trackers::deep_ocsort::python::PyDeepOcSort>()?;
     m.add_class::<trackers::botsort::PyBotSort>()?;
+    m.add_class::<trackers::tracktrack::PyTrackTrack>()?;
     Ok(())
 }

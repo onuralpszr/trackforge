@@ -271,3 +271,43 @@ def test_botsort_camera_motion_keeps_id():
     second = t.update([([300.0, 100.0, 50.0, 100.0], 0.9, 0)], [], camera_motion)
     assert len(second) == 1
     assert second[0][0] == track_id
+
+
+def test_tracktrack_constructor():
+    tracker = trackforge.TRACKTRACK(
+        det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits=3
+    )
+    assert tracker is not None
+
+
+def test_tracktrack_update_empty():
+    tracker = trackforge.TRACKTRACK()
+    assert tracker.update([]) == []
+
+
+def test_tracktrack_confirmed_after_min_hits():
+    tracker = trackforge.TRACKTRACK(min_hits=3)
+    det = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+    assert tracker.update(det) == []
+    assert tracker.update(det) == []
+    out = tracker.update(det)
+    assert len(out) == 1
+    assert out[0][0] == 1
+
+
+def test_tracktrack_motion_only_keeps_id():
+    tracker = trackforge.TRACKTRACK()
+    det = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+    for _ in range(3):
+        tracker.update(det)
+    track_id = tracker.update(det)[0][0]
+    out = tracker.update([([104.0, 100.0, 50.0, 100.0], 0.9, 0)])
+    assert len(out) == 1
+    assert out[0][0] == track_id
+
+
+def test_tracktrack_mismatched_embeddings_raises():
+    tracker = trackforge.TRACKTRACK()
+    det = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+    with pytest.raises(ValueError):
+        tracker.update(det, [[1.0], [2.0]])

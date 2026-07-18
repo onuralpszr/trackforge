@@ -92,3 +92,18 @@ IoU thresholds come in two opposite flavors, matching the original papers. Read 
 | `second_match_thresh` | float | 0.5     | Second stage match cutoff for recovering low confidence detections, a maximum IoU distance.              |
 | `proximity_thresh`    | float | 0.5     | How much boxes must overlap before appearance is allowed to influence the match, a maximum IoU distance. |
 | `appearance_thresh`   | float | 0.25    | How close two embeddings must be for Re-ID to help the match, a maximum cosine distance.                 |
+
+## TrackTrack
+
+`TRACKTRACK(...)` and `TrackTrack::from_params(...)`
+
+| Parameter      | Type  | Default | Meaning                                                                                                                                                                    |
+| -------------- | ----- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `det_thresh`   | float | 0.6     | Score above which a detection is high confidence and matched first.                                                                                                        |
+| `match_thresh` | float | 0.7     | Association cost gate. A pair matches only when its fused cost is below this. Lower is stricter.                                                                           |
+| `track_buffer` | int   | 30      | Frames a lost track is kept alive.                                                                                                                                         |
+| `min_hits`     | int   | 3       | Matched frames in a row before a new track is confirmed.                                                                                                                   |
+| `init_thresh`  | float | 0.7     | Smallest score a leftover detection needs before it may start a new track.                                                                                                 |
+| `tai_thresh`   | float | 0.55    | Overlap gate for track-aware initialization, a maximum IoU. A leftover detection is dropped if it overlaps an active track or a more confident leftover by more than this. |
+| `penalty_low`  | float | 0.2     | Extra cost added to low confidence detections during association, so they only win when nothing better is available.                                                       |
+| `reduce_step`  | float | 0.05    | How much the cost gate tightens on each round of the track-perspective matching loop.                                                                                      |

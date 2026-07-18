@@ -10,5 +10,6 @@
   - [DeepSORT](./trackers/deepsort.md)
   - [Deep OC-SORT](./trackers/deep_ocsort.md)
   - [BoT-SORT](./trackers/botsort.md)
+  - [TrackTrack](./trackers/tracktrack.md)
 - [Parameters](./parameters.md)
 - [Examples](./examples.md)

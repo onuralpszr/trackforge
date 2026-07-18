@@ -17,14 +17,14 @@
 </p>
 
 **Trackforge** is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements six production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements seven production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.
 
 ## Features
 
 - **High Performance** — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.
 - **Python Bindings** — Install from PyPI, import, and track in three lines.
-- **Six Algorithms** — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, and BoT-SORT cover the full speed-accuracy spectrum.
+- **Seven Algorithms** — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack cover the full speed-accuracy spectrum.
 - **Unified API** — All trackers accept `(tlwh, score, class_id)` detection tuples.
 
 ## Installation
@@ -60,6 +60,7 @@ maturin develop --features python
 | **DeepSORT**     | Re-ID embeddings | Appearance + IoU                 | Long occlusions, dense crowds, identity-sensitive use cases |
 | **Deep OC-SORT** | Re-ID embeddings | IoU + velocity + appearance      | Occlusions where OC-SORT motion plus Re-ID helps            |
 | **BoT-SORT**     | Re-ID embeddings | IoU + appearance + camera motion | Moving cameras, panning and zoom, with optional Re-ID       |
+| **TrackTrack**   | Re-ID embeddings | Track-perspective association    | Crowded scenes needing strong identity, with optional Re-ID |
 
 All trackers share the same detection input format:
 
