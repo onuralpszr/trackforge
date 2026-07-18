@@ -506,4 +506,46 @@ mod tests {
         assert_eq!(out.len(), 1);
         assert_eq!(out[0].track_id, id, "track recovered from the lost buffer");
     }
+
+    #[test]
+    fn storage_stays_bounded_under_churn() {
+        // Every frame a brand-new object appears far from any previous one and then
+        // vanishes, so nothing ever re-matches. Lost tracks must age out of the
+        // buffer instead of piling up. The internal vectors must stay bounded by the
+        // buffer window, not grow with the frame count.
+        let buffer = 30;
+        let mut tracker = ByteTrack::new(0.5, buffer, 0.8, 0.6);
+        for f in 0..3000 {
+            let x = 5.0 + (f % 100) as f32 * 40.0; // spaced apart, cycle exceeds buffer
+            let _ = tracker.update(vec![([x, 10.0, 20.0, 40.0], 0.9, 0)]);
+            let stored = tracker.tracked_stracks.len() + tracker.lost_stracks.len();
+            assert!(
+                stored <= buffer + 5,
+                "storage grew to {stored} at frame {f}, buffer is {buffer}"
+            );
+        }
+    }
+
+    #[test]
+    fn active_ids_are_unique_each_frame() {
+        // Five persistent objects; every active id in a frame must be distinct.
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        for f in 0..200 {
+            let dets: Vec<_> = (0..5)
+                .map(|i| {
+                    let x = 20.0 + i as f32 * 120.0 + (f % 3) as f32;
+                    ([x, 30.0, 40.0, 80.0], 0.9, i)
+                })
+                .collect();
+            let out = tracker.update(dets);
+            let mut ids: Vec<u64> = out.iter().map(|t| t.track_id).collect();
+            ids.sort_unstable();
+            let unique = {
+                let mut u = ids.clone();
+                u.dedup();
+                u.len()
+            };
+            assert_eq!(ids.len(), unique, "duplicate id in frame {f}: {ids:?}");
+        }
+    }
 }

@@ -717,4 +717,24 @@ mod tests {
         }
         assert_eq!(tracker.tracks[1].track_id, 2);
     }
+
+    #[test]
+    fn storage_stays_bounded_under_churn() {
+        // A fresh object each frame that never re-matches. The track vector must
+        // stay bounded by the max_age window, and the gallery is capped by the
+        // nn_budget and pruned to active tracks (see nn_matching tests).
+        let mut tracker = create_tracker(); // max_age = 30, nn_budget = 100
+        let emb = vec![1.0_f32; 128];
+        for f in 0..2000 {
+            let x = 5.0 + (f % 100) as f32 * 40.0;
+            let det = (BoundingBox::new(x, 10.0, 20.0, 40.0), 0.9, 0i64);
+            tracker.predict();
+            tracker.update(&[det], std::slice::from_ref(&emb));
+            assert!(
+                tracker.tracks.len() <= 40,
+                "tracks grew to {} at frame {f}",
+                tracker.tracks.len()
+            );
+        }
+    }
 }

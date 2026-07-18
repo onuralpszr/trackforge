@@ -509,4 +509,21 @@ mod tests {
         tracker.update(vec![det(0.0, 0.0, 50.0, 100.0, 0.9)]);
         tracker.update(vec![det(10000.0, 0.0, 50.0, 100.0, 0.9)]);
     }
+
+    #[test]
+    fn storage_stays_bounded_under_churn() {
+        // A fresh, non-matching object each frame. Tracks must be deleted after
+        // max_age misses, keeping the internal vector bounded by that window.
+        let max_age = 20;
+        let mut tracker = OcSort::new(max_age, 3, 0.3, 3, 0.2);
+        for f in 0..3000 {
+            let x = 5.0 + (f % 100) as f32 * 40.0;
+            let _ = tracker.update(vec![det(x, 10.0, 20.0, 40.0, 0.9)]);
+            assert!(
+                tracker.tracks.len() <= max_age + 5,
+                "storage grew to {} at frame {f}",
+                tracker.tracks.len()
+            );
+        }
+    }
 }

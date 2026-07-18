@@ -15,9 +15,9 @@ pub mod python;
 pub use crate::trackers::common::ObsTrack as DeepOcSortTrack;
 pub use tracker::DeepOcSortTracker;
 
-#[cfg(feature = "reid-model")]
+#[cfg(any(test, feature = "reid-model"))]
 use crate::trackers::common::CameraMotion;
-#[cfg(any(feature = "python", feature = "reid-model"))]
+#[cfg(any(test, feature = "python", feature = "reid-model"))]
 use crate::trackers::deepsort::{Metric, NearestNeighborDistanceMetric};
 #[cfg(feature = "reid-model")]
 use crate::traits::AppearanceExtractor;
@@ -29,7 +29,7 @@ use image::DynamicImage;
 use std::error::Error;
 
 /// Build the inner Deep OC-SORT tracker shared by the Rust and Python constructors.
-#[cfg(any(feature = "python", feature = "reid-model"))]
+#[cfg(any(test, feature = "python", feature = "reid-model"))]
 #[allow(clippy::too_many_arguments)]
 fn build_tracker(
     max_age: usize,
@@ -160,7 +160,7 @@ impl<E: AppearanceExtractor> DeepOcSort<E> {
     }
 }
 
-#[cfg(all(test, feature = "reid-model"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -213,7 +213,27 @@ mod tests {
         assert_eq!(t2[0].track_id, id);
     }
 
+    #[test]
+    fn storage_stays_bounded_under_churn() {
+        // A fresh object each frame that never re-matches. The track vector stays
+        // bounded by the max_age window, and the gallery is capped by nn_budget and
+        // pruned to active tracks (see nn_matching tests).
+        let max_age = 20;
+        let mut tracker = build_tracker(max_age, 3, 0.3, 3, 0.2, 0.5, 0.2, 100);
+        for f in 0..2000 {
+            let x = 5.0 + (f % 100) as f32 * 40.0;
+            let _ = tracker.update(&[det(x, 10.0, 20.0, 40.0, 0.9)], &[]);
+            assert!(
+                tracker.tracks.len() <= max_age + 5,
+                "tracks grew to {} at frame {f}",
+                tracker.tracks.len()
+            );
+        }
+    }
+
+    #[cfg(feature = "reid-model")]
     struct MockExtractor;
+    #[cfg(feature = "reid-model")]
     impl AppearanceExtractor for MockExtractor {
         fn extract(
             &mut self,
@@ -224,7 +244,9 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "reid-model")]
     struct FailingExtractor;
+    #[cfg(feature = "reid-model")]
     impl AppearanceExtractor for FailingExtractor {
         fn extract(
             &mut self,
@@ -235,6 +257,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "reid-model")]
     #[test]
     fn wrapper_propagates_extractor_error() {
         let mut tracker = DeepOcSort::new_default(FailingExtractor);
@@ -243,6 +266,7 @@ mod tests {
         assert!(tracker.update(&image, dets).is_err());
     }
 
+    #[cfg(feature = "reid-model")]
     #[test]
     fn extractor_wrapper_confirms_track() {
         let mut tracker = DeepOcSort::new(MockExtractor, 30, 1, 0.3, 3, 0.2, 0.5, 0.2, 100);
@@ -252,6 +276,7 @@ mod tests {
         assert_eq!(tracks.len(), 1);
     }
 
+    #[cfg(feature = "reid-model")]
     #[test]
     fn new_default_runs_through_wrapper() {
         let mut tracker = DeepOcSort::new_default(MockExtractor);
@@ -264,6 +289,7 @@ mod tests {
         assert_eq!(tracker.update(&image, dets).unwrap().len(), 1);
     }
 
+    #[cfg(feature = "reid-model")]
     #[test]
     fn wrapper_applies_camera_motion() {
         let mut tracker = DeepOcSort::new(MockExtractor, 30, 1, 0.3, 3, 0.2, 0.5, 0.2, 100);
@@ -287,6 +313,7 @@ mod tests {
         assert_eq!(tracks[0].track_id, id);
     }
 
+    #[cfg(feature = "reid-model")]
     #[test]
     fn wrapper_handles_empty_detections() {
         let mut tracker = DeepOcSort::new_default(MockExtractor);
