@@ -297,7 +297,7 @@ to IoU matching. Provides robust long-term identity maintenance.
 
 ### Implementing an AppearanceExtractor (Rust)
 
-DeepSORT requires you to supply a feature extractor. Implement the `AppearanceExtractor` trait:
+DeepSORT requires you to supply a feature extractor. Implement the `AppearanceExtractor` trait, which lives behind the `reid-model` feature (`features = ["reid-model"]`); on the default build, produce embeddings yourself and drive `DeepSortTracker` directly:
 
 ```rust,ignore
 use trackforge::traits::AppearanceExtractor;

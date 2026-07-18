@@ -41,7 +41,7 @@
 - 🚀 **Native Rust Core** Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
 - 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
 - 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and SORT with a unified API
-- 🔌 **Pluggable Re-ID** DeepSORT's appearance extractor is a trait; plug in any feature model
+- 🔌 **Pluggable Re-ID** The appearance matching is always available; you pass in embeddings. The image based extractor that runs a model over a frame is an opt-in `reid-model` feature, so the base build stays light
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 
 <!-- prettier-ignore -->
@@ -71,6 +71,25 @@ To build the Python bindings from source (e.g., via `maturin develop`), enable t
 [dependencies]
 trackforge = { version = "0.3.0", features = ["python"] }
 ```
+
+#### Cargo features
+
+The default build is light and pulls no image codecs. Every tracker works on detections you pass in, and the appearance trackers work on embeddings you pass in.
+
+| Feature      | What it adds                                                                                                                      | Extra dependency |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| default      | All trackers, embedding based appearance matching, Kalman core                                                                    | none             |
+| `reid-model` | The `AppearanceExtractor` trait plus the `DeepSort` and `DeepOcSort` wrappers that run a model over a frame to produce embeddings | `image`          |
+| `python`     | PyO3 bindings for the Python package                                                                                              | `pyo3`           |
+
+Enable the image based extractor when you want the library to produce embeddings for you:
+
+```toml
+[dependencies]
+trackforge = { version = "0.3.0", features = ["reid-model"] }
+```
+
+Without it, produce embeddings yourself (any model, any runtime) and drive `DeepSortTracker` or `DeepOcSortTracker` directly.
 
 ## Quick Start
 

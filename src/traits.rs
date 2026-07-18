@@ -1,5 +1,8 @@
+#[cfg(feature = "reid-model")]
 use crate::types::BoundingBox;
+#[cfg(feature = "reid-model")]
 use image::DynamicImage;
+#[cfg(feature = "reid-model")]
 use std::error::Error;
 
 /// A detection passed to a tracker: `(tlwh, score, class_id)`.
@@ -38,7 +41,9 @@ pub trait Tracker {
 /// Trait for extracting appearance features (embeddings) from images.
 ///
 /// This allows decoupling the tracker logic (DeepSORT) from the model execution
-/// (ONNX, PyTorch via Python, etc.).
+/// (ONNX, PyTorch via Python, etc.). Gated behind the `reid-model` feature, which pulls
+/// in the `image` crate; the default build omits it so the base package stays light.
+#[cfg(feature = "reid-model")]
 pub trait AppearanceExtractor {
     /// Extract features for a list of bounding boxes from a given image.
     ///

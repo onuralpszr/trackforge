@@ -9,6 +9,13 @@
 trackforge = "0.3"
 ```
 
+The default build is light and pulls no image codecs. Every tracker runs on detections you pass in, and the appearance trackers run on embeddings you pass in. To have the library produce embeddings for you by running a model over a frame, enable the `reid-model` feature, which adds the `AppearanceExtractor` trait and the `DeepSort` and `DeepOcSort` wrappers along with the `image` crate.
+
+```toml
+[dependencies]
+trackforge = { version = "0.3", features = ["reid-model"] }
+```
+
 ### Python
 
 ```bash

@@ -8,6 +8,8 @@ identity maintenance.
 Unlike the other trackers, DeepSORT needs an appearance embedding per detection. In Rust you supply
 an `AppearanceExtractor`; in Python you pass embeddings directly.
 
+The `AppearanceExtractor` trait and the `DeepSort` wrapper below live behind the `reid-model` feature, which adds the `image` crate. Enable it with `features = ["reid-model"]`. If you already have embeddings, skip the extractor and drive `DeepSortTracker` directly on the default build.
+
 ## Rust: implement an extractor
 
 ```rust,ignore

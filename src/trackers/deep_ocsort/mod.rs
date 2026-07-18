@@ -15,14 +15,21 @@ pub mod python;
 pub use crate::trackers::common::ObsTrack as DeepOcSortTrack;
 pub use tracker::DeepOcSortTracker;
 
+#[cfg(feature = "reid-model")]
 use crate::trackers::common::CameraMotion;
+#[cfg(any(feature = "python", feature = "reid-model"))]
 use crate::trackers::deepsort::{Metric, NearestNeighborDistanceMetric};
+#[cfg(feature = "reid-model")]
 use crate::traits::AppearanceExtractor;
+#[cfg(feature = "reid-model")]
 use crate::types::BoundingBox;
+#[cfg(feature = "reid-model")]
 use image::DynamicImage;
+#[cfg(feature = "reid-model")]
 use std::error::Error;
 
 /// Build the inner Deep OC-SORT tracker shared by the Rust and Python constructors.
+#[cfg(any(feature = "python", feature = "reid-model"))]
 #[allow(clippy::too_many_arguments)]
 fn build_tracker(
     max_age: usize,
@@ -53,11 +60,13 @@ fn build_tracker(
 /// Wraps the association core with an [`AppearanceExtractor`] so the caller can pass a
 /// frame and detections and have the embeddings produced internally. To pass
 /// embeddings directly, drive [`DeepOcSortTracker`] instead.
+#[cfg(feature = "reid-model")]
 pub struct DeepOcSort<E: AppearanceExtractor> {
     extractor: E,
     tracker: DeepOcSortTracker,
 }
 
+#[cfg(feature = "reid-model")]
 impl<E: AppearanceExtractor> DeepOcSort<E> {
     /// Create a new Deep OC-SORT tracker.
     ///
@@ -151,7 +160,7 @@ impl<E: AppearanceExtractor> DeepOcSort<E> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "reid-model"))]
 mod tests {
     use super::*;
 

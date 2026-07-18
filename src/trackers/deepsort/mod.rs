@@ -13,12 +13,17 @@ pub use nn_matching::{Metric, NearestNeighborDistanceMetric};
 pub use track::{Track, TrackState};
 pub use tracker::DeepSortTracker;
 
+#[cfg(feature = "reid-model")]
 use crate::traits::AppearanceExtractor;
+#[cfg(feature = "reid-model")]
 use crate::types::BoundingBox;
+#[cfg(feature = "reid-model")]
 use image::DynamicImage;
+#[cfg(feature = "reid-model")]
 use std::error::Error;
 
 /// Build the inner DeepSORT tracker shared by the Rust and Python constructors.
+#[cfg(any(feature = "python", feature = "reid-model"))]
 fn build_tracker(
     max_age: usize,
     n_init: usize,
@@ -33,12 +38,15 @@ fn build_tracker(
 
 /// Deep SORT tracker implementation.
 ///
-/// Wraps the tracker logic and appearance feature extraction.
+/// Wraps the tracker logic and appearance feature extraction. To pass embeddings
+/// directly without the `image`-based extractor, drive [`DeepSortTracker`] instead.
+#[cfg(feature = "reid-model")]
 pub struct DeepSort<E: AppearanceExtractor> {
     extractor: E,
     tracker: DeepSortTracker,
 }
 
+#[cfg(feature = "reid-model")]
 impl<E: AppearanceExtractor> DeepSort<E> {
     /// Create a new Deep SORT tracker.
     ///
@@ -111,13 +119,14 @@ impl<E: AppearanceExtractor> DeepSort<E> {
 }
 
 // Default convenience constructor
+#[cfg(feature = "reid-model")]
 impl<E: AppearanceExtractor> DeepSort<E> {
     pub fn new_default(extractor: E) -> Self {
         Self::new(extractor, 70, 3, 0.7, 0.2, 100)
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "reid-model"))]
 mod tests {
     use super::*;
     use crate::types::BoundingBox;
