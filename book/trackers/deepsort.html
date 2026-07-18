@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "../searchindex-c9ea982f.js";
+            window.path_to_searchindex_js = "../searchindex-c4fc3d91.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-54f69bf9.js"></script>
@@ -187,6 +187,7 @@ appearance metric. Confirmed tracks are matched first by cosine distance on appe
 identity maintenance.</p>
 <p>Unlike the other trackers, DeepSORT needs an appearance embedding per detection. In Rust you supply
 an <code>AppearanceExtractor</code>; in Python you pass embeddings directly.</p>
+<p>The <code>AppearanceExtractor</code> trait and the <code>DeepSort</code> wrapper below live behind the <code>reid-model</code> feature, which adds the <code>image</code> crate. Enable it with <code>features = ["reid-model"]</code>. If you already have embeddings, skip the extractor and drive <code>DeepSortTracker</code> directly on the default build.</p>
 <h2 id="rust-implement-an-extractor"><a class="header" href="#rust-implement-an-extractor">Rust: implement an extractor</a></h2>
 <pre><code class="language-rust ignore">use trackforge::traits::AppearanceExtractor;
 use trackforge::types::BoundingBox;

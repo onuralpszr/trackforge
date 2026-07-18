@@ -1528,7 +1528,7 @@ to IoU matching. Provides robust long-term identity maintenance.</p>
 <li><code>max_age=70</code> at 30 fps means tracks survive ~2.3 s of occlusion; increase for longer scenes.</li>
 </ul>
 <h3 id="implementing-an-appearanceextractor-rust">Implementing an AppearanceExtractor (Rust)</h3>
-<p>DeepSORT requires you to supply a feature extractor. Implement the <code>AppearanceExtractor</code> trait:</p>
+<p>DeepSORT requires you to supply a feature extractor. Implement the <code>AppearanceExtractor</code> trait, which lives behind the <code>reid-model</code> feature (<code>features = ["reid-model"]</code>); on the default build, produce embeddings yourself and drive <code>DeepSortTracker</code> directly:</p>
 <p>```rust,ignore
 use trackforge::traits::AppearanceExtractor;
 use trackforge::types::BoundingBox;

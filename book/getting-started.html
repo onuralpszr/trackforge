@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-c9ea982f.js";
+            window.path_to_searchindex_js = "searchindex-c4fc3d91.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-54f69bf9.js"></script>
@@ -185,6 +185,10 @@
 <h3 id="rust"><a class="header" href="#rust">Rust</a></h3>
 <pre><code class="language-toml">[dependencies]
 trackforge = "0.3"
+</code></pre>
+<p>The default build is light and pulls no image codecs. Every tracker runs on detections you pass in, and the appearance trackers run on embeddings you pass in. To have the library produce embeddings for you by running a model over a frame, enable the <code>reid-model</code> feature, which adds the <code>AppearanceExtractor</code> trait and the <code>DeepSort</code> and <code>DeepOcSort</code> wrappers along with the <code>image</code> crate.</p>
+<pre><code class="language-toml">[dependencies]
+trackforge = { version = "0.3", features = ["reid-model"] }
 </code></pre>
 <h3 id="python"><a class="header" href="#python">Python</a></h3>
 <pre><code class="language-bash">pip install trackforge

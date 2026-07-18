@@ -629,7 +629,7 @@ objects that are temporarily occluded or partially out of frame.</p>
 </span></code></pre></div>
 <h1 id="deepsort">DeepSORT</h1>
 <p>Augments IoU matching with Re-ID appearance embeddings for reliable re-identification
-across long occlusions. Requires an <a href="traits/index.html#appearanceextractor"><code>AppearanceExtractor</code></a> implementation that produces
+across long occlusions. Requires an <code>AppearanceExtractor</code> implementation that produces
 a feature vector for each detected crop.</p>
 <p>```rust,ignore
 use trackforge::trackers::deepsort::DeepSort;
@@ -681,7 +681,7 @@ for t in &amp;tracks {
 <h1 id="deep-oc-sort">Deep OC-SORT</h1>
 <p>Extends OC-SORT with an appearance term: a cosine distance to a per-track feature
 gallery is blended into the motion cost, scaled by detector confidence. Like
-DeepSORT it needs an <a href="traits/index.html#appearanceextractor"><code>AppearanceExtractor</code></a>, or embeddings passed directly.</p>
+DeepSORT it needs an <code>AppearanceExtractor</code>, or embeddings passed directly.</p>
 <p>```rust,ignore
 use trackforge::trackers::deep_ocsort::DeepOcSort;</p>
 <p>// extractor implements AppearanceExtractor (plug in any Re-ID model).
