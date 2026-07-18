@@ -13,6 +13,48 @@ pub use nn_matching::{Metric, NearestNeighborDistanceMetric};
 pub use track::{Track, TrackState};
 pub use tracker::DeepSortTracker;
 
+use crate::trackers::common::CommonParams;
+
+/// Settings for `DeepSort`.
+///
+/// Shared lifecycle fields live in [`CommonParams`]; DeepSORT reads its confirmation
+/// count from `common.min_hits`, what it calls `n_init`. The rest are DeepSORT
+/// specific. Build it with [`DeepSortParams::default`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DeepSortParams {
+    /// Shared lifecycle settings. `common.min_hits` is DeepSORT's `n_init`.
+    pub common: CommonParams,
+
+    /// Match cutoff for the IoU fallback stage, given as a maximum IoU distance of one
+    /// minus IoU. A pair matches when its IoU distance is at or below this, so 0.7
+    /// means the boxes only need an IoU of 0.3. Lower is stricter.
+    pub max_iou_distance: f32,
+
+    /// How different two appearance embeddings may be and still count as the same
+    /// object, measured as cosine distance from zero to two. Lower demands a closer
+    /// appearance match and cuts id switches, at the cost of more lost tracks.
+    pub max_cosine_distance: f32,
+
+    /// How many past appearance embeddings to keep per track for Re-ID. When the
+    /// gallery is full the oldest is dropped. Larger remembers more of how the object
+    /// looked over time but uses more memory and compute.
+    pub nn_budget: usize,
+}
+
+impl Default for DeepSortParams {
+    fn default() -> Self {
+        Self {
+            common: CommonParams {
+                max_age: 70,
+                min_hits: 3,
+            },
+            max_iou_distance: 0.7,
+            max_cosine_distance: 0.2,
+            nn_budget: 100,
+        }
+    }
+}
+
 #[cfg(feature = "reid-model")]
 use crate::traits::AppearanceExtractor;
 #[cfg(feature = "reid-model")]
@@ -65,12 +107,28 @@ impl<E: AppearanceExtractor> DeepSort<E> {
         max_cosine_distance: f32,
         nn_budget: usize,
     ) -> Self {
+        Self::from_params(
+            extractor,
+            DeepSortParams {
+                common: CommonParams {
+                    max_age,
+                    min_hits: n_init,
+                },
+                max_iou_distance,
+                max_cosine_distance,
+                nn_budget,
+            },
+        )
+    }
+
+    /// Create a Deep SORT tracker from an extractor and a [`DeepSortParams`].
+    pub fn from_params(extractor: E, params: DeepSortParams) -> Self {
         let tracker = build_tracker(
-            max_age,
-            n_init,
-            max_iou_distance,
-            max_cosine_distance,
-            nn_budget,
+            params.common.max_age,
+            params.common.min_hits,
+            params.max_iou_distance,
+            params.max_cosine_distance,
+            params.nn_budget,
         );
 
         Self { extractor, tracker }

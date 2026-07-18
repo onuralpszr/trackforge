@@ -1,6 +1,6 @@
 #![doc = include_str!("README.md")]
 
-use crate::trackers::common::KalmanTrack;
+use crate::trackers::common::{CommonParams, KalmanTrack};
 use crate::utils::geometry::tlwh_to_xyah;
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
 
@@ -142,8 +142,54 @@ pub struct ByteTrack {
     track_thresh: f32,
     match_thresh: f32,
     det_thresh: f32, // For splitting detections into high/low
+    second_match_thresh: f32,
     kalman_filter: KalmanFilter,
     next_id: u64,
+}
+
+/// Settings for [`ByteTrack`].
+///
+/// The shared lifecycle fields live in [`CommonParams`]; ByteTrack maps its track
+/// buffer onto `common.max_age`. Build it with [`ByteTrackParams::default`], tweak
+/// what you need, then pass it to [`ByteTrack::from_params`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ByteTrackParams {
+    /// Shared lifecycle settings. `common.max_age` is how many frames a lost track is
+    /// kept alive, what ByteTrack calls the track buffer.
+    pub common: CommonParams,
+
+    /// Score above which a detection is treated as high confidence and matched first.
+    /// Detections below it are held back for the second, low confidence pass.
+    pub track_thresh: f32,
+
+    /// First stage match cutoff, given as a maximum IoU distance of one minus IoU. A
+    /// pair matches when its IoU distance is at or below this, so a value of 0.8 means
+    /// the boxes only need an IoU of 0.2. Lower is stricter.
+    pub match_thresh: f32,
+
+    /// Smallest score an unmatched high confidence detection needs to start a brand
+    /// new track. Raising it avoids spawning tracks from weak one-off detections.
+    pub det_thresh: f32,
+
+    /// Second stage match cutoff for recovering objects from low confidence
+    /// detections, again a maximum IoU distance. This is ByteTrack's core recovery
+    /// step, and the reference value is 0.5.
+    pub second_match_thresh: f32,
+}
+
+impl Default for ByteTrackParams {
+    fn default() -> Self {
+        Self {
+            common: CommonParams {
+                max_age: 30,
+                min_hits: 3,
+            },
+            track_thresh: 0.5,
+            match_thresh: 0.8,
+            det_thresh: 0.6,
+            second_match_thresh: 0.5,
+        }
+    }
 }
 
 impl ByteTrack {
@@ -156,14 +202,32 @@ impl ByteTrack {
     /// * `match_thresh` - IoU threshold for matching (e.g., 0.8).
     /// * `det_thresh` - Threshold for initializing a new track (usually same as or slightly lower than track_thresh).
     pub fn new(track_thresh: f32, track_buffer: usize, match_thresh: f32, det_thresh: f32) -> Self {
+        Self::from_params(ByteTrackParams {
+            common: CommonParams {
+                max_age: track_buffer,
+                min_hits: 3,
+            },
+            track_thresh,
+            match_thresh,
+            det_thresh,
+            ..ByteTrackParams::default()
+        })
+    }
+
+    /// Create a ByteTrack tracker from a [`ByteTrackParams`].
+    ///
+    /// ByteTrack activates a track on its first high confidence match, so
+    /// `params.common.min_hits` has no effect here; only `common.max_age` is used.
+    pub fn from_params(params: ByteTrackParams) -> Self {
         Self {
             tracked_stracks: Vec::new(),
             lost_stracks: Vec::new(),
             frame_id: 0,
-            buffer_size: track_buffer, // Simplified usage
-            track_thresh,
-            match_thresh,
-            det_thresh,
+            buffer_size: params.common.max_age,
+            track_thresh: params.track_thresh,
+            match_thresh: params.match_thresh,
+            det_thresh: params.det_thresh,
+            second_match_thresh: params.second_match_thresh,
             kalman_filter: KalmanFilter::default(),
             next_id: 1,
         }
@@ -255,7 +319,7 @@ impl ByteTrack {
         let r_tracked_boxes: Vec<[f32; 4]> = r_tracked_stracks.iter().map(|s| s.tlwh).collect();
         let low_boxes: Vec<[f32; 4]> = detections_low.iter().map(|s| s.tlwh).collect();
         let (matches, u_track_second, _) =
-            crate::utils::assignment::iou_match(&r_tracked_boxes, &low_boxes, 0.5);
+            crate::utils::assignment::iou_match(&r_tracked_boxes, &low_boxes, self.second_match_thresh);
 
         for (itrack, idet) in matches {
             let track = &mut r_tracked_stracks[itrack];
@@ -337,17 +401,39 @@ pub struct PyByteTrack {
 #[pymethods]
 impl PyByteTrack {
     #[new]
-    #[pyo3(signature = (track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6))]
+    #[pyo3(signature = (track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6, second_match_thresh=0.5))]
     /// Initialize the ByteTrack tracker.
     ///
     /// Args:
-    ///     track_thresh (float, optional): High confidence detection threshold. Defaults to 0.5.
-    ///     track_buffer (int, optional): Number of frames to keep lost tracks alive. Defaults to 30.
-    ///     match_thresh (float, optional): IoU matching threshold. Defaults to 0.8.
-    ///     det_thresh (float, optional): Initialization threshold. Defaults to 0.6.
-    fn new(track_thresh: f32, track_buffer: usize, match_thresh: f32, det_thresh: f32) -> Self {
+    ///     track_thresh (float, optional): Score above which a detection is high
+    ///         confidence and matched first. Defaults to 0.5.
+    ///     track_buffer (int, optional): Frames a lost track is kept alive so it can
+    ///         be recovered. Defaults to 30.
+    ///     match_thresh (float, optional): First stage match cutoff as a maximum IoU
+    ///         distance of one minus IoU. Lower is stricter. Defaults to 0.8.
+    ///     det_thresh (float, optional): Smallest score an unmatched high confidence
+    ///         detection needs to start a new track. Defaults to 0.6.
+    ///     second_match_thresh (float, optional): Second stage match cutoff for
+    ///         recovering low confidence detections, a maximum IoU distance.
+    ///         Defaults to 0.5.
+    fn new(
+        track_thresh: f32,
+        track_buffer: usize,
+        match_thresh: f32,
+        det_thresh: f32,
+        second_match_thresh: f32,
+    ) -> Self {
         Self {
-            inner: ByteTrack::new(track_thresh, track_buffer, match_thresh, det_thresh),
+            inner: ByteTrack::from_params(ByteTrackParams {
+                common: CommonParams {
+                    max_age: track_buffer,
+                    min_hits: 3,
+                },
+                track_thresh,
+                match_thresh,
+                det_thresh,
+                second_match_thresh,
+            }),
         }
     }
 
@@ -547,5 +633,39 @@ mod tests {
             };
             assert_eq!(ids.len(), unique, "duplicate id in frame {f}: {ids:?}");
         }
+    }
+
+    #[test]
+    fn from_params_default_matches_new() {
+        // The params path with defaults must behave exactly like the positional new.
+        let mut a = ByteTrack::from_params(ByteTrackParams::default());
+        let mut b = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        let d = vec![([10.0, 10.0, 50.0, 100.0], 0.9, 0)];
+        let ra = a.update(d.clone());
+        let rb = b.update(d);
+        assert_eq!(ra.len(), rb.len());
+        assert_eq!(ra[0].track_id, rb[0].track_id);
+        assert_eq!(ra[0].tlwh, rb[0].tlwh);
+    }
+
+    #[test]
+    fn second_match_thresh_controls_low_stage_recovery() {
+        let high = ([10.0, 10.0, 50.0, 50.0], 0.9, 0);
+        let low = ([12.0, 12.0, 50.0, 50.0], 0.4, 0); // below track_thresh, second stage
+
+        // Impossible second stage: the low-confidence detection cannot be recovered.
+        let mut strict = ByteTrack::from_params(ByteTrackParams {
+            second_match_thresh: 0.0,
+            ..ByteTrackParams::default()
+        });
+        strict.update(vec![high]);
+        assert!(strict.update(vec![low]).is_empty());
+
+        // Default second stage recovers the same object and keeps its id.
+        let mut lax = ByteTrack::from_params(ByteTrackParams::default());
+        let id = lax.update(vec![high])[0].track_id;
+        let out = lax.update(vec![low]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].track_id, id);
     }
 }

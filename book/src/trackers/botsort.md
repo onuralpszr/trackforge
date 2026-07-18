@@ -37,6 +37,7 @@ for track_id, tlwh, score, class_id in tracks:
 | `track_buffer`      | 30      | Frames a lost track is kept alive before removal        |
 | `match_thresh`      | 0.8     | Maximum cost for a first-stage (high-confidence) match  |
 | `det_thresh`        | 0.6     | Minimum score to start a new track                      |
+| `second_match_thresh` | 0.5   | Stage-2 match cutoff for recovering low-confidence detections |
 | `proximity_thresh`  | 0.5     | IoU-distance gate above which appearance is ignored     |
 | `appearance_thresh` | 0.25    | Cosine-distance gate above which appearance is ignored  |
 
