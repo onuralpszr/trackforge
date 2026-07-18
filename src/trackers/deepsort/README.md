@@ -11,7 +11,7 @@
 
 ## Usage
 
-```rust
+```rust,ignore
 use trackforge::trackers::deepsort::DeepSort;
 use trackforge::traits::AppearanceExtractor;
 use trackforge::types::BoundingBox;

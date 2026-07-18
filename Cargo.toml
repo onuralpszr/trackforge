@@ -26,14 +26,15 @@ name = "trackforge"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-image = "0.25.9"
+image = { version = "0.25.9", optional = true }
 nalgebra = "0.35.0"
 pyo3 = { version = "0.29.0", features = ["extension-module"], optional = true }
 
 [features]
 default = []
 python = ["dep:pyo3"]
-advanced_examples = ["dep:ndarray", "dep:opencv", "dep:ort", "dep:usls"]
+reid-model = ["dep:image"]
+advanced_examples = ["reid-model", "dep:ndarray", "dep:opencv", "dep:ort", "dep:usls"]
 
 [[example]]
 name = "byte_track_demo"
@@ -47,6 +48,7 @@ required-features = ["advanced_examples"]
 [[example]]
 name = "deepsort_simple"
 path = "examples/deepsort_simple.rs"
+required-features = ["reid-model"]
 
 [dev-dependencies]
 # Testing dependencies

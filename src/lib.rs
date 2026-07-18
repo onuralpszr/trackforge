@@ -70,7 +70,7 @@
 //! # DeepSORT
 //!
 //! Augments IoU matching with Re-ID appearance embeddings for reliable re-identification
-//! across long occlusions. Requires an [`AppearanceExtractor`] implementation that produces
+//! across long occlusions. Requires an `AppearanceExtractor` implementation that produces
 //! a feature vector for each detected crop.
 //!
 //! ```rust,ignore
@@ -132,7 +132,7 @@
 //!
 //! Extends OC-SORT with an appearance term: a cosine distance to a per-track feature
 //! gallery is blended into the motion cost, scaled by detector confidence. Like
-//! DeepSORT it needs an [`AppearanceExtractor`], or embeddings passed directly.
+//! DeepSORT it needs an `AppearanceExtractor`, or embeddings passed directly.
 //!
 //! ```rust,ignore
 //! use trackforge::trackers::deep_ocsort::DeepOcSort;
@@ -159,7 +159,6 @@
 //! [`deepsort`]: trackers::deepsort
 //! [`deep_ocsort`]: trackers::deep_ocsort
 //! [`botsort`]: trackers::botsort
-//! [`AppearanceExtractor`]: traits::AppearanceExtractor
 
 pub mod trackers;
 pub mod traits;
