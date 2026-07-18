@@ -1,5 +1,6 @@
 #![doc = include_str!("README.md")]
 
+use crate::trackers::common::byte_cascade::{self, CascadeDet, CascadeTrack};
 use crate::trackers::common::{CommonParams, KalmanTrack};
 use crate::utils::geometry::tlwh_to_xyah;
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
@@ -106,6 +107,46 @@ impl STrack {
             self.kalman.mean[7] = 0.0; // Clear velocity h if not tracked
         }
         self.tlwh = self.kalman.predict(kf); // Update box estimate
+    }
+}
+
+impl CascadeDet for STrack {
+    fn det_box(&self) -> [f32; 4] {
+        self.tlwh
+    }
+    fn det_score(&self) -> f32 {
+        self.score
+    }
+}
+
+impl CascadeTrack for STrack {
+    type Det = STrack;
+
+    fn is_tracked(&self) -> bool {
+        self.state == TrackState::Tracked
+    }
+    fn is_lost(&self) -> bool {
+        self.state == TrackState::Lost
+    }
+    fn set_lost(&mut self) {
+        self.state = TrackState::Lost;
+    }
+    fn cascade_frame_id(&self) -> usize {
+        self.frame_id
+    }
+    fn cascade_tlwh(&self) -> [f32; 4] {
+        self.tlwh
+    }
+    fn update_matched(&mut self, det: &STrack, frame_id: usize, kf: &KalmanFilter) {
+        self.update(det.clone(), frame_id, kf);
+    }
+    fn reactivate_matched(&mut self, det: &STrack, frame_id: usize, kf: &KalmanFilter) {
+        self.re_activate(det.clone(), frame_id, None, kf);
+    }
+    fn spawn(det: &STrack, frame_id: usize, track_id: u64, kf: &KalmanFilter) -> Self {
+        let mut track = det.clone();
+        track.activate(kf, frame_id, track_id);
+        track
     }
 }
 
@@ -244,134 +285,57 @@ impl ByteTrack {
     /// * `Vec<STrack>` - A list of active tracks in the current frame.
     pub fn update(&mut self, output_results: Vec<([f32; 4], f32, i64)>) -> Vec<STrack> {
         self.frame_id += 1;
-        let mut activated_stracks = Vec::new();
-        let mut refind_stracks = Vec::new();
-        let mut lost_stracks = Vec::new();
 
-        let detections: Vec<STrack> = output_results
-            .iter()
-            .map(|(tlwh, score, cls)| STrack::new(*tlwh, *score, *cls))
-            .collect();
-
+        // Split detections into high- and low-confidence sets.
         let mut detections_high = Vec::new();
         let mut detections_low = Vec::new();
-
-        for track in detections {
-            if track.score >= self.track_thresh {
-                detections_high.push(track);
+        for (tlwh, score, cls) in output_results {
+            let det = STrack::new(tlwh, score, cls);
+            if det.score >= self.track_thresh {
+                detections_high.push(det);
             } else {
-                detections_low.push(track);
+                detections_low.push(det);
             }
         }
 
-        // Predict
-        for track in &mut self.tracked_stracks {
+        // Predict every existing track forward.
+        for track in self
+            .tracked_stracks
+            .iter_mut()
+            .chain(&mut self.lost_stracks)
+        {
             track.predict(&self.kalman_filter);
         }
-        for track in &mut self.lost_stracks {
-            track.predict(&self.kalman_filter);
-        }
 
-        let mut unconfirmed = Vec::new();
-        let mut tracked_stracks = Vec::new();
-        for track in self.tracked_stracks.drain(..) {
-            if !track.is_activated {
-                unconfirmed.push(track);
-            } else {
-                tracked_stracks.push(track);
-            }
-        }
+        // Pool: tracked tracks first, then lost tracks.
+        let mut pool: Vec<STrack> = self.tracked_stracks.drain(..).collect();
+        let n_tracked = pool.len();
+        pool.append(&mut self.lost_stracks);
 
-        // Match High
-        let mut strack_pool = Vec::new();
-        strack_pool.extend_from_slice(&tracked_stracks);
-        strack_pool.extend_from_slice(&self.lost_stracks);
-
-        // First matching: high-confidence detections against tracked + lost tracks.
-        let pool_boxes: Vec<[f32; 4]> = strack_pool.iter().map(|s| s.tlwh).collect();
+        // ByteTrack's stage-one cost is the plain IoU distance.
+        let pool_boxes: Vec<[f32; 4]> = pool.iter().map(|s| s.tlwh).collect();
         let high_boxes: Vec<[f32; 4]> = detections_high.iter().map(|s| s.tlwh).collect();
-        let (matches, u_track, u_detection) =
-            crate::utils::assignment::iou_match(&pool_boxes, &high_boxes, self.match_thresh);
+        let cost = crate::utils::geometry::iou_cost_matrix(&pool_boxes, &high_boxes);
 
-        for (itrack, idet) in matches {
-            let track = &mut strack_pool[itrack];
-            let det = &detections_high[idet];
-            if track.state == TrackState::Tracked {
-                track.update(det.clone(), self.frame_id, &self.kalman_filter);
-                activated_stracks.push(track.clone());
-            } else {
-                track.re_activate(det.clone(), self.frame_id, None, &self.kalman_filter);
-                refind_stracks.push(track.clone());
-            }
-        }
-
-        // Second matching: low-confidence detections against the tracks that were
-        // still Tracked but left unmatched by the first round.
-        let mut r_tracked_stracks = Vec::new();
-        for &i in &u_track {
-            let track = &strack_pool[i];
-            if track.state == TrackState::Tracked {
-                r_tracked_stracks.push(track.clone());
-            }
-        }
-
-        // Second matching: low-confidence detections against still-tracked leftovers.
-        let r_tracked_boxes: Vec<[f32; 4]> = r_tracked_stracks.iter().map(|s| s.tlwh).collect();
-        let low_boxes: Vec<[f32; 4]> = detections_low.iter().map(|s| s.tlwh).collect();
-        let (matches, u_track_second, _) = crate::utils::assignment::iou_match(
-            &r_tracked_boxes,
-            &low_boxes,
+        let outcome = byte_cascade::run(
+            pool,
+            n_tracked,
+            &detections_high,
+            &detections_low,
+            &cost,
+            self.match_thresh,
             self.second_match_thresh,
+            self.det_thresh,
+            self.buffer_size,
+            self.frame_id,
+            &self.kalman_filter,
+            &mut self.next_id,
         );
 
-        for (itrack, idet) in matches {
-            let track = &mut r_tracked_stracks[itrack];
-            let det = &detections_low[idet];
-            if track.state == TrackState::Tracked {
-                track.update(det.clone(), self.frame_id, &self.kalman_filter);
-                activated_stracks.push(track.clone());
-            } else {
-                track.re_activate(det.clone(), self.frame_id, None, &self.kalman_filter);
-                refind_stracks.push(track.clone());
-            }
-        }
+        self.tracked_stracks = outcome.activated;
+        self.tracked_stracks.extend(outcome.refind);
+        self.lost_stracks = outcome.lost;
 
-        for &it in &u_track_second {
-            let track = &mut r_tracked_stracks[it];
-            if track.state != TrackState::Lost {
-                track.state = TrackState::Lost;
-                lost_stracks.push(track.clone());
-            }
-        }
-
-        // Unmatched high-confidence detections above det_thresh start new tracks.
-        for &i in &u_detection {
-            let det = &detections_high[i];
-            if det.score < self.det_thresh {
-                continue;
-            }
-            let mut new_track = det.clone();
-            let id = self.next_id;
-            self.next_id += 1;
-            new_track.activate(&self.kalman_filter, self.frame_id, id);
-            activated_stracks.push(new_track);
-        }
-
-        // Keep first-round lost tracks alive until they exceed the buffer.
-        for &i in &u_track {
-            let track = &strack_pool[i];
-            if track.state == TrackState::Lost && self.frame_id - track.frame_id <= self.buffer_size
-            {
-                lost_stracks.push(track.clone());
-            }
-        }
-
-        // Commit the frame state: matched and refound tracks are active, the rest lost.
-        self.tracked_stracks = activated_stracks;
-        self.tracked_stracks.extend(refind_stracks);
-        self.lost_stracks = lost_stracks;
-
-        // Output the activated tracks for this frame.
         self.tracked_stracks
             .iter()
             .filter(|t| t.is_activated)
