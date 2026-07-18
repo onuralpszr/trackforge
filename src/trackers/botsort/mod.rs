@@ -1,8 +1,8 @@
 #![doc = include_str!("README.md")]
 
 use crate::trackers::byte_track::TrackState;
+use crate::trackers::common::byte_cascade::{self, CascadeDet, CascadeTrack};
 use crate::trackers::common::{CameraMotion, CommonParams, KalmanTrack};
-use crate::utils::assignment::{greedy_match, iou_match};
 use crate::utils::features::{cosine_distance, l2_normalize};
 use crate::utils::geometry::{iou_batch, tlwh_to_xyah};
 use crate::utils::kalman::KalmanFilter;
@@ -11,7 +11,7 @@ use crate::utils::kalman::KalmanFilter;
 const FEATURE_MOMENTUM: f32 = 0.9;
 
 /// A detection with an optional appearance embedding.
-struct Detection {
+pub(crate) struct Detection {
     tlwh: [f32; 4],
     score: f32,
     class_id: i64,
@@ -128,6 +128,46 @@ impl BotTrack {
                 *sf = l2_normalize(sf);
             }
         }
+    }
+}
+
+impl CascadeDet for Detection {
+    fn det_box(&self) -> [f32; 4] {
+        self.tlwh
+    }
+    fn det_score(&self) -> f32 {
+        self.score
+    }
+}
+
+impl CascadeTrack for BotTrack {
+    type Det = Detection;
+
+    fn is_tracked(&self) -> bool {
+        self.state == TrackState::Tracked
+    }
+    fn is_lost(&self) -> bool {
+        self.state == TrackState::Lost
+    }
+    fn set_lost(&mut self) {
+        self.state = TrackState::Lost;
+    }
+    fn cascade_frame_id(&self) -> usize {
+        self.frame_id
+    }
+    fn cascade_tlwh(&self) -> [f32; 4] {
+        self.tlwh
+    }
+    fn update_matched(&mut self, det: &Detection, frame_id: usize, kf: &KalmanFilter) {
+        self.update(det, frame_id, kf);
+    }
+    fn reactivate_matched(&mut self, det: &Detection, frame_id: usize, kf: &KalmanFilter) {
+        self.re_activate(det, frame_id, kf);
+    }
+    fn spawn(det: &Detection, frame_id: usize, track_id: u64, kf: &KalmanFilter) -> Self {
+        let mut track = BotTrack::from_detection(det, kf);
+        track.activate(frame_id, track_id);
+        track
     }
 }
 
@@ -348,89 +388,29 @@ impl BotSort {
         pool.append(&mut tracked);
         pool.append(&mut self.lost_stracks);
 
-        let mut activated: Vec<BotTrack> = Vec::new();
-        let mut refind: Vec<BotTrack> = Vec::new();
-        let mut lost: Vec<BotTrack> = Vec::new();
+        // Stage-one cost is the appearance-fused cost, which reduces to the plain IoU
+        // distance when no embeddings are present. The cascade guards the empty case.
+        let cost = self.fused_cost(&pool, &dets_high, use_reid);
 
-        // Guard the empty case: greedy_match on an empty matrix cannot report the
-        // unmatched detections, so a first frame (no tracks) would drop them.
-        let (matches, u_track, u_det_high) = if pool.is_empty() || dets_high.is_empty() {
-            (
-                Vec::new(),
-                (0..pool.len()).collect::<Vec<_>>(),
-                (0..dets_high.len()).collect::<Vec<_>>(),
-            )
-        } else {
-            let cost = self.fused_cost(&pool, &dets_high, use_reid);
-            greedy_match(&cost, self.match_thresh)
-        };
-
-        for (itrack, idet) in matches {
-            let det = &dets_high[idet];
-            if pool[itrack].state == TrackState::Tracked {
-                pool[itrack].update(det, self.frame_id, &self.kalman_filter);
-                activated.push(pool[itrack].clone());
-            } else {
-                pool[itrack].re_activate(det, self.frame_id, &self.kalman_filter);
-                refind.push(pool[itrack].clone());
-            }
-        }
-
-        // Second stage: low-confidence detections against still-Tracked leftovers,
-        // matched on IoU only.
-        let r_tracked: Vec<usize> = u_track
-            .iter()
-            .copied()
-            .filter(|&i| pool[i].state == TrackState::Tracked)
-            .collect();
-        let r_boxes: Vec<[f32; 4]> = r_tracked.iter().map(|&i| pool[i].tlwh).collect();
-        let low_boxes: Vec<[f32; 4]> = dets_low.iter().map(|d| d.tlwh).collect();
-        let (matches_low, u_track_low, _) =
-            iou_match(&r_boxes, &low_boxes, self.second_match_thresh);
-
-        // `r_tracked` only holds Tracked-state tracks, so a second-stage match is
-        // always a plain update (never a re-activation).
-        for (local, idet) in matches_low {
-            let itrack = r_tracked[local];
-            let det = &dets_low[idet];
-            pool[itrack].update(det, self.frame_id, &self.kalman_filter);
-            activated.push(pool[itrack].clone());
-        }
-
-        // Tracked leftovers from the second stage become Lost.
-        for &local in &u_track_low {
-            let itrack = r_tracked[local];
-            if pool[itrack].state != TrackState::Lost {
-                pool[itrack].state = TrackState::Lost;
-                lost.push(pool[itrack].clone());
-            }
-        }
-
-        // Unmatched high detections above det_thresh start new tracks.
-        for &idet in &u_det_high {
-            let det = &dets_high[idet];
-            if det.score < self.det_thresh {
-                continue;
-            }
-            let mut track = BotTrack::from_detection(det, &self.kalman_filter);
-            track.activate(self.frame_id, self.next_id);
-            self.next_id += 1;
-            activated.push(track);
-        }
-
-        // Keep already-lost tracks (unmatched this frame) alive until they exceed
-        // the buffer. Tracks that just became lost in the second stage are already
-        // in `lost`, so restrict this to the originally-lost part of the pool.
-        for &i in &u_track {
-            if i >= n_tracked && self.frame_id - pool[i].frame_id <= self.buffer_size {
-                lost.push(pool[i].clone());
-            }
-        }
+        let outcome = byte_cascade::run(
+            pool,
+            n_tracked,
+            &dets_high,
+            &dets_low,
+            &cost,
+            self.match_thresh,
+            self.second_match_thresh,
+            self.det_thresh,
+            self.buffer_size,
+            self.frame_id,
+            &self.kalman_filter,
+            &mut self.next_id,
+        );
 
         // Commit the frame state.
-        self.tracked_stracks = activated;
-        self.tracked_stracks.extend(refind);
-        self.lost_stracks = lost;
+        self.tracked_stracks = outcome.activated;
+        self.tracked_stracks.extend(outcome.refind);
+        self.lost_stracks = outcome.lost;
 
         self.tracked_stracks
             .iter()

@@ -6,6 +6,7 @@
 //! motion compensation transform.
 
 pub mod association;
+pub mod byte_cascade;
 pub mod cmc;
 pub mod obs_track;
 pub mod params;
