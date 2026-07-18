@@ -665,6 +665,23 @@ reference implementation:
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="na">year</span><span class="p">=</span><span class="s">{2023}</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
 </span></code></pre></div>
+<h2 id="quick-reference">Quick Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Kind</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#deepocsortparams"><code>DeepOcSortParams</code></a></td>
+<td>struct</td>
+<td>Settings for <code>DeepOcSort</code>.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="types">Types</h2>
 <h3 id="deepocsorttrack"><code>DeepOcSortTrack</code></h3>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DeepOcSortTrack</span><span class="w"> </span><span class="p">{</span>
@@ -807,6 +824,104 @@ the association reduces to plain OC-SORT.</p>
 </span></code></pre></div></p>
 <p><span id="deepocsorttracker-supersetof-from-subset"></span>
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">from_subset</span><span class="p">(</span><span class="n">element</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">SS</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">SP</span>
+</span></code></pre></div></p>
+<h3 id="deepocsortparams"><code>DeepOcSortParams</code></h3>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">DeepOcSortParams</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">common</span><span class="p">:</span><span class="w"> </span><span class="nc">crate</span><span class="p">::</span><span class="n">trackers</span><span class="p">::</span><span class="n">common</span><span class="p">::</span><span class="n">CommonParams</span><span class="p">,</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">iou_threshold</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">delta_t</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">inertia</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">appearance_weight</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">max_cosine_distance</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">nn_budget</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Settings for <code>DeepOcSort</code>.</p>
+<p>Shared lifecycle fields live in <a href="../common/params/index.html#commonparams"><code>CommonParams</code></a>; the rest are Deep OC-SORT
+specific. This is OC-SORT plus an appearance term, so it carries the OC-SORT
+motion fields and the Re-ID fields together. Build it with
+[<code>DeepOcSortParams::default</code>].</p>
+<h4 id="fields_1">Fields</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>common</code></td>
+<td><code>crate::trackers::common::CommonParams</code></td>
+<td>Shared lifecycle settings, <code>max_age</code> and <code>min_hits</code>.</td>
+</tr>
+<tr>
+<td><code>iou_threshold</code></td>
+<td><code>f32</code></td>
+<td>Smallest IoU overlap that still counts as the same object. This is a minimum IoU, so higher is stricter.</td>
+</tr>
+<tr>
+<td><code>delta_t</code></td>
+<td><code>usize</code></td>
+<td>How many frames back the tracker looks to estimate an object's direction of travel from its real past positions. Larger is steadier but slower to react to turns.</td>
+</tr>
+<tr>
+<td><code>inertia</code></td>
+<td><code>f32</code></td>
+<td>How strongly a track's recent direction of travel is trusted when matching, in the range zero to one. Zero turns the direction term off.</td>
+</tr>
+<tr>
+<td><code>appearance_weight</code></td>
+<td><code>f32</code></td>
+<td>How much the appearance match counts against the motion match when scoring a pair, in the range zero to one. Zero ignores appearance and falls back to plain OC-SORT; higher leans on Re-ID to hold ids through occlusion.</td>
+</tr>
+<tr>
+<td><code>max_cosine_distance</code></td>
+<td><code>f32</code></td>
+<td>How different two appearance embeddings may be and still count as the same object, as cosine distance. Lower demands a closer appearance match.</td>
+</tr>
+<tr>
+<td><code>nn_budget</code></td>
+<td><code>usize</code></td>
+<td>How many past appearance embeddings to keep per track for Re-ID. When the gallery is full the oldest is dropped.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="trait-implementations_2">Trait Implementations</h4>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">impl</span><span class="w"> </span><span class="nb">Clone</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">DeepOcSortParams</span>
+</span></code></pre></div>
+<p><span id="deepocsortparams-clone"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">DeepOcSortParams</span>
+</span></code></pre></div></p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">impl</span><span class="w"> </span><span class="nb">Copy</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">DeepOcSortParams</span>
+</span></code></pre></div>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">impl</span><span class="w"> </span><span class="n">Debug</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">DeepOcSortParams</span>
+</span></code></pre></div>
+<p><span id="deepocsortparams-debug-fmt"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">mut</span><span class="w"> </span><span class="n">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="o">&lt;&#39;</span><span class="nb">_</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">fmt</span><span class="p">::</span><span class="nb">Result</span>
+</span></code></pre></div></p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">impl</span><span class="w"> </span><span class="nb">Default</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">DeepOcSortParams</span>
+</span></code></pre></div>
+<p><span id="deepocsortparams-default"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">default</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span>
+</span></code></pre></div></p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="k">impl</span><span class="w"> </span><span class="nb">PartialEq</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">DeepOcSortParams</span>
+</span></code></pre></div>
+<p><span id="deepocsortparams-partialeq-eq"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">eq</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">other</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">DeepOcSortParams</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">bool</span>
+</span></code></pre></div></p>
+<p><span id="deepocsortparams-supersetof-to-subset"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">to_subset</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">SS</span><span class="o">&gt;</span>
+</span></code></pre></div></p>
+<p><span id="deepocsortparams-supersetof-is-in-subset"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">is_in_subset</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">bool</span>
+</span></code></pre></div></p>
+<p><span id="deepocsortparams-supersetof-to-subset-unchecked"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">to_subset_unchecked</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">SS</span>
+</span></code></pre></div></p>
+<p><span id="deepocsortparams-supersetof-from-subset"></span>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">from_subset</span><span class="p">(</span><span class="n">element</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">SS</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">SP</span>
 </span></code></pre></div></p>
 
 

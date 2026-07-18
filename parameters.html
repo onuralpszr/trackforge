@@ -452,10 +452,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bytetrack" class="md-nav__link">
+  <a href="#two-ideas-that-show-up-everywhere" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        ByteTrack
+        Two ideas that show up everywhere
       </span>
     </span>
   </a>
@@ -463,10 +463,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#deepsort" class="md-nav__link">
+  <a href="#a-note-on-iou-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        DeepSORT
+        A note on IoU thresholds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bytetrack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ByteTrack
       </span>
     </span>
   </a>
@@ -485,10 +507,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sort" class="md-nav__link">
+  <a href="#deepsort" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        SORT
+        DeepSORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deep-oc-sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deep OC-SORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bot-sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        BoT-SORT
       </span>
     </span>
   </a>
@@ -622,10 +666,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bytetrack" class="md-nav__link">
+  <a href="#two-ideas-that-show-up-everywhere" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        ByteTrack
+        Two ideas that show up everywhere
       </span>
     </span>
   </a>
@@ -633,10 +677,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#deepsort" class="md-nav__link">
+  <a href="#a-note-on-iou-thresholds" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        DeepSORT
+        A note on IoU thresholds
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bytetrack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ByteTrack
       </span>
     </span>
   </a>
@@ -655,10 +721,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sort" class="md-nav__link">
+  <a href="#deepsort" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        SORT
+        DeepSORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deep-oc-sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deep OC-SORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bot-sort" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        BoT-SORT
       </span>
     </span>
   </a>
@@ -684,144 +772,29 @@
 
 
 <h1 id="parameters">Parameters</h1>
-<p>Every tracker exposes the same parameters in Python and Rust. In Python they are keyword
-arguments to the tracker class (<code>BYTETRACK</code>, <code>DEEPSORT</code>, <code>OCSORT</code>, <code>SORT</code>); in Rust they are
-positional arguments to <code>Tracker::new(...)</code>. The defaults below are identical across both.</p>
-<h2 id="bytetrack">ByteTrack</h2>
-<p><code>BYTETRACK(...)</code> / <code>ByteTrack::new(track_thresh, track_buffer, match_thresh, det_thresh)</code></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>track_thresh</code></td>
-<td>float</td>
-<td>0.5</td>
-<td>High confidence detection threshold</td>
-</tr>
-<tr>
-<td><code>track_buffer</code></td>
-<td>int</td>
-<td>30</td>
-<td>Frames to keep lost tracks alive</td>
-</tr>
-<tr>
-<td><code>match_thresh</code></td>
-<td>float</td>
-<td>0.8</td>
-<td>IoU threshold for matching</td>
-</tr>
-<tr>
-<td><code>det_thresh</code></td>
-<td>float</td>
-<td>0.6</td>
-<td>Minimum detection confidence for initialization</td>
-</tr>
-</tbody>
-</table>
-<h2 id="deepsort">DeepSORT</h2>
-<p><code>DEEPSORT(...)</code> / <code>DeepSort::new(extractor, max_age, n_init, max_iou_distance, max_cosine_distance, nn_budget)</code></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>max_age</code></td>
-<td>int</td>
-<td>70</td>
-<td>Max frames to keep a track without detection</td>
-</tr>
-<tr>
-<td><code>n_init</code></td>
-<td>int</td>
-<td>3</td>
-<td>Consecutive detections needed to confirm a track</td>
-</tr>
-<tr>
-<td><code>max_iou_distance</code></td>
-<td>float</td>
-<td>0.7</td>
-<td>Max IoU distance for association</td>
-</tr>
-<tr>
-<td><code>max_cosine_distance</code></td>
-<td>float</td>
-<td>0.2</td>
-<td>Max cosine distance for Re-ID matching</td>
-</tr>
-<tr>
-<td><code>nn_budget</code></td>
-<td>int</td>
-<td>100</td>
-<td>Max appearance feature library size per track</td>
-</tr>
-</tbody>
-</table>
-<h2 id="oc-sort">OC-SORT</h2>
-<p><code>OCSORT(...)</code> / <code>OcSort::new(max_age, min_hits, iou_threshold, delta_t, inertia)</code></p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>max_age</code></td>
-<td>int</td>
-<td>30</td>
-<td>Max frames to keep a lost track alive before deletion</td>
-</tr>
-<tr>
-<td><code>min_hits</code></td>
-<td>int</td>
-<td>3</td>
-<td>Consecutive matched frames required to confirm a track</td>
-</tr>
-<tr>
-<td><code>iou_threshold</code></td>
-<td>float</td>
-<td>0.3</td>
-<td>IoU threshold for matching</td>
-</tr>
-<tr>
-<td><code>delta_t</code></td>
-<td>int</td>
-<td>3</td>
-<td>Observation window (frames) for velocity computation</td>
-</tr>
-<tr>
-<td><code>inertia</code></td>
-<td>float</td>
-<td>0.2</td>
-<td>Weight for the direction-consistency cost bonus (OCM)</td>
-</tr>
-</tbody>
-</table>
+<p>Every tracker takes the same parameters in Python and Rust. In Python they are keyword arguments to the tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params struct passed to <code>Tracker::from_params(...)</code>. The defaults are identical across both languages.</p>
+<h2 id="two-ideas-that-show-up-everywhere">Two ideas that show up everywhere</h2>
+<p>Two settings mean the same thing in almost every tracker, even though the names differ.</p>
+<ul>
+<li>Lost track survival. How many frames a track stays alive after it stops matching any detection. If an object is missed or hidden for up to this many frames, the track keeps its id and can be picked back up. Past that it is dropped. Larger rides out longer occlusions but risks handing an old id to a new object. It is called <code>max_age</code> in SORT, OC-SORT, DeepSORT, and Deep OC-SORT, and <code>track_buffer</code> in ByteTrack and BoT-SORT.</li>
+<li>Confirmation. How many matched frames in a row a new track needs before it is reported. Larger hides flickering false tracks but delays real ones. It is called <code>min_hits</code> in SORT, OC-SORT, and Deep OC-SORT, and <code>n_init</code> in DeepSORT. ByteTrack and BoT-SORT confirm on the first high confidence match, so they have no such setting.</li>
+</ul>
+<p>In Rust these two live together in <code>CommonParams { max_age, min_hits }</code>, which every tracker's params struct embeds as <code>common</code>.</p>
+<h2 id="a-note-on-iou-thresholds">A note on IoU thresholds</h2>
+<p>IoU thresholds come in two opposite flavors, matching the original papers. Read the description before tuning.</p>
+<ul>
+<li>Minimum IoU. The boxes must overlap by at least this much. Higher is stricter. Used by <code>iou_threshold</code> in SORT, OC-SORT, and Deep OC-SORT.</li>
+<li>Maximum IoU distance. The cost is one minus IoU, and a pair matches only when that cost is at or below the value, so lower is stricter. A value of 0.8 means the boxes only need an IoU of 0.2. Used by <code>match_thresh</code> in ByteTrack and BoT-SORT, and <code>max_iou_distance</code> in DeepSORT.</li>
+</ul>
 <h2 id="sort">SORT</h2>
-<p><code>SORT(...)</code> / <code>Sort::new(max_age, min_hits, iou_threshold)</code></p>
+<p><code>SORT(...)</code> and <code>Sort::new(max_age, min_hits, iou_threshold)</code></p>
 <table>
 <thead>
 <tr>
 <th>Parameter</th>
 <th>Type</th>
 <th>Default</th>
-<th>Description</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
@@ -829,19 +802,269 @@ positional arguments to <code>Tracker::new(...)</code>. The defaults below are i
 <td><code>max_age</code></td>
 <td>int</td>
 <td>1</td>
-<td>Max frames to keep a track without detection</td>
+<td>Frames a track survives with no matched detection before it is dropped.</td>
 </tr>
 <tr>
 <td><code>min_hits</code></td>
 <td>int</td>
 <td>3</td>
-<td>Minimum hits before a track is confirmed</td>
+<td>Matched frames in a row before a track is reported.</td>
 </tr>
 <tr>
 <td><code>iou_threshold</code></td>
 <td>float</td>
 <td>0.3</td>
-<td>IoU threshold for matching</td>
+<td>Minimum IoU overlap to treat a detection and a track as the same object. Higher is stricter.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bytetrack">ByteTrack</h2>
+<p><code>BYTETRACK(...)</code> and <code>ByteTrack::new(track_thresh, track_buffer, match_thresh, det_thresh)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>track_thresh</code></td>
+<td>float</td>
+<td>0.5</td>
+<td>Score above which a detection is high confidence and matched first. Lower scores are held for the second pass.</td>
+</tr>
+<tr>
+<td><code>track_buffer</code></td>
+<td>int</td>
+<td>30</td>
+<td>Frames a lost track is kept alive so it can be recovered.</td>
+</tr>
+<tr>
+<td><code>match_thresh</code></td>
+<td>float</td>
+<td>0.8</td>
+<td>First stage match cutoff as a maximum IoU distance. Lower is stricter.</td>
+</tr>
+<tr>
+<td><code>det_thresh</code></td>
+<td>float</td>
+<td>0.6</td>
+<td>Smallest score an unmatched high confidence detection needs to start a new track.</td>
+</tr>
+<tr>
+<td><code>second_match_thresh</code></td>
+<td>float</td>
+<td>0.5</td>
+<td>Second stage match cutoff for recovering low confidence detections, a maximum IoU distance. This is ByteTrack's recovery step.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="oc-sort">OC-SORT</h2>
+<p><code>OCSORT(...)</code> and <code>OcSort::new(max_age, min_hits, iou_threshold, delta_t, inertia)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_age</code></td>
+<td>int</td>
+<td>30</td>
+<td>Frames a lost track survives before deletion.</td>
+</tr>
+<tr>
+<td><code>min_hits</code></td>
+<td>int</td>
+<td>3</td>
+<td>Matched frames in a row before a track is reported.</td>
+</tr>
+<tr>
+<td><code>iou_threshold</code></td>
+<td>float</td>
+<td>0.3</td>
+<td>Minimum IoU overlap to associate. Higher is stricter.</td>
+</tr>
+<tr>
+<td><code>delta_t</code></td>
+<td>int</td>
+<td>3</td>
+<td>How many frames back to look when estimating an object's direction of travel from its real past positions.</td>
+</tr>
+<tr>
+<td><code>inertia</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>How strongly that direction of travel is trusted when matching, from zero to one. Zero turns it off.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="deepsort">DeepSORT</h2>
+<p><code>DEEPSORT(...)</code> and <code>DeepSort::new(extractor, max_age, n_init, max_iou_distance, max_cosine_distance, nn_budget)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_age</code></td>
+<td>int</td>
+<td>70</td>
+<td>Frames a track survives with no matched detection before deletion.</td>
+</tr>
+<tr>
+<td><code>n_init</code></td>
+<td>int</td>
+<td>3</td>
+<td>Matched frames in a row before a track is confirmed.</td>
+</tr>
+<tr>
+<td><code>max_iou_distance</code></td>
+<td>float</td>
+<td>0.7</td>
+<td>IoU fallback match cutoff as a maximum IoU distance. Lower is stricter.</td>
+</tr>
+<tr>
+<td><code>max_cosine_distance</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>How different two appearance embeddings may be and still count as the same object. Lower cuts id switches.</td>
+</tr>
+<tr>
+<td><code>nn_budget</code></td>
+<td>int</td>
+<td>100</td>
+<td>How many past appearance embeddings to keep per track. When full the oldest is dropped.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="deep-oc-sort">Deep OC-SORT</h2>
+<p><code>DEEPOCSORT(...)</code> and <code>DeepOcSort::new(extractor, max_age, min_hits, iou_threshold, delta_t, inertia, appearance_weight, max_cosine_distance, nn_budget)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_age</code></td>
+<td>int</td>
+<td>30</td>
+<td>Frames a lost track survives before deletion.</td>
+</tr>
+<tr>
+<td><code>min_hits</code></td>
+<td>int</td>
+<td>3</td>
+<td>Matched frames in a row before a track is reported.</td>
+</tr>
+<tr>
+<td><code>iou_threshold</code></td>
+<td>float</td>
+<td>0.3</td>
+<td>Minimum IoU overlap to associate. Higher is stricter.</td>
+</tr>
+<tr>
+<td><code>delta_t</code></td>
+<td>int</td>
+<td>3</td>
+<td>Frames back to look when estimating direction of travel.</td>
+</tr>
+<tr>
+<td><code>inertia</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>How strongly direction of travel is trusted, from zero to one.</td>
+</tr>
+<tr>
+<td><code>appearance_weight</code></td>
+<td>float</td>
+<td>0.5</td>
+<td>How much the appearance match counts against the motion match, from zero to one. Zero falls back to plain OC-SORT.</td>
+</tr>
+<tr>
+<td><code>max_cosine_distance</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>How different two embeddings may be and still match. Lower is stricter.</td>
+</tr>
+<tr>
+<td><code>nn_budget</code></td>
+<td>int</td>
+<td>100</td>
+<td>Past embeddings kept per track.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bot-sort">BoT-SORT</h2>
+<p><code>BOTSORT(...)</code> and <code>BotSort::new(track_thresh, track_buffer, match_thresh, det_thresh, proximity_thresh, appearance_thresh)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>track_thresh</code></td>
+<td>float</td>
+<td>0.5</td>
+<td>Score above which a detection is high confidence and matched first.</td>
+</tr>
+<tr>
+<td><code>track_buffer</code></td>
+<td>int</td>
+<td>30</td>
+<td>Frames a lost track is kept alive.</td>
+</tr>
+<tr>
+<td><code>match_thresh</code></td>
+<td>float</td>
+<td>0.8</td>
+<td>First stage match cutoff as a maximum IoU distance. Lower is stricter.</td>
+</tr>
+<tr>
+<td><code>det_thresh</code></td>
+<td>float</td>
+<td>0.6</td>
+<td>Smallest score an unmatched high confidence detection needs to start a new track.</td>
+</tr>
+<tr>
+<td><code>second_match_thresh</code></td>
+<td>float</td>
+<td>0.5</td>
+<td>Second stage match cutoff for recovering low confidence detections, a maximum IoU distance.</td>
+</tr>
+<tr>
+<td><code>proximity_thresh</code></td>
+<td>float</td>
+<td>0.5</td>
+<td>How much boxes must overlap before appearance is allowed to influence the match, a maximum IoU distance.</td>
+</tr>
+<tr>
+<td><code>appearance_thresh</code></td>
+<td>float</td>
+<td>0.25</td>
+<td>How close two embeddings must be for Re-ID to help the match, a maximum cosine distance.</td>
 </tr>
 </tbody>
 </table>

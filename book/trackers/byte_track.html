@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "../searchindex-c4fc3d91.js";
+            window.path_to_searchindex_js = "../searchindex-5e669575.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-54f69bf9.js"></script>
@@ -203,8 +203,9 @@ for t in tracks {
 <tbody>
 <tr><td><code>track_thresh</code></td><td>0.5</td><td>Confidence threshold separating high- and low-confidence detections</td></tr>
 <tr><td><code>track_buffer</code></td><td>30</td><td>Frames a lost track is buffered before deletion</td></tr>
-<tr><td><code>match_thresh</code></td><td>0.8</td><td>IoU threshold for stage-1 (high-confidence) matching</td></tr>
+<tr><td><code>match_thresh</code></td><td>0.8</td><td>Stage-1 match cutoff as a maximum IoU distance (lower is stricter)</td></tr>
 <tr><td><code>det_thresh</code></td><td>0.6</td><td>Minimum confidence to initialise a new track</td></tr>
+<tr><td><code>second_match_thresh</code></td><td>0.5</td><td>Stage-2 match cutoff for recovering low-confidence detections</td></tr>
 </tbody>
 </table>
 </div>

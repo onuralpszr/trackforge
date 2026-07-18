@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-c4fc3d91.js";
+            window.path_to_searchindex_js = "searchindex-5e669575.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-54f69bf9.js"></script>
@@ -182,8 +182,19 @@
                     <main>
                         <h1 id="parameters"><a class="header" href="#parameters">Parameters</a></h1>
 <p>The parameters are identical across Python and Rust. In Python they are keyword arguments to the
-tracker class; in Rust they are positional arguments to <code>Tracker::new(...)</code>. Each tracker’s chapter
-documents its own parameters and tuning advice:</p>
+tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params
+struct passed to <code>Tracker::from_params(...)</code>.</p>
+<p>Two settings recur in almost every tracker. How many frames a lost track survives before it is
+dropped, called <code>max_age</code> in most trackers and <code>track_buffer</code> in ByteTrack and BoT-SORT. And how
+many matched frames in a row confirm a new track, called <code>min_hits</code> in most and <code>n_init</code> in
+DeepSORT. In Rust these two live in <code>CommonParams</code>, which each tracker’s params struct embeds as
+<code>common</code>.</p>
+<p>IoU thresholds come in two opposite flavors. A minimum IoU (<code>iou_threshold</code>, higher is stricter) in
+SORT, OC-SORT, and Deep OC-SORT. And a maximum IoU distance of one minus IoU (<code>match_thresh</code>,
+<code>max_iou_distance</code>, lower is stricter) in ByteTrack, BoT-SORT, and DeepSORT. The full table with a
+plain description of every parameter is on the
+<a href="https://onuralpszr.github.io/trackforge/parameters.html">documentation site</a>.</p>
+<p>Each tracker’s chapter documents its own parameters and tuning advice:</p>
 <ul>
 <li><a href="./trackers/sort.html#parameters">SORT parameters</a></li>
 <li><a href="./trackers/byte_track.html#parameters">ByteTrack parameters</a></li>

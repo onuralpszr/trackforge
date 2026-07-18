@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-c4fc3d91.js";
+            window.path_to_searchindex_js = "searchindex-5e669575.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-54f69bf9.js"></script>
@@ -328,8 +328,9 @@ for t in tracks {
 <tbody>
 <tr><td><code>track_thresh</code></td><td>0.5</td><td>Confidence threshold separating high- and low-confidence detections</td></tr>
 <tr><td><code>track_buffer</code></td><td>30</td><td>Frames a lost track is buffered before deletion</td></tr>
-<tr><td><code>match_thresh</code></td><td>0.8</td><td>IoU threshold for stage-1 (high-confidence) matching</td></tr>
+<tr><td><code>match_thresh</code></td><td>0.8</td><td>Stage-1 match cutoff as a maximum IoU distance (lower is stricter)</td></tr>
 <tr><td><code>det_thresh</code></td><td>0.6</td><td>Minimum confidence to initialise a new track</td></tr>
+<tr><td><code>second_match_thresh</code></td><td>0.5</td><td>Stage-2 match cutoff for recovering low-confidence detections</td></tr>
 </tbody>
 </table>
 </div>
@@ -530,6 +531,7 @@ for track_id, tlwh, score, class_id in tracks:
 <tr><td><code>track_buffer</code></td><td>30</td><td>Frames a lost track is kept alive before removal</td></tr>
 <tr><td><code>match_thresh</code></td><td>0.8</td><td>Maximum cost for a first-stage (high-confidence) match</td></tr>
 <tr><td><code>det_thresh</code></td><td>0.6</td><td>Minimum score to start a new track</td></tr>
+<tr><td><code>second_match_thresh</code></td><td>0.5</td><td>Stage-2 match cutoff for recovering low-confidence detections</td></tr>
 <tr><td><code>proximity_thresh</code></td><td>0.5</td><td>IoU-distance gate above which appearance is ignored</td></tr>
 <tr><td><code>appearance_thresh</code></td><td>0.25</td><td>Cosine-distance gate above which appearance is ignored</td></tr>
 </tbody>
@@ -550,8 +552,19 @@ ByteTrack.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="parameters-6"><a class="header" href="#parameters-6">Parameters</a></h1>
 <p>The parameters are identical across Python and Rust. In Python they are keyword arguments to the
-tracker class; in Rust they are positional arguments to <code>Tracker::new(...)</code>. Each tracker’s chapter
-documents its own parameters and tuning advice:</p>
+tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params
+struct passed to <code>Tracker::from_params(...)</code>.</p>
+<p>Two settings recur in almost every tracker. How many frames a lost track survives before it is
+dropped, called <code>max_age</code> in most trackers and <code>track_buffer</code> in ByteTrack and BoT-SORT. And how
+many matched frames in a row confirm a new track, called <code>min_hits</code> in most and <code>n_init</code> in
+DeepSORT. In Rust these two live in <code>CommonParams</code>, which each tracker’s params struct embeds as
+<code>common</code>.</p>
+<p>IoU thresholds come in two opposite flavors. A minimum IoU (<code>iou_threshold</code>, higher is stricter) in
+SORT, OC-SORT, and Deep OC-SORT. And a maximum IoU distance of one minus IoU (<code>match_thresh</code>,
+<code>max_iou_distance</code>, lower is stricter) in ByteTrack, BoT-SORT, and DeepSORT. The full table with a
+plain description of every parameter is on the
+<a href="https://onuralpszr.github.io/trackforge/parameters.html">documentation site</a>.</p>
+<p>Each tracker’s chapter documents its own parameters and tuning advice:</p>
 <ul>
 <li><a href="#parameters">SORT parameters</a></li>
 <li><a href="#parameters-1">ByteTrack parameters</a></li>
