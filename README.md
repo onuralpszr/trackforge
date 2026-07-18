@@ -27,15 +27,15 @@
 
 ## Supported Trackers
 
-| Tracker                                                                                                                                         | Type                                             | Appearance (Re-ID) |
-| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------ |
-| [ByteTrack](https://arxiv.org/abs/2110.06864)                                                                                                   | IoU + confidence association                     | No                 |
-| [DeepSORT](https://arxiv.org/abs/1703.07402)                                                                                                    | IoU + cosine distance                            | Yes (pluggable)    |
-| [OC-SORT](https://arxiv.org/abs/2203.14360)                                                                                                     | IoU + velocity direction (OCM)                   | No                 |
-| [Deep OC-SORT](https://arxiv.org/abs/2302.11813)                                                                                                | IoU + velocity (OCM) + appearance                | Yes (pluggable)    |
-| [BoT-SORT](https://arxiv.org/abs/2206.14651)                                                                                                    | IoU + appearance + camera motion                 | Yes (pluggable)    |
-| [TrackTrack](https://openaccess.thecvf.com/content/CVPR2025/html/Shim_Focusing_on_Tracks_for_Online_Multi-Object_Tracking_CVPR_2025_paper.html) | Track-perspective association + track-aware init | Yes (pluggable)    |
-| [SORT](https://arxiv.org/abs/1602.00763)                                                                                                        | IoU + Kalman filter                              | No                 |
+| Tracker                                                                                                                                         | Type                                             |    Re-ID     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | :----------: |
+| [ByteTrack](https://arxiv.org/abs/2110.06864)                                                                                                   | IoU + confidence association                     |      ❌      |
+| [DeepSORT](https://arxiv.org/abs/1703.07402)                                                                                                    | IoU + cosine distance                            | ✅ pluggable |
+| [OC-SORT](https://arxiv.org/abs/2203.14360)                                                                                                     | IoU + velocity direction (OCM)                   |      ❌      |
+| [Deep OC-SORT](https://arxiv.org/abs/2302.11813)                                                                                                | IoU + velocity (OCM) + appearance                | ✅ pluggable |
+| [BoT-SORT](https://arxiv.org/abs/2206.14651)                                                                                                    | IoU + appearance + camera motion                 | ✅ pluggable |
+| [TrackTrack](https://openaccess.thecvf.com/content/CVPR2025/html/Shim_Focusing_on_Tracks_for_Online_Multi-Object_Tracking_CVPR_2025_paper.html) | Track-perspective association + track-aware init | ✅ pluggable |
+| [SORT](https://arxiv.org/abs/1602.00763)                                                                                                        | IoU + Kalman filter                              |      ❌      |
 
 ## Features
 
