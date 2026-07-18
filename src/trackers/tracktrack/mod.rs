@@ -777,4 +777,107 @@ mod tests {
         assert_eq!(out.len(), 1);
         assert_eq!(out[0].track_id, id);
     }
+
+    #[test]
+    fn low_confidence_detection_keeps_a_tracked_track() {
+        // Confirm a track, then feed a low-confidence detection (below det_thresh). It
+        // goes to the penalized low pool but still keeps the track alive with its id.
+        let mut t = TrackTrack::new();
+        let d = det(100.0, 100.0, 50.0, 100.0, 0.9);
+        for _ in 0..3 {
+            t.update(vec![d], &[]);
+        }
+        let id = t.update(vec![d], &[])[0].track_id;
+        let out = t.update(vec![det(103.0, 100.0, 50.0, 100.0, 0.4)], &[]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].track_id, id);
+    }
+
+    #[test]
+    fn detection_below_init_threshold_starts_no_track() {
+        // Score above det_thresh (0.6) but below init_thresh (0.7): it can match an
+        // existing track but is never allowed to start one, so nothing is ever output.
+        let mut t = TrackTrack::new();
+        let d = det(100.0, 100.0, 50.0, 100.0, 0.65);
+        for _ in 0..4 {
+            assert!(t.update(vec![d], &[]).is_empty());
+        }
+    }
+
+    #[test]
+    fn track_dropped_after_max_age() {
+        let mut t = TrackTrack::from_params(TrackTrackParams {
+            common: CommonParams {
+                max_age: 2,
+                min_hits: 3,
+            },
+            ..TrackTrackParams::default()
+        });
+        let d = det(100.0, 100.0, 50.0, 100.0, 0.9);
+        for _ in 0..3 {
+            t.update(vec![d], &[]);
+        }
+        let id = t.update(vec![d], &[])[0].track_id;
+        for _ in 0..4 {
+            t.update(vec![], &[]);
+        }
+        // Beyond the buffer, re-detection starts a fresh id.
+        let out = t.update(vec![d], &[]);
+        for _ in 0..2 {
+            t.update(vec![d], &[]);
+        }
+        let confirmed = t.update(vec![d], &[]);
+        assert_eq!(confirmed.len(), 1);
+        assert_ne!(confirmed[0].track_id, id);
+        let _ = out;
+    }
+
+    #[test]
+    fn camera_motion_keeps_id_across_a_pan() {
+        let mut t = TrackTrack::new();
+        let d = det(100.0, 100.0, 50.0, 100.0, 0.9);
+        for _ in 0..3 {
+            t.update(vec![d], &[]);
+        }
+        let id = t.update(vec![d], &[])[0].track_id;
+        // Pan the camera right by 200px; the warp moves the prediction with it.
+        let cmc = CameraMotion::new(1.0, 0.0, 200.0, 0.0, 1.0, 0.0);
+        let out = t.update_with_camera_motion(vec![det(300.0, 100.0, 50.0, 100.0, 0.9)], &[], &cmc);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].track_id, id);
+    }
+
+    #[test]
+    fn moving_object_keeps_id_and_exercises_the_angle_term() {
+        // A steadily moving object builds Kalman velocity, so the velocity-direction
+        // term is exercised, and the id stays stable frame to frame.
+        let mut t = TrackTrack::new();
+        let mut id = 0;
+        for f in 0..8 {
+            let x = 50.0 + f as f32 * 8.0;
+            let out = t.update(vec![det(x, 60.0, 40.0, 90.0, 0.9)], &[]);
+            if !out.is_empty() {
+                if id == 0 {
+                    id = out[0].track_id;
+                }
+                assert_eq!(out[0].track_id, id);
+            }
+        }
+        assert_eq!(id, 1);
+    }
+
+    #[test]
+    fn distinct_embeddings_still_track_by_motion() {
+        // Different embeddings each frame make the appearance term costly, but the
+        // motion match still holds the id since the boxes overlap.
+        let mut t = TrackTrack::new();
+        let embs = [vec![vec![1.0, 0.0, 0.0]], vec![vec![0.0, 1.0, 0.0]]];
+        for i in 0..3 {
+            t.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)], &embs[i % 2]);
+        }
+        let id = t.update(vec![det(100.0, 100.0, 50.0, 100.0, 0.9)], &embs[0])[0].track_id;
+        let out = t.update(vec![det(103.0, 100.0, 50.0, 100.0, 0.9)], &embs[1]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].track_id, id);
+    }
 }
