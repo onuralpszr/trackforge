@@ -30,7 +30,7 @@ jobs:
       - uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ignore: RUSTSEC-2024-0436
+          ignore: RUSTSEC-2024-0436,RUSTSEC-2026-0192
 
   # Fallback job for fork PRs: runs cargo-audit directly without needing
   # write permissions on the repo (fails the job if advisories are found).
@@ -43,4 +43,4 @@ jobs:
       - uses: taiki-e/install-action@2ca9b94c269419b7b0c711c09d0b21c4e1d51145 # v2.83.1
         with:
           tool: cargo-audit
-      - run: cargo audit --ignore RUSTSEC-2024-0436
+      - run: cargo audit --ignore RUSTSEC-2024-0436 --ignore RUSTSEC-2026-0192

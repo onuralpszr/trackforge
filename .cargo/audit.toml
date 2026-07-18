@@ -5,7 +5,13 @@
 # permanently specified in this file.
 
 [advisories]
-ignore = ["RUSTSEC-2024-0436"]            # advisory IDs to ignore e.g. ["RUSTSEC-2019-0001", ...]
+ignore = [
+    "RUSTSEC-2024-0436",
+    # ttf-parser unmaintained, reached only through the optional usls example
+    # dependency and with no maintained replacement in that chain.
+    "RUSTSEC-2026-0192",
+]
+
 informational_warnings = ["unmaintained"] # warn for categories of informational advisories
 severity_threshold = "low"                # CVSS severity ("none", "low", "medium", "high", "critical")
 
