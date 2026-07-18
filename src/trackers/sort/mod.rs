@@ -252,7 +252,7 @@ impl crate::traits::Tracker for Sort {
 use pyo3::prelude::*;
 
 #[cfg(feature = "python")]
-type PyTrackingResult = (u64, [f32; 4], f32, i64);
+use crate::trackers::common::PyTrackingResult;
 
 #[cfg(feature = "python")]
 #[pyclass(name = "SORT")]

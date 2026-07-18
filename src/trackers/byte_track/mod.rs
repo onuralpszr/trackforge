@@ -1,6 +1,7 @@
 #![doc = include_str!("README.md")]
 
-use crate::utils::geometry::{tlwh_to_xyah, xyah_to_tlwh};
+use crate::trackers::common::KalmanTrack;
+use crate::utils::geometry::tlwh_to_xyah;
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, StateVector};
 
 // Define STrack
@@ -26,11 +27,8 @@ pub struct STrack {
     /// Length of the tracklet (number of frames tracked).
     pub tracklet_len: usize,
 
-    // KF state
-    /// Kalman Filter state mean.
-    pub mean: StateVector,
-    /// Kalman Filter state covariance.
-    pub covariance: CovarianceMatrix,
+    /// Shared per-track Kalman state and predict/update mechanics.
+    kalman: KalmanTrack,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -53,8 +51,10 @@ impl STrack {
             frame_id: 0,
             start_frame: 0,
             tracklet_len: 0,
-            mean: StateVector::zeros(),
-            covariance: CovarianceMatrix::identity(),
+            kalman: KalmanTrack {
+                mean: StateVector::zeros(),
+                covariance: CovarianceMatrix::identity(),
+            },
         }
     }
 
@@ -66,10 +66,7 @@ impl STrack {
         self.track_id = track_id;
         self.tracklet_len = 0;
 
-        let measurement = tlwh_to_xyah(&self.tlwh);
-        let (mean, covariance) = kf.initiate(&measurement);
-        self.mean = mean;
-        self.covariance = covariance;
+        self.kalman = KalmanTrack::initiate(&tlwh_to_xyah(&self.tlwh), kf);
     }
 
     pub fn re_activate(
@@ -79,10 +76,7 @@ impl STrack {
         new_track_id: Option<u64>,
         kf: &KalmanFilter,
     ) {
-        let measurement = tlwh_to_xyah(&new_track.tlwh);
-        let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
-        self.mean = mean;
-        self.covariance = covariance;
+        self.kalman.update(&tlwh_to_xyah(&new_track.tlwh), kf);
 
         self.state = TrackState::Tracked;
         self.is_activated = true;
@@ -104,21 +98,14 @@ impl STrack {
         self.score = new_track.score;
         self.tlwh = new_track.tlwh;
 
-        let measurement = tlwh_to_xyah(&new_track.tlwh);
-        let (mean, covariance) = kf.update(&self.mean, &self.covariance, &measurement);
-        self.mean = mean;
-        self.covariance = covariance;
+        self.kalman.update(&tlwh_to_xyah(&new_track.tlwh), kf);
     }
 
     pub fn predict(&mut self, kf: &KalmanFilter) {
         if self.state != TrackState::Tracked {
-            self.mean[7] = 0.0; // Clear velocity h if not tracked
+            self.kalman.mean[7] = 0.0; // Clear velocity h if not tracked
         }
-        let (mean, covariance) = kf.predict(&self.mean, &self.covariance);
-        self.mean = mean;
-        self.covariance = covariance;
-        let tlwh = xyah_to_tlwh(&self.mean);
-        self.tlwh = tlwh; // Update box estimate
+        self.tlwh = self.kalman.predict(kf); // Update box estimate
     }
 }
 
@@ -338,7 +325,7 @@ impl crate::traits::Tracker for ByteTrack {
 use pyo3::prelude::*;
 
 #[cfg(feature = "python")]
-type PyTrackingResult = (u64, [f32; 4], f32, i64);
+use crate::trackers::common::PyTrackingResult;
 
 #[cfg(feature = "python")]
 #[pyclass(name = "BYTETRACK")]
