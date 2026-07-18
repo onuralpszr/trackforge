@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-342e33bc.js";
+            window.path_to_searchindex_js = "searchindex-c9ea982f.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-6e4d93f5.js"></script>
+        <script src="toc-54f69bf9.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -487,7 +487,63 @@ appearance matches. The motion parameters behave as in OC-SORT.</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="parameters-5"><a class="header" href="#parameters-5">Parameters</a></h1>
+<h1 id="bot-sort"><a class="header" href="#bot-sort">BoT-SORT</a></h1>
+<p><strong>BoT-SORT</strong> (<a href="https://arxiv.org/abs/2206.14651">arXiv 2206.14651</a>). Extends ByteTrack’s two-stage
+cascade with two additions:</p>
+<ul>
+<li><strong>Camera motion compensation</strong> warps each track’s Kalman prediction by a caller-supplied affine
+transform before association, so tracking survives panning and zooming cameras.</li>
+<li><strong>Appearance fusion</strong> combines a cosine distance to each track’s appearance embedding with the IoU
+distance in the high-confidence stage. Appearance is used only when it is confident (below
+<code>appearance_thresh</code>) and the pair is spatially close (IoU distance below <code>proximity_thresh</code>); the
+fused cost is the smaller of the two. Each track keeps an exponential moving average of its
+embeddings.</li>
+</ul>
+<p>With no embeddings the association reduces to ByteTrack with camera motion, so appearance is a strict
+add-on. This is a clean-room implementation. CMC is applied from a transform you supply (for example
+estimated with OpenCV); the tracker does not estimate camera motion itself. Pass the affine as
+<code>[a, b, tx, c, d, ty]</code> to <code>update</code>.</p>
+<pre><code class="language-python">from trackforge import BOTSORT
+
+tracker = BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6,
+                  proximity_thresh=0.5, appearance_thresh=0.25)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection; omit for motion only
+tracks = tracker.update(detections, embeddings)
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
+</code></pre>
+<h2 id="parameters-5"><a class="header" href="#parameters-5">Parameters</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>track_thresh</code></td><td>0.5</td><td>Confidence split between high- and low-score detections</td></tr>
+<tr><td><code>track_buffer</code></td><td>30</td><td>Frames a lost track is kept alive before removal</td></tr>
+<tr><td><code>match_thresh</code></td><td>0.8</td><td>Maximum cost for a first-stage (high-confidence) match</td></tr>
+<tr><td><code>det_thresh</code></td><td>0.6</td><td>Minimum score to start a new track</td></tr>
+<tr><td><code>proximity_thresh</code></td><td>0.5</td><td>IoU-distance gate above which appearance is ignored</td></tr>
+<tr><td><code>appearance_thresh</code></td><td>0.25</td><td>Cosine-distance gate above which appearance is ignored</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Tuning:</strong> supply a camera-motion affine on moving-camera footage; leave it out for a static camera.
+Provide embeddings when a Re-ID model is available and identities matter, and tighten
+<code>appearance_thresh</code> to only trust strong appearance matches. The two-stage thresholds behave as in
+ByteTrack.</p>
+<h2 id="citation-1"><a class="header" href="#citation-1">Citation</a></h2>
+<pre><code class="language-bibtex">@article{aharon2022botsort,
+  title={BoT-SORT: Robust Associations Multi-Pedestrian Tracking},
+  author={Aharon, Nir and Orfaig, Roy and Bobrovsky, Ben-Zion},
+  journal={arXiv preprint arXiv:2206.14651},
+  year={2022}
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="parameters-6"><a class="header" href="#parameters-6">Parameters</a></h1>
 <p>The parameters are identical across Python and Rust. In Python they are keyword arguments to the
 tracker class; in Rust they are positional arguments to <code>Tracker::new(...)</code>. Each tracker’s chapter
 documents its own parameters and tuning advice:</p>
