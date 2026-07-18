@@ -694,9 +694,8 @@
 </span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">frame_id</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
 </span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">start_frame</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
 </span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">tracklet_len</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">mean</span><span class="p">:</span><span class="w"> </span><span class="nc">crate</span><span class="p">::</span><span class="n">utils</span><span class="p">::</span><span class="n">kalman</span><span class="p">::</span><span class="n">StateVector</span><span class="p">,</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">covariance</span><span class="p">:</span><span class="w"> </span><span class="nc">crate</span><span class="p">::</span><span class="n">utils</span><span class="p">::</span><span class="n">kalman</span><span class="p">::</span><span class="n">CovarianceMatrix</span><span class="p">,</span>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="p">}</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>A Single Track (STrack) representing a tracked object.</p>
 <h4 id="fields">Fields</h4>
@@ -753,16 +752,6 @@
 <td><code>tracklet_len</code></td>
 <td><code>usize</code></td>
 <td>Length of the tracklet (number of frames tracked).</td>
-</tr>
-<tr>
-<td><code>mean</code></td>
-<td><code>crate::utils::kalman::StateVector</code></td>
-<td>Kalman Filter state mean.</td>
-</tr>
-<tr>
-<td><code>covariance</code></td>
-<td><code>crate::utils::kalman::CovarianceMatrix</code></td>
-<td>Kalman Filter state covariance.</td>
 </tr>
 </tbody>
 </table>
