@@ -475,6 +475,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -524,6 +541,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -575,6 +609,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -624,6 +675,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -921,6 +989,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -970,6 +1055,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1021,6 +1123,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1070,6 +1189,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1150,13 +1286,13 @@
 </p>
 
 <p><strong>Trackforge</strong> is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements six production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.</p>
 <h2 id="features">Features</h2>
 <ul>
 <li><strong>High Performance</strong> — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.</li>
 <li><strong>Python Bindings</strong> — Install from PyPI, import, and track in three lines.</li>
-<li><strong>Four Algorithms</strong> — SORT, ByteTrack, OC-SORT, and DeepSORT cover the full speed-accuracy spectrum.</li>
+<li><strong>Six Algorithms</strong> — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, and BoT-SORT cover the full speed-accuracy spectrum.</li>
 <li><strong>Unified API</strong> — All trackers accept <code>(tlwh, score, class_id)</code> detection tuples.</li>
 </ul>
 <h2 id="installation">Installation</h2>
@@ -1206,6 +1342,18 @@ shared Kalman filter, so you can swap trackers without changing your integration
 <td>Appearance + IoU</td>
 <td>Long occlusions, dense crowds, identity-sensitive use cases</td>
 </tr>
+<tr>
+<td><strong>Deep OC-SORT</strong></td>
+<td>Re-ID embeddings</td>
+<td>IoU + velocity + appearance</td>
+<td>Occlusions where OC-SORT motion plus Re-ID helps</td>
+</tr>
+<tr>
+<td><strong>BoT-SORT</strong></td>
+<td>Re-ID embeddings</td>
+<td>IoU + appearance + camera motion</td>
+<td>Moving cameras, panning and zoom, with optional Re-ID</td>
+</tr>
 </tbody>
 </table>
 <p>All trackers share the same detection input format:</p>
@@ -1248,7 +1396,7 @@ overlap.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Tuning tips</strong></p>
+<h4 id="tuning-tips">Tuning tips</h4>
 <ul>
 <li>Increase <code>max_age</code> to bridge short occlusions (at the cost of more false tracks).</li>
 <li>Decrease <code>iou_threshold</code> when objects are densely packed (more permissive matching).</li>
@@ -1319,7 +1467,7 @@ recall improvement over SORT with minimal added cost.</p>
 <td><code>match_thresh</code></td>
 <td><code>f32</code></td>
 <td><code>0.8</code></td>
-<td>IoU threshold for stage-1 (high-confidence) matching</td>
+<td>Stage-1 match cutoff as a maximum IoU distance (lower is stricter)</td>
 </tr>
 <tr>
 <td><code>det_thresh</code></td>
@@ -1327,9 +1475,15 @@ recall improvement over SORT with minimal added cost.</p>
 <td><code>0.6</code></td>
 <td>Minimum confidence to initialise a new track</td>
 </tr>
+<tr>
+<td><code>second_match_thresh</code></td>
+<td><code>f32</code></td>
+<td><code>0.5</code></td>
+<td>Stage-2 match cutoff for recovering low-confidence detections</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Tuning tips</strong></p>
+<h4 id="tuning-tips_1">Tuning tips</h4>
 <ul>
 <li>Lower <code>track_thresh</code> (e.g. <code>0.3</code>) to include more low-confidence detections in stage 2.</li>
 <li>Increase <code>track_buffer</code> (e.g. <code>60</code>) when your detector produces intermittent misses.</li>
@@ -1427,7 +1581,7 @@ common but Re-ID is unavailable.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Tuning tips</strong></p>
+<h4 id="tuning-tips_2">Tuning tips</h4>
 <ul>
 <li>Increase <code>max_age</code> (e.g. <code>60</code>) when objects undergo long occlusions.</li>
 <li>Increase <code>delta_t</code> for smoother velocity at the cost of responsiveness to rapid direction changes.</li>
@@ -1519,7 +1673,7 @@ to IoU matching. Provides robust long-term identity maintenance.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Tuning tips</strong></p>
+<h4 id="tuning-tips_3">Tuning tips</h4>
 <ul>
 <li>Lower <code>max_cosine_distance</code> (e.g. <code>0.15</code>) for stricter Re-ID — reduces ID switches at the cost
   of more unmatched detections.</li>
@@ -1595,9 +1749,10 @@ for t in &amp;tracks {
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>## Detection Format
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
 </span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>All trackers use the same detection tuple format:
-</span></code></pre></div>
-([x, y, w, h], score, class_id)
-```</p>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>```text
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>([x, y, w, h], score, class_id)
+</span></code></pre></div></p>
 <ul>
 <li><code>x</code>, <code>y</code> — top-left corner in pixels</li>
 <li><code>w</code>, <code>h</code> — width and height in pixels</li>
