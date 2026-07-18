@@ -20,8 +20,9 @@ for t in tracks {
 | -------------- | ------- | ------------------------------------------------------------------- |
 | `track_thresh` | 0.5     | Confidence threshold separating high- and low-confidence detections |
 | `track_buffer` | 30      | Frames a lost track is buffered before deletion                     |
-| `match_thresh` | 0.8     | IoU threshold for stage-1 (high-confidence) matching                |
+| `match_thresh` | 0.8     | Stage-1 match cutoff as a maximum IoU distance (lower is stricter)   |
 | `det_thresh`   | 0.6     | Minimum confidence to initialise a new track                        |
+| `second_match_thresh` | 0.5 | Stage-2 match cutoff for recovering low-confidence detections |
 
 **Tuning:** lower `track_thresh` (~0.3) to feed more low-confidence detections into stage two; raise
 `track_buffer` (~60) when the detector drops frames; lower `match_thresh` (~0.7) for fast-moving

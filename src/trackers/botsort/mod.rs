@@ -1,7 +1,7 @@
 #![doc = include_str!("README.md")]
 
 use crate::trackers::byte_track::TrackState;
-use crate::trackers::common::{CameraMotion, KalmanTrack};
+use crate::trackers::common::{CameraMotion, CommonParams, KalmanTrack};
 use crate::utils::assignment::{greedy_match, iou_match};
 use crate::utils::features::{cosine_distance, l2_normalize};
 use crate::utils::geometry::{iou_batch, tlwh_to_xyah};
@@ -162,10 +162,66 @@ pub struct BotSort {
     track_thresh: f32,
     match_thresh: f32,
     det_thresh: f32,
+    second_match_thresh: f32,
     proximity_thresh: f32,
     appearance_thresh: f32,
     kalman_filter: KalmanFilter,
     next_id: u64,
+}
+
+/// Settings for [`BotSort`].
+///
+/// BoT-SORT is ByteTrack plus camera motion and an optional appearance term, so its
+/// params look like ByteTrack's plus two Re-ID gates. Shared lifecycle fields live in
+/// [`CommonParams`]; BoT-SORT maps its track buffer onto `common.max_age` and, like
+/// ByteTrack, activates on the first match so `common.min_hits` has no effect. Build
+/// it with [`BotSortParams::default`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BotSortParams {
+    /// Shared lifecycle settings. `common.max_age` is the track buffer length.
+    pub common: CommonParams,
+
+    /// Score above which a detection is treated as high confidence and matched first.
+    pub track_thresh: f32,
+
+    /// First stage match cutoff, a maximum IoU distance of one minus IoU. Lower is
+    /// stricter.
+    pub match_thresh: f32,
+
+    /// Smallest score an unmatched high confidence detection needs to start a new
+    /// track.
+    pub det_thresh: f32,
+
+    /// Second stage match cutoff for recovering objects from low confidence
+    /// detections, a maximum IoU distance. Reference value 0.5.
+    pub second_match_thresh: f32,
+
+    /// How much boxes must overlap before appearance is allowed to influence the
+    /// match, as a maximum IoU distance. If a track and a detection are farther apart
+    /// than this, only motion is used and appearance is ignored.
+    pub proximity_thresh: f32,
+
+    /// How close two appearance embeddings must be for Re-ID to help the match, as a
+    /// maximum cosine distance. Above this the appearance term is dropped and the
+    /// match falls back to motion.
+    pub appearance_thresh: f32,
+}
+
+impl Default for BotSortParams {
+    fn default() -> Self {
+        Self {
+            common: CommonParams {
+                max_age: 30,
+                min_hits: 3,
+            },
+            track_thresh: 0.5,
+            match_thresh: 0.8,
+            det_thresh: 0.6,
+            second_match_thresh: 0.5,
+            proximity_thresh: 0.5,
+            appearance_thresh: 0.25,
+        }
+    }
 }
 
 impl BotSort {
@@ -187,16 +243,36 @@ impl BotSort {
         proximity_thresh: f32,
         appearance_thresh: f32,
     ) -> Self {
-        Self {
-            tracked_stracks: Vec::new(),
-            lost_stracks: Vec::new(),
-            frame_id: 0,
-            buffer_size: track_buffer,
+        Self::from_params(BotSortParams {
+            common: CommonParams {
+                max_age: track_buffer,
+                min_hits: 3,
+            },
             track_thresh,
             match_thresh,
             det_thresh,
             proximity_thresh,
             appearance_thresh,
+            ..BotSortParams::default()
+        })
+    }
+
+    /// Create a BoT-SORT tracker from a [`BotSortParams`].
+    ///
+    /// BoT-SORT activates a track on its first high confidence match, so
+    /// `params.common.min_hits` has no effect; only `common.max_age` is used.
+    pub fn from_params(params: BotSortParams) -> Self {
+        Self {
+            tracked_stracks: Vec::new(),
+            lost_stracks: Vec::new(),
+            frame_id: 0,
+            buffer_size: params.common.max_age,
+            track_thresh: params.track_thresh,
+            match_thresh: params.match_thresh,
+            det_thresh: params.det_thresh,
+            second_match_thresh: params.second_match_thresh,
+            proximity_thresh: params.proximity_thresh,
+            appearance_thresh: params.appearance_thresh,
             kalman_filter: KalmanFilter::default(),
             next_id: 1,
         }
@@ -309,7 +385,8 @@ impl BotSort {
             .collect();
         let r_boxes: Vec<[f32; 4]> = r_tracked.iter().map(|&i| pool[i].tlwh).collect();
         let low_boxes: Vec<[f32; 4]> = dets_low.iter().map(|d| d.tlwh).collect();
-        let (matches_low, u_track_low, _) = iou_match(&r_boxes, &low_boxes, 0.5);
+        let (matches_low, u_track_low, _) =
+            iou_match(&r_boxes, &low_boxes, self.second_match_thresh);
 
         // `r_tracked` only holds Tracked-state tracks, so a second-stage match is
         // always a plain update (never a re-activation).
@@ -435,33 +512,45 @@ pub struct PyBotSort {
 #[pymethods]
 impl PyBotSort {
     #[new]
-    #[pyo3(signature = (track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6, proximity_thresh=0.5, appearance_thresh=0.25))]
+    #[pyo3(signature = (track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6, second_match_thresh=0.5, proximity_thresh=0.5, appearance_thresh=0.25))]
     /// Initialize the BoT-SORT tracker.
     ///
     /// Args:
-    ///     track_thresh (float): High/low confidence split. Default: 0.5.
+    ///     track_thresh (float): Score above which a detection is high confidence and
+    ///         matched first. Default: 0.5.
     ///     track_buffer (int): Frames a lost track is kept alive. Default: 30.
-    ///     match_thresh (float): Maximum cost for a first-stage match. Default: 0.8.
-    ///     det_thresh (float): Minimum score to start a new track. Default: 0.6.
-    ///     proximity_thresh (float): IoU-distance gate for appearance. Default: 0.5.
-    ///     appearance_thresh (float): Cosine-distance gate for appearance. Default: 0.25.
+    ///     match_thresh (float): First stage match cutoff as a maximum IoU distance of
+    ///         one minus IoU. Lower is stricter. Default: 0.8.
+    ///     det_thresh (float): Smallest score an unmatched high confidence detection
+    ///         needs to start a new track. Default: 0.6.
+    ///     second_match_thresh (float): Second stage match cutoff for recovering low
+    ///         confidence detections, a maximum IoU distance. Default: 0.5.
+    ///     proximity_thresh (float): How much boxes must overlap before appearance is
+    ///         used, as a maximum IoU distance. Default: 0.5.
+    ///     appearance_thresh (float): How close two embeddings must be for Re-ID to
+    ///         help, as a maximum cosine distance. Default: 0.25.
     fn new(
         track_thresh: f32,
         track_buffer: usize,
         match_thresh: f32,
         det_thresh: f32,
+        second_match_thresh: f32,
         proximity_thresh: f32,
         appearance_thresh: f32,
     ) -> Self {
         Self {
-            inner: BotSort::new(
+            inner: BotSort::from_params(BotSortParams {
+                common: CommonParams {
+                    max_age: track_buffer,
+                    min_hits: 3,
+                },
                 track_thresh,
-                track_buffer,
                 match_thresh,
                 det_thresh,
+                second_match_thresh,
                 proximity_thresh,
                 appearance_thresh,
-            ),
+            }),
         }
     }
 

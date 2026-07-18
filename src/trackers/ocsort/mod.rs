@@ -1,10 +1,49 @@
 #![doc = include_str!("README.md")]
 
 use crate::trackers::common::association::{last_observation_rematch, ocm_angle_bonus};
-use crate::trackers::common::{ObsTrack, TrackState};
+use crate::trackers::common::{CommonParams, ObsTrack, TrackState};
 use crate::utils::assignment::greedy_match;
 use crate::utils::geometry::{iou_batch, tlwh_to_xyah};
 use std::collections::HashSet;
+
+/// Settings for [`OcSort`].
+///
+/// Shared lifecycle fields live in [`CommonParams`]; the fields below are specific to
+/// OC-SORT. Build it with [`OcSortParams::default`] and pass it to
+/// [`OcSort::from_params`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct OcSortParams {
+    /// Shared lifecycle settings, `max_age` and `min_hits`.
+    pub common: CommonParams,
+
+    /// Smallest IoU overlap that still counts as the same object. This is a minimum
+    /// IoU, so higher is stricter.
+    pub iou_threshold: f32,
+
+    /// How many frames back OC-SORT looks to estimate an object's direction of travel
+    /// from its real past positions. A larger window gives a steadier direction but
+    /// reacts more slowly when the object turns.
+    pub delta_t: usize,
+
+    /// How strongly a track's recent direction of travel is trusted when matching,
+    /// in the range zero to one. Higher leans on motion direction to keep ids through
+    /// brief occlusions; zero turns the direction term off.
+    pub inertia: f32,
+}
+
+impl Default for OcSortParams {
+    fn default() -> Self {
+        Self {
+            common: CommonParams {
+                max_age: 30,
+                min_hits: 3,
+            },
+            iou_threshold: 0.3,
+            delta_t: 3,
+            inertia: 0.2,
+        }
+    }
+}
 
 /// Track lifecycle state for OC-SORT.
 ///
@@ -83,13 +122,23 @@ impl OcSort {
         delta_t: usize,
         inertia: f32,
     ) -> Self {
-        Self {
-            tracks: Vec::new(),
-            max_age,
-            min_hits,
+        Self::from_params(OcSortParams {
+            common: CommonParams::new(max_age, min_hits),
             iou_threshold,
             delta_t,
-            inertia: inertia.clamp(0.0, 1.0),
+            inertia,
+        })
+    }
+
+    /// Create an OC-SORT tracker from an [`OcSortParams`].
+    pub fn from_params(params: OcSortParams) -> Self {
+        Self {
+            tracks: Vec::new(),
+            max_age: params.common.max_age,
+            min_hits: params.common.min_hits,
+            iou_threshold: params.iou_threshold,
+            delta_t: params.delta_t,
+            inertia: params.inertia.clamp(0.0, 1.0),
             kf: crate::utils::kalman::KalmanFilter::default(),
             next_id: 1,
             frame_count: 0,

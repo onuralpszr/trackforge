@@ -35,6 +35,7 @@ class BYTETRACK:
         track_buffer: int = 30,
         match_thresh: float = 0.8,
         det_thresh: float = 0.6,
+        second_match_thresh: float = 0.5,
     ) -> None: ...
     def update(
         self, output_results: List[Tuple[List[float], float, int]]
@@ -245,6 +246,7 @@ class BOTSORT:
         track_buffer: int = 30,
         match_thresh: float = 0.8,
         det_thresh: float = 0.6,
+        second_match_thresh: float = 0.5,
         proximity_thresh: float = 0.5,
         appearance_thresh: float = 0.25,
     ) -> None: ...

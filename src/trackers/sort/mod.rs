@@ -1,8 +1,37 @@
 #![doc = include_str!("README.md")]
 
-use crate::trackers::common::{KalmanTrack, TrackState};
+use crate::trackers::common::{CommonParams, KalmanTrack, TrackState};
 use crate::utils::geometry::tlwh_to_xyah;
 use crate::utils::kalman::KalmanFilter;
+
+/// Settings for [`Sort`].
+///
+/// The shared lifecycle fields live in [`CommonParams`]; the field below is specific
+/// to SORT. Build it with [`SortParams::default`] and tweak what you need, then pass
+/// it to [`Sort::from_params`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SortParams {
+    /// Shared lifecycle settings, `max_age` and `min_hits`.
+    pub common: CommonParams,
+
+    /// Smallest IoU overlap that still counts as the same object between a track and
+    /// a detection. This is a minimum IoU, so higher is stricter and separates
+    /// touching objects more readily, while lower tolerates loose boxes but risks
+    /// swapping ids.
+    pub iou_threshold: f32,
+}
+
+impl Default for SortParams {
+    fn default() -> Self {
+        Self {
+            common: CommonParams {
+                max_age: 1,
+                min_hits: 3,
+            },
+            iou_threshold: 0.3,
+        }
+    }
+}
 
 /// Track state enumeration for SORT.
 ///
@@ -137,11 +166,19 @@ impl Sort {
     /// * `min_hits` - Minimum consecutive hits before track is confirmed (default: 3).
     /// * `iou_threshold` - Minimum IoU for matching detection to track (default: 0.3).
     pub fn new(max_age: usize, min_hits: usize, iou_threshold: f32) -> Self {
+        Self::from_params(SortParams {
+            common: CommonParams::new(max_age, min_hits),
+            iou_threshold,
+        })
+    }
+
+    /// Create a SORT tracker from a [`SortParams`].
+    pub fn from_params(params: SortParams) -> Self {
         Self {
             tracks: Vec::new(),
-            max_age,
-            min_hits,
-            iou_threshold,
+            max_age: params.common.max_age,
+            min_hits: params.common.min_hits,
+            iou_threshold: params.iou_threshold,
             kalman_filter: KalmanFilter::default(),
             next_id: 1,
         }

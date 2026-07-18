@@ -15,6 +15,63 @@ pub mod python;
 pub use crate::trackers::common::ObsTrack as DeepOcSortTrack;
 pub use tracker::DeepOcSortTracker;
 
+use crate::trackers::common::CommonParams;
+
+/// Settings for `DeepOcSort`.
+///
+/// Shared lifecycle fields live in [`CommonParams`]; the rest are Deep OC-SORT
+/// specific. This is OC-SORT plus an appearance term, so it carries the OC-SORT
+/// motion fields and the Re-ID fields together. Build it with
+/// [`DeepOcSortParams::default`].
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DeepOcSortParams {
+    /// Shared lifecycle settings, `max_age` and `min_hits`.
+    pub common: CommonParams,
+
+    /// Smallest IoU overlap that still counts as the same object. This is a minimum
+    /// IoU, so higher is stricter.
+    pub iou_threshold: f32,
+
+    /// How many frames back the tracker looks to estimate an object's direction of
+    /// travel from its real past positions. Larger is steadier but slower to react to
+    /// turns.
+    pub delta_t: usize,
+
+    /// How strongly a track's recent direction of travel is trusted when matching, in
+    /// the range zero to one. Zero turns the direction term off.
+    pub inertia: f32,
+
+    /// How much the appearance match counts against the motion match when scoring a
+    /// pair, in the range zero to one. Zero ignores appearance and falls back to plain
+    /// OC-SORT; higher leans on Re-ID to hold ids through occlusion.
+    pub appearance_weight: f32,
+
+    /// How different two appearance embeddings may be and still count as the same
+    /// object, as cosine distance. Lower demands a closer appearance match.
+    pub max_cosine_distance: f32,
+
+    /// How many past appearance embeddings to keep per track for Re-ID. When the
+    /// gallery is full the oldest is dropped.
+    pub nn_budget: usize,
+}
+
+impl Default for DeepOcSortParams {
+    fn default() -> Self {
+        Self {
+            common: CommonParams {
+                max_age: 30,
+                min_hits: 3,
+            },
+            iou_threshold: 0.3,
+            delta_t: 3,
+            inertia: 0.2,
+            appearance_weight: 0.5,
+            max_cosine_distance: 0.2,
+            nn_budget: 100,
+        }
+    }
+}
+
 #[cfg(any(test, feature = "reid-model"))]
 use crate::trackers::common::CameraMotion;
 #[cfg(any(test, feature = "python", feature = "reid-model"))]
@@ -92,15 +149,31 @@ impl<E: AppearanceExtractor> DeepOcSort<E> {
         max_cosine_distance: f32,
         nn_budget: usize,
     ) -> Self {
+        Self::from_params(
+            extractor,
+            DeepOcSortParams {
+                common: CommonParams::new(max_age, min_hits),
+                iou_threshold,
+                delta_t,
+                inertia,
+                appearance_weight,
+                max_cosine_distance,
+                nn_budget,
+            },
+        )
+    }
+
+    /// Create a Deep OC-SORT tracker from an extractor and a [`DeepOcSortParams`].
+    pub fn from_params(extractor: E, params: DeepOcSortParams) -> Self {
         let tracker = build_tracker(
-            max_age,
-            min_hits,
-            iou_threshold,
-            delta_t,
-            inertia,
-            appearance_weight,
-            max_cosine_distance,
-            nn_budget,
+            params.common.max_age,
+            params.common.min_hits,
+            params.iou_threshold,
+            params.delta_t,
+            params.inertia,
+            params.appearance_weight,
+            params.max_cosine_distance,
+            params.nn_budget,
         );
         Self { extractor, tracker }
     }

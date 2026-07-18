@@ -8,9 +8,11 @@
 pub mod association;
 pub mod cmc;
 pub mod obs_track;
+pub mod params;
 
 pub use cmc::CameraMotion;
 pub use obs_track::ObsTrack;
+pub use params::CommonParams;
 
 use crate::utils::geometry::xyah_to_tlwh;
 
