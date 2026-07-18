@@ -318,8 +318,11 @@ impl ByteTrack {
         // Second matching: low-confidence detections against still-tracked leftovers.
         let r_tracked_boxes: Vec<[f32; 4]> = r_tracked_stracks.iter().map(|s| s.tlwh).collect();
         let low_boxes: Vec<[f32; 4]> = detections_low.iter().map(|s| s.tlwh).collect();
-        let (matches, u_track_second, _) =
-            crate::utils::assignment::iou_match(&r_tracked_boxes, &low_boxes, self.second_match_thresh);
+        let (matches, u_track_second, _) = crate::utils::assignment::iou_match(
+            &r_tracked_boxes,
+            &low_boxes,
+            self.second_match_thresh,
+        );
 
         for (itrack, idet) in matches {
             let track = &mut r_tracked_stracks[itrack];
