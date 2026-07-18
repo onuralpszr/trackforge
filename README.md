@@ -213,6 +213,22 @@ for track_id, tlwh, score, class_id in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
+### Python - TrackTrack
+
+```python
+from trackforge import TRACKTRACK
+
+tracker = TRACKTRACK(det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits=3)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+
+# Pass embeddings for appearance-aware tracking, or omit them for motion only.
+tracks = tracker.update(detections)
+
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
+```
+
 ### Rust - ByteTrack
 
 ```rust
@@ -310,6 +326,22 @@ let detections = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
 let tracks = tracker.update(detections);
 
 for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
+
+### Rust - TrackTrack
+
+```rust
+use trackforge::trackers::tracktrack::TrackTrack;
+
+let mut tracker = TrackTrack::new();
+
+let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+// Pass embeddings for appearance-aware tracking, or an empty slice for motion only.
+let tracks = tracker.update(detections, &[]);
+
+for t in &tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
 }
 ```
