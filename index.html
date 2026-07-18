@@ -1286,13 +1286,13 @@
 </p>
 
 <p><strong>Trackforge</strong> is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements six production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements seven production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.</p>
 <h2 id="features">Features</h2>
 <ul>
 <li><strong>High Performance</strong> — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.</li>
 <li><strong>Python Bindings</strong> — Install from PyPI, import, and track in three lines.</li>
-<li><strong>Six Algorithms</strong> — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, and BoT-SORT cover the full speed-accuracy spectrum.</li>
+<li><strong>Seven Algorithms</strong> — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack cover the full speed-accuracy spectrum.</li>
 <li><strong>Unified API</strong> — All trackers accept <code>(tlwh, score, class_id)</code> detection tuples.</li>
 </ul>
 <h2 id="installation">Installation</h2>
@@ -1353,6 +1353,12 @@ shared Kalman filter, so you can swap trackers without changing your integration
 <td>Re-ID embeddings</td>
 <td>IoU + appearance + camera motion</td>
 <td>Moving cameras, panning and zoom, with optional Re-ID</td>
+</tr>
+<tr>
+<td><strong>TrackTrack</strong></td>
+<td>Re-ID embeddings</td>
+<td>Track-perspective association</td>
+<td>Crowded scenes needing strong identity, with optional Re-ID</td>
 </tr>
 </tbody>
 </table>

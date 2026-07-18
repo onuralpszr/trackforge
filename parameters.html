@@ -539,6 +539,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tracktrack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TrackTrack
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -747,6 +758,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         BoT-SORT
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tracktrack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TrackTrack
       </span>
     </span>
   </a>
@@ -1065,6 +1087,68 @@
 <td>float</td>
 <td>0.25</td>
 <td>How close two embeddings must be for Re-ID to help the match, a maximum cosine distance.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tracktrack">TrackTrack</h2>
+<p><code>TRACKTRACK(...)</code> and <code>TrackTrack::from_params(...)</code></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>det_thresh</code></td>
+<td>float</td>
+<td>0.6</td>
+<td>Score above which a detection is high confidence and matched first.</td>
+</tr>
+<tr>
+<td><code>match_thresh</code></td>
+<td>float</td>
+<td>0.7</td>
+<td>Association cost gate. A pair matches only when its fused cost is below this. Lower is stricter.</td>
+</tr>
+<tr>
+<td><code>track_buffer</code></td>
+<td>int</td>
+<td>30</td>
+<td>Frames a lost track is kept alive.</td>
+</tr>
+<tr>
+<td><code>min_hits</code></td>
+<td>int</td>
+<td>3</td>
+<td>Matched frames in a row before a new track is confirmed.</td>
+</tr>
+<tr>
+<td><code>init_thresh</code></td>
+<td>float</td>
+<td>0.7</td>
+<td>Smallest score a leftover detection needs before it may start a new track.</td>
+</tr>
+<tr>
+<td><code>tai_thresh</code></td>
+<td>float</td>
+<td>0.55</td>
+<td>Overlap gate for track-aware initialization, a maximum IoU. A leftover detection is dropped if it overlaps an active track or a more confident leftover by more than this.</td>
+</tr>
+<tr>
+<td><code>penalty_low</code></td>
+<td>float</td>
+<td>0.2</td>
+<td>Extra cost added to low confidence detections during association, so they only win when nothing better is available.</td>
+</tr>
+<tr>
+<td><code>reduce_step</code></td>
+<td>float</td>
+<td>0.05</td>
+<td>How much the cost gate tightens on each round of the track-perspective matching loop.</td>
 </tr>
 </tbody>
 </table>

@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-5e669575.js";
+            window.path_to_searchindex_js = "searchindex-446fce54.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-54f69bf9.js"></script>
+        <script src="toc-ccffaf3c.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -268,6 +268,8 @@ model.</p>
 <tr><td><a href="#oc-sort">OC-SORT</a></td><td>None</td><td>IoU + velocity (OCM)</td><td>Frequent brief occlusions, no Re-ID available</td></tr>
 <tr><td><a href="#deepsort">DeepSORT</a></td><td>Re-ID embeddings</td><td>Appearance + IoU</td><td>Long occlusions, dense crowds, identity-sensitive cases</td></tr>
 <tr><td><a href="#deep-oc-sort">Deep OC-SORT</a></td><td>Re-ID embeddings</td><td>IoU + velocity + appearance</td><td>Occlusions where Re-ID helps recover identities</td></tr>
+<tr><td><a href="#bot-sort">BoT-SORT</a></td><td>Re-ID embeddings</td><td>IoU + appearance + camera motion</td><td>Moving cameras, panning and zoom, optional Re-ID</td></tr>
+<tr><td><a href="#tracktrack">TrackTrack</a></td><td>Re-ID embeddings</td><td>Track-perspective association</td><td>Crowded scenes needing strong identity, optional Re-ID</td></tr>
 </tbody>
 </table>
 </div>
@@ -550,7 +552,54 @@ ByteTrack.</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="parameters-6"><a class="header" href="#parameters-6">Parameters</a></h1>
+<h1 id="tracktrack"><a class="header" href="#tracktrack">TrackTrack</a></h1>
+<p><strong>TrackTrack</strong> (<a href="https://openaccess.thecvf.com/content/CVPR2025/html/Shim_Focusing_on_Tracks_for_Online_Multi-Object_Tracking_CVPR_2025_paper.html">CVPR 2025</a>). A track-centric online tracker built on a ByteTrack-style two-stage lifecycle, with two contributions.</p>
+<ul>
+<li><strong>Track-perspective association.</strong> Rather than solving one global assignment, each track picks its own best detection and a pair matches only when the choice is mutual. The loop repeats with a cost gate that tightens each round. High and low confidence detections share one pass; low ones carry a penalty instead of running as a separate stage. The cost fuses a height-modulated IoU, an optional appearance term, a confidence projection, and a velocity-direction term.</li>
+<li><strong>Track-aware initialization.</strong> A leftover detection starts a new track only if it clears an init threshold and does not overlap an existing active track, or a more confident leftover, by more than <code>tai_thresh</code>.</li>
+</ul>
+<p>Appearance is optional. Pass embeddings to use the Re-ID term, or an empty slice to track on motion only.</p>
+<p>This port keeps the two contributions and the fused cost on the shared 8-dimensional Kalman filter. It uses a simplified velocity-direction term and does not reproduce the paper’s detector-level NMS recovery pool, which needs access to the detector’s suppressed boxes.</p>
+<h2 id="parameters-6"><a class="header" href="#parameters-6">Parameters</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>det_thresh</code></td><td>0.6</td><td>Score above which a detection is high confidence</td></tr>
+<tr><td><code>match_thresh</code></td><td>0.7</td><td>Association cost gate, lower is stricter</td></tr>
+<tr><td><code>track_buffer</code></td><td>30</td><td>Frames a lost track is kept alive</td></tr>
+<tr><td><code>min_hits</code></td><td>3</td><td>Matched frames in a row before a new track is confirmed</td></tr>
+<tr><td><code>init_thresh</code></td><td>0.7</td><td>Smallest score a leftover detection needs to start a new track</td></tr>
+<tr><td><code>tai_thresh</code></td><td>0.55</td><td>Overlap gate for track-aware initialization, a maximum IoU</td></tr>
+<tr><td><code>penalty_low</code></td><td>0.2</td><td>Extra cost added to low confidence detections during association</td></tr>
+<tr><td><code>reduce_step</code></td><td>0.05</td><td>How much the cost gate tightens per matching round</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="python-2"><a class="header" href="#python-2">Python</a></h2>
+<pre><code class="language-python">from trackforge import TRACKTRACK
+
+tracker = TRACKTRACK(det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits=3)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+tracks = tracker.update(detections)
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID={track_id}  box={tlwh}")
+</code></pre>
+<h2 id="rust-2"><a class="header" href="#rust-2">Rust</a></h2>
+<pre><code class="language-rust ignore">use trackforge::trackers::tracktrack::TrackTrack;
+
+let mut tracker = TrackTrack::new();
+
+let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+let tracks = tracker.update(detections, &amp;[]);
+for t in &amp;tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="parameters-7"><a class="header" href="#parameters-7">Parameters</a></h1>
 <p>The parameters are identical across Python and Rust. In Python they are keyword arguments to the
 tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params
 struct passed to <code>Tracker::from_params(...)</code>.</p>

@@ -866,6 +866,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tracktrack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>TRACKTRACK</code>
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TRACKTRACK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Constructor
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>update</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#detection-format" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1313,6 +1352,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tracktrack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>TRACKTRACK</code>
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TRACKTRACK">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Constructor
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>update</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#detection-format" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1348,7 +1426,7 @@
     <a href="https://pypi.org/project/trackforge/"><img src="https://img.shields.io/pypi/pyversions/trackforge?logo=python&logoColor=white" alt="Python versions" /></a>
 </p>
 
-<p>Trackforge exposes six tracker classes. All are importable directly from the <code>trackforge</code>
+<p>Trackforge exposes seven tracker classes. All are importable directly from the <code>trackforge</code>
 module after installing with <code>pip install trackforge</code>.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -1359,6 +1437,7 @@ module after installing with <code>pip install trackforge</code>.</p>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">DEEPSORT</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">DEEPOCSORT</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">BOTSORT</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">TRACKTRACK</span>
 </span></code></pre></div>
 <hr />
 <h2 id="bytetrack"><code>BYTETRACK</code></h2>
@@ -1873,9 +1952,92 @@ frame. Same format as all other trackers.</p>
 </span></code></pre></div>
 <p>Same input and output format as <code>DEEPOCSORT.update</code>.</p>
 <hr />
+<h2 id="tracktrack"><code>TRACKTRACK</code></h2>
+<p>TrackTrack (CVPR 2025). A track-centric tracker whose contributions are a track-perspective association, where each track picks its own best detection and matches only on mutual agreement, and a track-aware initialization that suppresses spurious new tracks. Accepts optional embeddings; pass an empty list to track on motion only.</p>
+<h3 id="constructor_6">Constructor</h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">TRACKTRACK</span><span class="p">(</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">det_thresh</span><span class="p">:</span> <span class="nb">float</span>   <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">match_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">track_buffer</span><span class="p">:</span> <span class="nb">int</span>   <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">min_hits</span><span class="p">:</span> <span class="nb">int</span>       <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="n">init_thresh</span><span class="p">:</span> <span class="nb">float</span>  <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="n">tai_thresh</span><span class="p">:</span> <span class="nb">float</span>   <span class="o">=</span> <span class="mf">0.55</span><span class="p">,</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    <span class="n">penalty_low</span><span class="p">:</span> <span class="nb">float</span>  <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>    <span class="n">reduce_step</span><span class="p">:</span> <span class="nb">float</span>  <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="p">)</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>det_thresh</code></td>
+<td><code>float</code></td>
+<td><code>0.6</code></td>
+<td>Score above which a detection is high confidence and matched first</td>
+</tr>
+<tr>
+<td><code>match_thresh</code></td>
+<td><code>float</code></td>
+<td><code>0.7</code></td>
+<td>Association cost gate, lower is stricter</td>
+</tr>
+<tr>
+<td><code>track_buffer</code></td>
+<td><code>int</code></td>
+<td><code>30</code></td>
+<td>Frames a lost track is kept alive</td>
+</tr>
+<tr>
+<td><code>min_hits</code></td>
+<td><code>int</code></td>
+<td><code>3</code></td>
+<td>Matched frames in a row before a new track is confirmed</td>
+</tr>
+<tr>
+<td><code>init_thresh</code></td>
+<td><code>float</code></td>
+<td><code>0.7</code></td>
+<td>Smallest score a leftover detection needs to start a new track</td>
+</tr>
+<tr>
+<td><code>tai_thresh</code></td>
+<td><code>float</code></td>
+<td><code>0.55</code></td>
+<td>Overlap gate for track-aware initialization, a maximum IoU</td>
+</tr>
+<tr>
+<td><code>penalty_low</code></td>
+<td><code>float</code></td>
+<td><code>0.2</code></td>
+<td>Extra cost added to low confidence detections during association</td>
+</tr>
+<tr>
+<td><code>reduce_step</code></td>
+<td><code>float</code></td>
+<td><code>0.05</code></td>
+<td>How much the cost gate tightens per matching round</td>
+</tr>
+</tbody>
+</table>
+<h3 id="update_6"><code>update</code></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">tracks</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">detections</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="n">embeddings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[],</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="n">camera_motion</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+</span></code></pre></div>
+<p>Same input and output format as <code>BOTSORT.update</code>.</p>
+<hr />
 <h2 id="detection-format">Detection Format</h2>
 <p>All trackers accept the same detection tuple format:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span><span class="p">)</span>
 </span></code></pre></div>
 <table>
 <thead>
