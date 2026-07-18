@@ -7,6 +7,7 @@
 - [OC-SORT](https://arxiv.org/abs/2203.14360)
 - [DeepSORT](https://arxiv.org/abs/1703.07402)
 - [Deep OC-SORT](https://arxiv.org/abs/2302.11813)
+- [BoT-SORT](https://arxiv.org/abs/2206.14651)
 - Python bindings and PyPI package
 - Rust and Python examples
 
@@ -19,7 +20,6 @@ most of the work is the association logic specific to each method.
 
 | Tracker      | Builds on                               | Paper                                          | Reference                                                     |
 | ------------ | --------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
-| BoT-SORT     | ByteTrack + Re-ID + camera motion       | [2206.14651](https://arxiv.org/abs/2206.14651) | [NirAharon/BoT-SORT](https://github.com/NirAharon/BoT-SORT)   |
 | StrongSORT   | DeepSORT + stronger Re-ID               | [2202.13514](https://arxiv.org/abs/2202.13514) | [dyhBUPT/StrongSORT](https://github.com/dyhBUPT/StrongSORT)   |
 | StrongSORT++ | StrongSORT + camera motion (AFLink/GSI) | [2202.13514](https://arxiv.org/abs/2202.13514) | [dyhBUPT/StrongSORT](https://github.com/dyhBUPT/StrongSORT)   |
 | TrackTrack   | Track-centric online association        | [CVPR 2025](https://arxiv.org/abs/2504.20083)  | [kamkyu94/TrackTrack](https://github.com/kamkyu94/TrackTrack) |

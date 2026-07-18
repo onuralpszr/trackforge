@@ -22,6 +22,7 @@
 //! | [`ocsort`] | None | IoU + velocity correction | Scenes with frequent occlusions |
 //! | [`deepsort`] | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds |
 //! | [`deep_ocsort`] | Re-ID embeddings | IoU + velocity + appearance | Occlusions with re-identification |
+//! | [`botsort`] | Re-ID embeddings | IoU + appearance + camera motion | Moving cameras, dense crowds |
 //!
 //! # SORT
 //!
@@ -157,6 +158,7 @@
 //! [`ocsort`]: trackers::ocsort
 //! [`deepsort`]: trackers::deepsort
 //! [`deep_ocsort`]: trackers::deep_ocsort
+//! [`botsort`]: trackers::botsort
 //! [`AppearanceExtractor`]: traits::AppearanceExtractor
 
 pub mod trackers;
@@ -176,5 +178,6 @@ fn trackforge(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<trackers::deepsort::python::PyDeepSort>()?;
     m.add_class::<trackers::ocsort::PyOcSort>()?;
     m.add_class::<trackers::deep_ocsort::python::PyDeepOcSort>()?;
+    m.add_class::<trackers::botsort::PyBotSort>()?;
     Ok(())
 }

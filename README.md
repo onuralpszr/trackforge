@@ -33,13 +33,14 @@
 | [DeepSORT](https://arxiv.org/abs/1703.07402)     | IoU + cosine distance             | Yes (pluggable)    |
 | [OC-SORT](https://arxiv.org/abs/2203.14360)      | IoU + velocity direction (OCM)    | No                 |
 | [Deep OC-SORT](https://arxiv.org/abs/2302.11813) | IoU + velocity (OCM) + appearance | Yes (pluggable)    |
+| [BoT-SORT](https://arxiv.org/abs/2206.14651)     | IoU + appearance + camera motion  | Yes (pluggable)    |
 | [SORT](https://arxiv.org/abs/1602.00763)         | IoU + Kalman filter               | No                 |
 
 ## Features
 
 - 🚀 **Native Rust Core** Blazingly fast tracking (< 1ms/frame for ByteTrack) with full memory safety
 - 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
-- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, and SORT with a unified API
+- 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and SORT with a unified API
 - 🔌 **Pluggable Re-ID** DeepSORT's appearance extractor is a trait; plug in any feature model
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 
@@ -164,6 +165,34 @@ for track_id, tlwh, score, class_id in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
+### Python - BoT-SORT
+
+```python
+from trackforge import BOTSORT
+
+tracker = BOTSORT(
+    track_thresh=0.5,
+    track_buffer=30,
+    match_thresh=0.8,
+    det_thresh=0.6,
+    proximity_thresh=0.5,
+    appearance_thresh=0.25,
+)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
+
+# Pass embeddings for appearance-aware tracking, or omit them for motion only.
+tracks = tracker.update(detections, embeddings)
+
+# Moving camera: pass a [a, b, tx, c, d, ty] affine mapping the previous frame
+# to the current one.
+tracks = tracker.update(detections, embeddings, [1.0, 0.0, 12.0, 0.0, 1.0, -4.0])
+
+for track_id, tlwh, score, class_id in tracks:
+    print(f"ID: {track_id}, Box: {tlwh}")
+```
+
 ### Rust - ByteTrack
 
 ```rust
@@ -234,6 +263,22 @@ for t in tracks {
 }
 ```
 
+### Rust - BoT-SORT
+
+```rust
+use trackforge::trackers::botsort::BotSort;
+
+let mut tracker = BotSort::new(0.5, 30, 0.8, 0.6, 0.5, 0.25);
+
+let detections = vec![([100.0, 100.0, 50.0, 100.0], 0.9, 0)];
+let embeddings = vec![vec![0.1, 0.2, 0.3]]; // one appearance vector per detection
+let tracks = tracker.update(detections, &embeddings);
+
+for t in tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
+
 ### Rust - SORT
 
 ```rust
@@ -259,6 +304,7 @@ Runnable demos live under [`examples/`](examples/), with both a Python and a Rus
 | DeepSORT     | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                                | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX) |
 | OC-SORT      | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                      | —                                                                                                         |
 | Deep OC-SORT | [`deep_ocsort_demo.py`](examples/python/deep_ocsort_demo.py) (YOLO + ResNet18)                                                          | —                                                                                                         |
+| BoT-SORT     | [`botsort_demo.py`](examples/python/botsort_demo.py) (YOLO + ResNet18)                                                                  | —                                                                                                         |
 | SORT         | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
 | Comparison   | [`tracker_comparison.py`](examples/python/tracker_comparison.py) (ByteTrack vs SORT side-by-side)                                       | —                                                                                                         |
 
@@ -405,6 +451,13 @@ also cite the paper for the tracker you use:
   author={Maggiolino, Gerard and Ahmad, Adnan and Cao, Jinkun and Kitani, Kris},
   booktitle={IEEE International Conference on Image Processing (ICIP)},
   year={2023}
+}
+
+@article{aharon2022botsort,
+  title={BoT-SORT: Robust Associations Multi-Pedestrian Tracking},
+  author={Aharon, Nir and Orfaig, Roy and Bobrovsky, Ben-Zion},
+  journal={arXiv preprint arXiv:2206.14651},
+  year={2022}
 }
 ```
 
