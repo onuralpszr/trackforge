@@ -64,12 +64,12 @@ tracks = tracker.update(detections: list[tuple[list[float], float, int]]) -> lis
 A list of `(track_id, tlwh, score, class_id, det_ind)` tuples for every active confirmed track in the
 current frame.
 
-| Field      | Type          | Description                                                      |
-| ---------- | ------------- | ---------------------------------------------------------------- |
-| `track_id` | `int`         | Unique, monotonically increasing track identifier                |
-| `tlwh`     | `list[float]` | Bounding box `[top-left-x, top-left-y, width, height]` in pixels |
-| `score`    | `float`       | Detection confidence of the most recent match                    |
-| `class_id` | `int`         | Class label of the most recent match                             |
+| Field      | Type          | Description                                                                                                                                                                                                                       |
+| ---------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `track_id` | `int`         | Unique, monotonically increasing track identifier                                                                                                                                                                                 |
+| `tlwh`     | `list[float]` | Bounding box `[top-left-x, top-left-y, width, height]` in pixels                                                                                                                                                                  |
+| `score`    | `float`       | Detection confidence of the most recent match                                                                                                                                                                                     |
+| `class_id` | `int`         | Class label of the most recent match                                                                                                                                                                                              |
 | `det_ind`  | `int \| None` | Index of the detection this track was last created from or matched to in the frame's detection list, or `None` when the track was not matched that frame; lets you map a track back to its detection to reuse its Re-ID embedding |
 
 ### Example
