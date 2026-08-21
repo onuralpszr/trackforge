@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "../searchindex-446fce54.js";
+            window.path_to_searchindex_js = "../searchindex-656da129.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-ccffaf3c.js"></script>
@@ -213,7 +213,7 @@ tracker = TRACKTRACK(det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits
 
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}")
 </code></pre>
 <h2 id="rust"><a class="header" href="#rust">Rust</a></h2>

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-446fce54.js";
+            window.path_to_searchindex_js = "searchindex-656da129.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -417,7 +417,7 @@ tracker = DEEPSORT(max_age=70, n_init=3, max_iou_distance=0.7, max_cosine_distan
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1] * 128]  # one vector per detection, from your Re-ID model
 
-for track_id, tlwh, score, class_id in tracker.update(detections, embeddings):
+for track_id, tlwh, score, class_id, det_ind in tracker.update(detections, embeddings):
     print(track_id, tlwh)
 </code></pre>
 <h2 id="parameters-3"><a class="header" href="#parameters-3">Parameters</a></h2>
@@ -462,7 +462,7 @@ tracker = DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inert
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 </code></pre>
 <h2 id="parameters-4"><a class="header" href="#parameters-4">Parameters</a></h2>
@@ -519,7 +519,7 @@ tracker = BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thres
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection; omit for motion only
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 </code></pre>
 <h2 id="parameters-5"><a class="header" href="#parameters-5">Parameters</a></h2>
@@ -585,7 +585,7 @@ tracker = TRACKTRACK(det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits
 
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}")
 </code></pre>
 <h2 id="rust-2"><a class="header" href="#rust-2">Rust</a></h2>

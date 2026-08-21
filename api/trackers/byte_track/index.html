@@ -17,7 +17,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.56">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -28,12 +28,12 @@
       
         
       
-      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -788,8 +788,9 @@ what you need, then pass it to [<code>ByteTrack::from_params</code>].</p>
 </span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">frame_id</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
 </span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">start_frame</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
 </span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">tracklet_len</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
-</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
-</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="p">}</span>
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">det_ind</span><span class="p">:</span><span class="w"> </span><span class="nb">Option</span><span class="o">&lt;</span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>A Single Track (STrack) representing a tracked object.</p>
 <h4 id="fields_1">Fields</h4>
@@ -846,6 +847,11 @@ what you need, then pass it to [<code>ByteTrack::from_params</code>].</p>
 <td><code>tracklet_len</code></td>
 <td><code>usize</code></td>
 <td>Length of the tracklet (number of frames tracked).</td>
+</tr>
+<tr>
+<td><code>det_ind</code></td>
+<td><code>Option&lt;usize&gt;</code></td>
+<td>Index of the source detection in the frame's input list (when available).</td>
 </tr>
 </tbody>
 </table>
@@ -982,7 +988,7 @@ what you need, then pass it to [<code>ByteTrack::from_params</code>].</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.tabs","navigation.sections","navigation.expand","content.code.copy"],"search":"../../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e886cdf1.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>

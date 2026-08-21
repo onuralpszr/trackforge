@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "../searchindex-446fce54.js";
+            window.path_to_searchindex_js = "../searchindex-656da129.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-ccffaf3c.js"></script>
@@ -204,7 +204,7 @@ tracker = DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inert
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 </code></pre>
 <h2 id="parameters"><a class="header" href="#parameters">Parameters</a></h2>

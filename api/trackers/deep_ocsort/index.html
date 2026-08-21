@@ -17,7 +17,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.56">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -28,12 +28,12 @@
       
         
       
-      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -650,7 +650,7 @@ for t in tracks {
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>camera_motion = [1.0, 0.0, 12.0, 0.0, 1.0, -4.0]
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>tracks = tracker.update(detections, embeddings, camera_motion)
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>for track_id, tlwh, score, class_id in tracks:
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>for track_id, tlwh, score, class_id, det_ind in tracks:
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    print(f"ID: {track_id}, Box: {tlwh}")
 </span></code></pre></div></p>
 <h2 id="credit">Credit</h2>
@@ -694,8 +694,9 @@ reference implementation:
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">hit_streak</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">time_since_update</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">age</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">det_ind</span><span class="p">:</span><span class="w"> </span><span class="nb">Option</span><span class="o">&lt;</span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>A tracked object with an observation history.</p>
 <p>Shared by OC-SORT and Deep OC-SORT (each re-exports it under its own name).</p>
@@ -753,6 +754,11 @@ reference implementation:
 <td><code>age</code></td>
 <td><code>usize</code></td>
 <td>Total frames since track creation.</td>
+</tr>
+<tr>
+<td><code>det_ind</code></td>
+<td><code>Option&lt;usize&gt;</code></td>
+<td>Index of the detection this track was most recently matched to (in the current frame's detection list), or <code>None</code> when unmatched this frame.</td>
 </tr>
 </tbody>
 </table>
@@ -977,7 +983,7 @@ motion fields and the Re-ID fields together. Build it with
       <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.tabs","navigation.sections","navigation.expand","content.code.copy"],"search":"../../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e886cdf1.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>

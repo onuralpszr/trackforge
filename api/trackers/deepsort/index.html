@@ -17,7 +17,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.56">
+      <meta name="generator" content="zensical-0.0.57">
     
     
       
@@ -28,12 +28,12 @@
       
         
       
-      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.20815dad.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -949,8 +949,9 @@ the minimum distance between a new feature and the stored history.</p>
 </span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">covariance</span><span class="p">:</span><span class="w"> </span><span class="nc">crate</span><span class="p">::</span><span class="n">utils</span><span class="p">::</span><span class="n">kalman</span><span class="p">::</span><span class="n">CovarianceMatrix</span><span class="p">,</span>
 </span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">score</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
 </span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">features</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">f32</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">}</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">det_ind</span><span class="p">:</span><span class="w"> </span><span class="nb">Option</span><span class="o">&lt;</span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">    </span><span class="c1">// [REDACTED: Private Fields]</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>A single object track maintained by the DeepSORT tracker.</p>
 <h4 id="fields">Fields</h4>
@@ -1012,6 +1013,11 @@ the minimum distance between a new feature and the stored history.</p>
 <td><code>features</code></td>
 <td><code>Vec&lt;Vec&lt;f32&gt;&gt;</code></td>
 <td>Appearance embeddings accumulated since the last metric-gallery flush.</td>
+</tr>
+<tr>
+<td><code>det_ind</code></td>
+<td><code>Option&lt;usize&gt;</code></td>
+<td>Index of the last detection this track was matched to (None if never matched).</td>
 </tr>
 </tbody>
 </table>
@@ -1345,7 +1351,7 @@ is <a href="TrackState::Deleted"><code>Deleted</code></a> when it ages out or fa
       <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.tabs","navigation.sections","navigation.expand","content.code.copy"],"search":"../../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.e886cdf1.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.49251538.min.js"></script>
       
     
   </body>
