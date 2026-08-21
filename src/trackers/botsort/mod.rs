@@ -382,7 +382,7 @@ impl BotSort {
         // First stage: high-confidence detections against tracked + lost tracks,
         // matched on the appearance-fused cost. Tracks are activated on creation, so
         // pool[0..n_tracked] are the tracked tracks and the rest are lost.
-        let mut tracked: Vec<BotTrack> = self.tracked_stracks.drain(..).collect();
+        let mut tracked: Vec<BotTrack> = std::mem::take(&mut self.tracked_stracks);
         let n_tracked = tracked.len();
         let mut pool: Vec<BotTrack> = Vec::new();
         pool.append(&mut tracked);
