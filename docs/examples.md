@@ -89,7 +89,7 @@ def run_tracking(video_path="test_video.mp4", output_path="output_tracking.mp4")
 
         online_tracks = tracker.update(detections)
 
-        for track_id, tlwh, score, class_id in online_tracks:
+        for track_id, tlwh, score, class_id, det_ind in online_tracks:
             x1, y1, w, h = tlwh
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x1 + w), int(y1 + h)), (0, 255, 0), 2)
             cv2.putText(

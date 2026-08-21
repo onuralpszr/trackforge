@@ -61,15 +61,16 @@ tracks = tracker.update(detections: list[tuple[list[float], float, int]]) -> lis
 
 #### Returns
 
-A list of `(track_id, tlwh, score, class_id)` tuples for every active confirmed track in the
+A list of `(track_id, tlwh, score, class_id, det_ind)` tuples for every active confirmed track in the
 current frame.
 
-| Field      | Type          | Description                                                      |
-| ---------- | ------------- | ---------------------------------------------------------------- |
-| `track_id` | `int`         | Unique, monotonically increasing track identifier                |
-| `tlwh`     | `list[float]` | Bounding box `[top-left-x, top-left-y, width, height]` in pixels |
-| `score`    | `float`       | Detection confidence of the most recent match                    |
-| `class_id` | `int`         | Class label of the most recent match                             |
+| Field      | Type          | Description                                                                                                                                                                                                                       |
+| ---------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `track_id` | `int`         | Unique, monotonically increasing track identifier                                                                                                                                                                                 |
+| `tlwh`     | `list[float]` | Bounding box `[top-left-x, top-left-y, width, height]` in pixels                                                                                                                                                                  |
+| `score`    | `float`       | Detection confidence of the most recent match                                                                                                                                                                                     |
+| `class_id` | `int`         | Class label of the most recent match                                                                                                                                                                                              |
+| `det_ind`  | `int \| None` | Index of the detection this track was last created from or matched to in the frame's detection list, or `None` when the track was not matched that frame; lets you map a track back to its detection to reuse its Re-ID embedding |
 
 ### Example
 
@@ -89,7 +90,7 @@ detections = [
 ]
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}  class={class_id}")
 ```
 
@@ -135,7 +136,7 @@ detections = [
 ]
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}")
 ```
 
@@ -194,7 +195,7 @@ detections = [
 ]
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}  class={class_id}")
 ```
 
@@ -231,7 +232,7 @@ trackforge.DEEPSORT(
 tracks = tracker.update(
     detections: list[tuple[list[float], float, int]],
     embeddings: list[list[float]],
-) -> list[tuple[int, list[float], float, int]]
+) -> list[tuple[int, list[float], float, int, int | None]]
 ```
 
 #### Parameters
@@ -242,7 +243,7 @@ tracks = tracker.update(
 
 #### Returns
 
-A list of `(track_id, tlwh, score, class_id)` tuples for confirmed tracks matched in the current
+A list of `(track_id, tlwh, score, class_id, det_ind)` tuples for confirmed tracks matched in the current
 frame. Same format as all other trackers.
 
 ### Example
@@ -268,7 +269,7 @@ detections = [
 embeddings = [np.random.rand(128).tolist() for _ in detections]
 
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
 
@@ -311,7 +312,7 @@ tracks = tracker.update(
     detections: list[tuple[list[float], float, int]],
     embeddings: list[list[float]] = [],
     camera_motion: list[float] | None = None,
-) -> list[tuple[int, list[float], float, int]]
+) -> list[tuple[int, list[float], float, int, int | None]]
 ```
 
 #### Parameters
@@ -322,7 +323,7 @@ tracks = tracker.update(
 
 #### Returns
 
-A list of `(track_id, tlwh, score, class_id)` tuples for confirmed tracks matched in the current frame.
+A list of `(track_id, tlwh, score, class_id, det_ind)` tuples for confirmed tracks matched in the current frame.
 
 ---
 
@@ -361,7 +362,7 @@ tracks = tracker.update(
     detections: list[tuple[list[float], float, int]],
     embeddings: list[list[float]] = [],
     camera_motion: list[float] | None = None,
-) -> list[tuple[int, list[float], float, int]]
+) -> list[tuple[int, list[float], float, int, int | None]]
 ```
 
 Same input and output format as `DEEPOCSORT.update`.
@@ -405,7 +406,7 @@ tracks = tracker.update(
     detections: list[tuple[list[float], float, int]],
     embeddings: list[list[float]] = [],
     camera_motion: list[float] | None = None,
-) -> list[tuple[int, list[float], float, int]]
+) -> list[tuple[int, list[float], float, int, int | None]]
 ```
 
 Same input and output format as `BOTSORT.update`.

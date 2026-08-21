@@ -35,6 +35,9 @@ pub struct ObsTrack {
     pub time_since_update: usize,
     /// Total frames since track creation.
     pub age: usize,
+    /// Index of the detection this track was most recently matched to (in the
+    /// current frame's detection list), or `None` when unmatched this frame.
+    pub det_ind: Option<usize>,
 
     kalman: KalmanTrack,
     // Bounded observation history (xyah, frame_id) in insertion order, used for OCM and ORU.
@@ -67,6 +70,7 @@ impl ObsTrack {
             hit_streak: 1,
             time_since_update: 0,
             age: 1,
+            det_ind: None,
             kalman,
             observations: vec![(xyah, frame_id)],
             pending_features: feature.into_iter().collect(),

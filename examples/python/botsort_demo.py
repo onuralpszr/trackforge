@@ -79,7 +79,7 @@ def run_tracking(video: str, output: str, model_path: str, use_reid: bool) -> No
         else:
             embeddings = []
         tracks = tracker.update(detections, embeddings)
-        for track_id, tlwh, score, class_id in tracks:
+        for track_id, tlwh, score, class_id, det_ind in tracks:
             draw_track(
                 frame, track_id, tlwh, label_for(track_id, model.names[class_id], score)
             )

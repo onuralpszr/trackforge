@@ -201,7 +201,7 @@ def run_tracking(video: str, output: str, model_name: str) -> None:
             model, processor, device, frame, info.width, info.height, 0.5, classes=[0]
         )
         tracks = tracker.update(detections)
-        for track_id, tlwh, score, class_id in tracks:
+        for track_id, tlwh, score, class_id, det_ind in tracks:
             name = (
                 COCO_CLASSES[class_id]
                 if class_id < len(COCO_CLASSES)

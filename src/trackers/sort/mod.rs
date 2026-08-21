@@ -57,6 +57,9 @@ pub struct SortTrack {
     pub time_since_update: usize,
     /// Total age of the track in frames.
     pub age: usize,
+    /// Index into the current frame's detections of the detection that most
+    /// recently created or updated this track. `None` if never matched.
+    pub det_ind: Option<usize>,
 
     // Kalman Filter state
     kalman: KalmanTrack,
@@ -83,6 +86,7 @@ impl SortTrack {
             hits: 1,
             time_since_update: 0,
             age: 1,
+            det_ind: None,
             kalman,
         }
     }
@@ -215,18 +219,20 @@ impl Sort {
         // Step 3: Update matched tracks with detections
         for (det_idx, trk_idx) in matches {
             self.tracks[trk_idx].update(&detections[det_idx], &self.kalman_filter);
+            self.tracks[trk_idx].det_ind = Some(det_idx);
         }
 
         // Step 4: Create new tracks for unmatched detections
         for det_idx in unmatched_dets {
             let det = &detections[det_idx];
-            let new_track = SortTrack::new(
+            let mut new_track = SortTrack::new(
                 det.tlwh,
                 det.score,
                 det.class_id,
                 &self.kalman_filter,
                 self.next_id,
             );
+            new_track.det_ind = Some(det_idx);
             self.next_id += 1;
             self.tracks.push(new_track);
         }
@@ -327,7 +333,15 @@ impl PySort {
         let tracks = self.inner.update(detections);
         Ok(tracks
             .into_iter()
-            .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.tlwh,
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect())
     }
 }
@@ -347,6 +361,47 @@ mod tests {
         assert_eq!(track.state, SortTrackState::Tentative);
         assert_eq!(track.hits, 1);
         assert_eq!(track.time_since_update, 0);
+    }
+
+    #[test]
+    fn det_ind_tracks_create_and_match_source() {
+        let mut tracker = Sort::new(1, 1, 0.3);
+
+        // Two well-separated objects. Track created from the second detection
+        // (index 1) must carry det_ind = Some(1).
+        let tracks = tracker.update(vec![
+            ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+            ([400.0, 400.0, 50.0, 100.0], 0.85, 1),
+        ]);
+        assert_eq!(tracks.len(), 2);
+        let left = tracks
+            .iter()
+            .find(|t| (t.tlwh[0] - 100.0).abs() < 1.0)
+            .unwrap();
+        let right = tracks
+            .iter()
+            .find(|t| (t.tlwh[0] - 400.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
+
+        // Next frame both objects move: each track is re-matched, so det_ind now
+        // points at the detection it matched this frame.
+        let tracks = tracker.update(vec![
+            ([105.0, 105.0, 50.0, 100.0], 0.9, 0),
+            ([405.0, 405.0, 50.0, 100.0], 0.85, 1),
+        ]);
+        assert_eq!(tracks.len(), 2);
+        let left = tracks
+            .iter()
+            .find(|t| (t.tlwh[0] - 105.0).abs() < 1.0)
+            .unwrap();
+        let right = tracks
+            .iter()
+            .find(|t| (t.tlwh[0] - 405.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
     }
 
     #[test]

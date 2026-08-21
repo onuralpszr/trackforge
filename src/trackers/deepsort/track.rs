@@ -25,6 +25,8 @@ pub struct Track {
     pub score: f32,
     /// Appearance embeddings accumulated since the last metric-gallery flush.
     pub features: Vec<Vec<f32>>,
+    /// Index of the last detection this track was matched to (None if never matched).
+    pub det_ind: Option<usize>,
 
     n_init: usize,
     max_age: usize,
@@ -53,6 +55,7 @@ impl Track {
             state: TrackState::Tentative,
             score,
             features: vec![feature],
+            det_ind: None,
             n_init,
             max_age,
         }

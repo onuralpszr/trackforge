@@ -24,7 +24,7 @@ class BYTETRACK:
     ]
 
     tracks = tracker.update(detections)
-    for track_id, box, score, class_id in tracks:
+    for track_id, box, score, class_id, det_ind in tracks:
         print(f"Track ID: {track_id}, Box: {box}")
     ```
     """
@@ -39,7 +39,7 @@ class BYTETRACK:
     ) -> None: ...
     def update(
         self, output_results: List[Tuple[List[float], float, int]]
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class SORT:
     """
@@ -57,7 +57,7 @@ class SORT:
     ]
 
     tracks = tracker.update(detections)
-    for track_id, box, score, class_id in tracks:
+    for track_id, box, score, class_id, det_ind in tracks:
         print(f"Track ID: {track_id}, Box: {box}")
     ```
     """
@@ -70,7 +70,7 @@ class SORT:
     ) -> None: ...
     def update(
         self, detections: List[Tuple[List[float], float, int]]
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class OCSORT:
     """
@@ -94,7 +94,7 @@ class OCSORT:
     ]
 
     tracks = tracker.update(detections)
-    for track_id, box, score, class_id in tracks:
+    for track_id, box, score, class_id, det_ind in tracks:
         print(f"Track ID: {track_id}, Box: {box}")
     ```
     """
@@ -109,7 +109,7 @@ class OCSORT:
     ) -> None: ...
     def update(
         self, detections: List[Tuple[List[float], float, int]]
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class DEEPSORT:
     """
@@ -135,7 +135,7 @@ class DEEPSORT:
     embeddings = [np.random.rand(128).tolist()]
 
     tracks = tracker.update(detections, embeddings)
-    for track_id, box, score, class_id in tracks:
+    for track_id, box, score, class_id, det_ind in tracks:
         print(f"Track ID: {track_id}, Box: {box}")
     ```
     """
@@ -152,7 +152,7 @@ class DEEPSORT:
         self,
         detections: List[Tuple[List[float], float, int]],
         embeddings: List[List[float]],
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class DEEPOCSORT:
     """
@@ -184,7 +184,7 @@ class DEEPOCSORT:
     embeddings = [[0.1, 0.2, 0.3]]
 
     tracks = tracker.update(detections, embeddings)
-    for track_id, box, score, class_id in tracks:
+    for track_id, box, score, class_id, det_ind in tracks:
         print(f"Track ID: {track_id}, Box: {box}")
     ```
     """
@@ -205,7 +205,7 @@ class DEEPOCSORT:
         detections: List[Tuple[List[float], float, int]],
         embeddings: List[List[float]] = ...,
         camera_motion: Optional[List[float]] = ...,
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class BOTSORT:
     """
@@ -235,7 +235,7 @@ class BOTSORT:
     embeddings = [[0.1, 0.2, 0.3]]
 
     tracks = tracker.update(detections, embeddings)
-    for track_id, box, score, class_id in tracks:
+    for track_id, box, score, class_id, det_ind in tracks:
         print(f"Track ID: {track_id}, Box: {box}")
     ```
     """
@@ -255,7 +255,7 @@ class BOTSORT:
         detections: List[Tuple[List[float], float, int]],
         embeddings: List[List[float]] = ...,
         camera_motion: Optional[List[float]] = ...,
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class TRACKTRACK:
     def __init__(
@@ -274,4 +274,4 @@ class TRACKTRACK:
         detections: List[Tuple[List[float], float, int]],
         embeddings: List[List[float]] = ...,
         camera_motion: Optional[List[float]] = ...,
-    ) -> List[Tuple[int, List[float], float, int]]: ...
+    ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...

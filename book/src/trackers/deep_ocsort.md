@@ -25,7 +25,7 @@ tracker = DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inert
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 

@@ -68,7 +68,15 @@ impl PyDeepSort {
             .tracks
             .iter()
             .filter(|t| t.is_confirmed() && t.time_since_update == 0)
-            .map(|t| (t.track_id, t.to_tlwh(), t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.to_tlwh(),
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect();
 
         Ok(tracks)

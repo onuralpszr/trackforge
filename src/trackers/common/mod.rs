@@ -17,12 +17,14 @@ pub use params::CommonParams;
 
 use crate::utils::geometry::xyah_to_tlwh;
 
-/// A track as returned to Python: `(track_id, tlwh, score, class_id)`.
+/// A track as returned to Python: `(track_id, tlwh, score, class_id, det_ind)`.
 ///
-/// Every Python binding maps its confirmed tracks into this shape, so the type is
-/// shared here rather than redeclared per tracker.
+/// `det_ind` is the index of the detection this track was last created from or
+/// matched to in the current frame's detection list, or `None` when the track was
+/// coasted (not matched) that frame. It lets callers map a track back to its
+/// detection to, e.g., reuse the detection's Re-ID feature.
 #[cfg(feature = "python")]
-pub type PyTrackingResult = (u64, [f32; 4], f32, i64);
+pub type PyTrackingResult = (u64, [f32; 4], f32, i64, Option<i64>);
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
 
 /// Lifecycle state of a track.

@@ -27,6 +27,8 @@ pub struct STrack {
     pub start_frame: usize,
     /// Length of the tracklet (number of frames tracked).
     pub tracklet_len: usize,
+    /// Index of the source detection in the frame's input list (when available).
+    pub det_ind: Option<usize>,
 
     /// Shared per-track Kalman state and predict/update mechanics.
     kalman: KalmanTrack,
@@ -52,6 +54,7 @@ impl STrack {
             frame_id: 0,
             start_frame: 0,
             tracklet_len: 0,
+            det_ind: None,
             kalman: KalmanTrack {
                 mean: StateVector::zeros(),
                 covariance: CovarianceMatrix::identity(),
@@ -85,6 +88,7 @@ impl STrack {
         self.tracklet_len = 0;
         self.score = new_track.score;
         self.tlwh = new_track.tlwh; // Use new detection box
+        self.det_ind = new_track.det_ind;
 
         if let Some(id) = new_track_id {
             self.track_id = id;
@@ -98,6 +102,7 @@ impl STrack {
         self.is_activated = true;
         self.score = new_track.score;
         self.tlwh = new_track.tlwh;
+        self.det_ind = new_track.det_ind;
 
         self.kalman.update(&tlwh_to_xyah(&new_track.tlwh), kf);
     }
@@ -289,8 +294,9 @@ impl ByteTrack {
         // Split detections into high- and low-confidence sets.
         let mut detections_high = Vec::new();
         let mut detections_low = Vec::new();
-        for (tlwh, score, cls) in output_results {
-            let det = STrack::new(tlwh, score, cls);
+        for (i, (tlwh, score, cls)) in output_results.into_iter().enumerate() {
+            let mut det = STrack::new(tlwh, score, cls);
+            det.det_ind = Some(i);
             if det.score >= self.track_thresh {
                 detections_high.push(det);
             } else {
@@ -420,7 +426,15 @@ impl PyByteTrack {
         let tracks = self.inner.update(output_results);
         Ok(tracks
             .into_iter()
-            .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.tlwh,
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect())
     }
 }
@@ -479,6 +493,24 @@ mod tests {
         let output2 = tracker.update(vec![d2]);
         assert_eq!(output2.len(), 1, "Expected 1 track, got {}", output2.len());
         assert_eq!(output2[0].track_id, id);
+    }
+
+    #[test]
+    fn det_ind_reflects_input_detection_index() {
+        let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
+        // Two high-confidence, well-separated objects.
+        let out = tracker.update(vec![
+            ([10.0, 10.0, 50.0, 100.0], 0.9, 0),
+            ([400.0, 10.0, 50.0, 100.0], 0.9, 1),
+        ]);
+        assert_eq!(out.len(), 2);
+        let left = out.iter().find(|t| (t.tlwh[0] - 10.0).abs() < 1.0).unwrap();
+        let right = out
+            .iter()
+            .find(|t| (t.tlwh[0] - 400.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
     }
 
     #[test]

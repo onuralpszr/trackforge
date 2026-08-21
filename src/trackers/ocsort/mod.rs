@@ -187,12 +187,13 @@ impl OcSort {
             track.update_kf(&xyah, &self.kf);
             track.push_observation(xyah, self.frame_count, self.delta_t + 1);
             track.record_match(det.tlwh, det.score, det.class_id);
+            track.det_ind = Some(*det_idx);
         }
 
         // 4. Initialise new tracks for unmatched detections.
         for det_idx in unmatched_dets {
             let det = &detections[det_idx];
-            let track = OcSortTrack::new(
+            let mut track = OcSortTrack::new(
                 det.tlwh,
                 det.score,
                 det.class_id,
@@ -201,6 +202,7 @@ impl OcSort {
                 None,
                 &self.kf,
             );
+            track.det_ind = Some(det_idx);
             self.next_id += 1;
             self.tracks.push(track);
         }
@@ -361,7 +363,15 @@ impl PyOcSort {
         let tracks = self.inner.update(detections);
         Ok(tracks
             .into_iter()
-            .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.tlwh,
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect())
     }
 }
@@ -373,6 +383,26 @@ mod tests {
 
     fn det(x: f32, y: f32, w: f32, h: f32, s: f32) -> ([f32; 4], f32, i64) {
         ([x, y, w, h], s, 0)
+    }
+
+    #[test]
+    fn det_ind_reflects_input_detection_index() {
+        let mut tracker = OcSort::new(30, 1, 0.3, 3, 0.2);
+        let out = tracker.update(vec![
+            det(100.0, 100.0, 50.0, 100.0, 0.9),
+            det(400.0, 400.0, 50.0, 100.0, 0.85),
+        ]);
+        assert_eq!(out.len(), 2);
+        let left = out
+            .iter()
+            .find(|t| (t.tlwh[0] - 100.0).abs() < 1.0)
+            .unwrap();
+        let right = out
+            .iter()
+            .find(|t| (t.tlwh[0] - 400.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
     }
 
     #[test]
