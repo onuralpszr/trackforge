@@ -51,17 +51,23 @@ def check(tracker_cls, name, **kwargs):
             src_box, _, _ = dets[det_ind]
             src_emb = embs[det_ind]
             for k in range(4):
-                assert abs(src_box[k] - tlwh[k]) < 1.5, f"box mismatch {src_box} vs {tlwh}"
+                assert abs(src_box[k] - tlwh[k]) < 1.5, (
+                    f"box mismatch {src_box} vs {tlwh}"
+                )
             # Embedding must belong to one consistent identity.
-            (ids_for_b if dot(src_emb, FEAT_B) > dot(src_emb, FEAT_A) else ids_for_a).add(tid)
+            (
+                ids_for_b if dot(src_emb, FEAT_B) > dot(src_emb, FEAT_A) else ids_for_a
+            ).add(tid)
             gallery.setdefault(tid, []).append(tuple(src_emb))
 
     assert ids_for_a and ids_for_b, f"{name}: one identity never tracked"
     assert len(ids_for_a) == 1, f"{name}: identity A split across {sorted(ids_for_a)}"
     assert len(ids_for_b) == 1, f"{name}: identity B split across {sorted(ids_for_b)}"
     assert ids_for_a != ids_for_b, f"{name}: ids shared between identities"
-    print(f"[OK] {name}: det_ind present & consistent; "
-          f"A ids={sorted(ids_for_a)} B ids={sorted(ids_for_b)} gallery ids={sorted(gallery)}")
+    print(
+        f"[OK] {name}: det_ind present & consistent; "
+        f"A ids={sorted(ids_for_a)} B ids={sorted(ids_for_b)} gallery ids={sorted(gallery)}"
+    )
 
 
 if __name__ == "__main__":
