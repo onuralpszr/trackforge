@@ -85,7 +85,7 @@ tracks = tracker.update(detections, embeddings)
 camera_motion = [1.0, 0.0, 12.0, 0.0, 1.0, -4.0]
 tracks = tracker.update(detections, embeddings, camera_motion)
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 

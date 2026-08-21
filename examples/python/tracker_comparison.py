@@ -66,13 +66,13 @@ def run_comparison(video: str, output: str, model_path: str) -> None:
         frame_bt, frame_sort = frame.copy(), frame.copy()
 
         bt_tracks = bytetrack.update(detections)
-        for track_id, tlwh, _, _ in bt_tracks:
+        for track_id, tlwh, _, _, _ in bt_tracks:
             draw_track(
                 frame_bt, track_id, tlwh, f"ID:{track_id}", color=BYTETRACK_COLOR
             )
 
         sort_tracks = sort.update(detections)
-        for track_id, tlwh, _, _ in sort_tracks:
+        for track_id, tlwh, _, _, _ in sort_tracks:
             draw_track(frame_sort, track_id, tlwh, f"ID:{track_id}", color=SORT_COLOR)
 
         draw_hud(frame_bt, f"ByteTrack | tracks {len(bt_tracks)}")

@@ -25,7 +25,7 @@ tracker = BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thres
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection; omit for motion only
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 

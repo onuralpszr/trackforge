@@ -109,9 +109,15 @@ detections = [
 
 tracks = tracker.update(detections)
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
+
+**Result:** each element of `tracks` is a tuple
+`(track_id, tlwh, score, class_id, det_ind)`. `det_ind` is the index of the
+detection the track was last created from or matched to in the current frame's
+detection list (or `None` when the track was not matched that frame). Use it to
+map a track back to its detection and reuse the detection's Re-ID embedding.
 
 ### Python - DeepSORT
 
@@ -131,7 +137,7 @@ embeddings = [[0.1, 0.2, 0.3, ...]]  # appearance feature vectors
 
 tracks = tracker.update(detections, embeddings)
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}, Score: {score}")
 ```
 
@@ -155,7 +161,7 @@ detections = [
 
 tracks = tracker.update(detections)
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
@@ -181,7 +187,7 @@ embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
 # Pass embeddings for appearance-aware tracking, or omit them for motion only.
 tracks = tracker.update(detections, embeddings)
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
@@ -209,7 +215,7 @@ tracks = tracker.update(detections, embeddings)
 # to the current one.
 tracks = tracker.update(detections, embeddings, [1.0, 0.0, 12.0, 0.0, 1.0, -4.0])
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 
@@ -225,7 +231,7 @@ detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 # Pass embeddings for appearance-aware tracking, or omit them for motion only.
 tracks = tracker.update(detections)
 
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 

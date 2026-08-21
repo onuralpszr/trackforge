@@ -29,10 +29,11 @@ def test_ocsort_update_returns_track():
     )
     tracks = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
     assert len(tracks) == 1
-    track_id, tlwh, score, class_id = tracks[0]
+    track_id, tlwh, score, class_id, det_ind = tracks[0]
     assert track_id == 1
     assert len(tlwh) == 4
     assert class_id == 0
+    assert det_ind == 0
 
 
 def test_ocsort_confirmed_after_min_hits():
@@ -182,9 +183,10 @@ def test_deepocsort_motion_only():
     t = trackforge.DEEPOCSORT(min_hits=1)
     tracks = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
     assert len(tracks) == 1
-    track_id, tlwh, score, class_id = tracks[0]
+    track_id, tlwh, score, class_id, det_ind = tracks[0]
     assert track_id == 1
     assert len(tlwh) == 4
+    assert det_ind == 0
 
 
 def test_deepocsort_with_embeddings_keeps_id():
@@ -241,9 +243,10 @@ def test_botsort_motion_only():
     t = trackforge.BOTSORT()
     tracks = t.update([([100.0, 100.0, 50.0, 100.0], 0.9, 0)])
     assert len(tracks) == 1
-    track_id, tlwh, score, class_id = tracks[0]
+    track_id, tlwh, score, class_id, det_ind = tracks[0]
     assert track_id == 1
     assert len(tlwh) == 4
+    assert det_ind == 0
 
 
 def test_botsort_with_embeddings_keeps_id():

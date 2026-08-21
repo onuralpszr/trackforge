@@ -44,7 +44,7 @@ tracker = DEEPSORT(max_age=70, n_init=3, max_iou_distance=0.7, max_cosine_distan
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 embeddings = [[0.1] * 128]  # one vector per detection, from your Re-ID model
 
-for track_id, tlwh, score, class_id in tracker.update(detections, embeddings):
+for track_id, tlwh, score, class_id, det_ind in tracker.update(detections, embeddings):
     print(track_id, tlwh)
 ```
 

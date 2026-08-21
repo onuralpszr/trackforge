@@ -57,7 +57,7 @@ def run_tracking(video: str, output: str, model_path: str) -> None:
 
         detections = yolo_detections(model, frame, classes=[0])
         tracks = tracker.update(detections)
-        for track_id, tlwh, score, class_id in tracks:
+        for track_id, tlwh, score, class_id, det_ind in tracks:
             draw_track(
                 frame, track_id, tlwh, label_for(track_id, model.names[class_id], score)
             )

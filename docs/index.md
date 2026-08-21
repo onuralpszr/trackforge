@@ -109,9 +109,15 @@ detections = [
 ]
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
+
+**Result:** each element of `tracks` is a tuple
+`(track_id, tlwh, score, class_id, det_ind)`. `det_ind` is the index of the
+detection the track was last created from or matched to in the current frame's
+detection list (or `None` when the track was not matched that frame); use it to
+map a track back to its detection and reuse the detection's Re-ID embedding.
 
 ### Rust
 
@@ -174,7 +180,7 @@ detections = [
 ]
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
 
@@ -250,7 +256,7 @@ detections = [
 ]
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
 
@@ -351,7 +357,7 @@ embeddings = [
 ]
 
 tracks = tracker.update(detections, embeddings)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}  score={score:.2f}")
 ```
 

@@ -62,7 +62,7 @@ for box in results[0].boxes:
                        float(box.conf[0]), int(box.cls[0])))
 
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID {track_id}: {tlwh}")
 ```
 
@@ -135,10 +135,11 @@ trackforge.DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, iner
 Every tracker returns a list of tuples:
 
 ```python
-(track_id, [x, y, w, h], score, class_id)
+(track_id, [x, y, w, h], score, class_id, det_ind)
 ```
 
 - `track_id`: unique integer identifier for the track
 - `[x, y, w, h]`: bounding box in TLWH format (top-left x, y, width, height)
 - `score`: detection confidence
 - `class_id`: object class id from the detector
+- `det_ind`: the index of the detection this track was last created from / matched to (int), or `None` if the track has no associated detection

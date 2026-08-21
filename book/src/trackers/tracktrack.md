@@ -31,7 +31,7 @@ tracker = TRACKTRACK(det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits
 
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID={track_id}  box={tlwh}")
 ```
 
