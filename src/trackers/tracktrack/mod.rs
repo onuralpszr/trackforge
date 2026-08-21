@@ -89,6 +89,8 @@ pub struct Track {
     pub track_id: u64,
     /// Lifecycle state.
     pub state: TrackState,
+    /// Index of the last detection this track was matched to (None if never matched).
+    pub det_ind: Option<usize>,
 
     prev_score: f32,
     hits: usize,
@@ -105,6 +107,7 @@ impl Track {
             class_id: det.class_id,
             track_id,
             state: TrackState::New,
+            det_ind: None,
             prev_score: det.score,
             hits: 1,
             end_frame: frame_id,
@@ -388,6 +391,7 @@ impl TrackTrack {
         for (t, d) in m1 {
             let det = &dets[stage1_pool[d]];
             tracked_lost[t].update(det, &self.kalman_filter, self.frame_id, self.min_hits);
+            tracked_lost[t].det_ind = Some(stage1_pool[d]);
         }
         for t in u_tracks1 {
             tracked_lost[t].state = TrackState::Lost;
@@ -414,6 +418,7 @@ impl TrackTrack {
         for (t, d) in m2 {
             let det = &dets[high_left[d]];
             tentative[t].update(det, &self.kalman_filter, self.frame_id, self.min_hits);
+            tentative[t].det_ind = Some(high_left[d]);
         }
         for t in u_tracks2 {
             tentative[t].state = TrackState::Removed;
@@ -535,8 +540,9 @@ impl TrackTrack {
 
         for (idx, &d) in candidates.iter().enumerate() {
             if allow[idx] {
-                let track =
+                let mut track =
                     Track::from_det(&dets[d], &self.kalman_filter, self.frame_id, self.next_id);
+                track.det_ind = Some(d);
                 self.next_id += 1;
                 self.tracks.push(track);
             }
@@ -638,7 +644,15 @@ impl PyTrackTrack {
             .update_with_camera_motion(detections, &embeddings, &cmc);
         Ok(tracks
             .into_iter()
-            .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.tlwh,
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect())
     }
 }
@@ -668,6 +682,30 @@ mod tests {
 
     fn det(x: f32, y: f32, w: f32, h: f32, s: f32) -> ([f32; 4], f32, i64) {
         ([x, y, w, h], s, 0)
+    }
+
+    #[test]
+    fn det_ind_reflects_input_detection_index() {
+        let mut t = TrackTrack::new();
+        let frame = vec![
+            det(100.0, 100.0, 50.0, 100.0, 0.9),
+            det(400.0, 400.0, 50.0, 100.0, 0.9),
+        ];
+        for _ in 0..3 {
+            t.update(frame.clone(), &[]);
+        }
+        let out = t.update(frame, &[]);
+        assert_eq!(out.len(), 2);
+        let left = out
+            .iter()
+            .find(|t| (t.tlwh[0] - 100.0).abs() < 1.0)
+            .unwrap();
+        let right = out
+            .iter()
+            .find(|t| (t.tlwh[0] - 400.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
     }
 
     #[test]

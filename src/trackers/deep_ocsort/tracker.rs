@@ -121,6 +121,7 @@ impl DeepOcSortTracker {
             track.update_kf(&xyah, &self.kf);
             track.push_observation(xyah, self.frame_count, self.delta_t + 1);
             track.record_match(det.tlwh, det.score, det.class_id);
+            track.det_ind = Some(*det_idx);
 
             if use_appearance {
                 track.push_feature(embeddings[*det_idx].clone());
@@ -130,7 +131,7 @@ impl DeepOcSortTracker {
         for det_idx in unmatched_dets {
             let det = &dets[det_idx];
             let feature = use_appearance.then(|| embeddings[det_idx].clone());
-            let track = DeepOcSortTrack::new(
+            let mut track = DeepOcSortTrack::new(
                 det.tlwh,
                 det.score,
                 det.class_id,
@@ -139,6 +140,7 @@ impl DeepOcSortTracker {
                 feature,
                 &self.kf,
             );
+            track.det_ind = Some(det_idx);
             self.next_id += 1;
             self.tracks.push(track);
         }

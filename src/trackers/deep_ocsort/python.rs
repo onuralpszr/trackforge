@@ -80,7 +80,15 @@ impl PyDeepOcSort {
             .update_with_camera_motion(&detections, &embeddings, &cmc);
         Ok(tracks
             .into_iter()
-            .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.tlwh,
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect())
     }
 }

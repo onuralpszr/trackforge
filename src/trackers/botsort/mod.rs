@@ -16,6 +16,7 @@ pub(crate) struct Detection {
     score: f32,
     class_id: i64,
     feature: Option<Vec<f32>>,
+    det_ind: Option<usize>,
 }
 
 /// A single tracked object managed by BoT-SORT.
@@ -43,6 +44,8 @@ pub struct BotTrack {
     pub start_frame: usize,
     /// Number of consecutive frames the track has been followed.
     pub tracklet_len: usize,
+    /// Index of the source detection in the frame's input list (when available).
+    pub det_ind: Option<usize>,
 
     kalman: KalmanTrack,
     smooth_feat: Option<Vec<f32>>,
@@ -62,6 +65,7 @@ impl BotTrack {
             frame_id: 0,
             start_frame: 0,
             tracklet_len: 0,
+            det_ind: det.det_ind,
             kalman,
             smooth_feat: det.feature.as_ref().map(|f| l2_normalize(f)),
         }
@@ -83,6 +87,7 @@ impl BotTrack {
         self.tlwh = det.tlwh;
         self.score = det.score;
         self.class_id = det.class_id;
+        self.det_ind = det.det_ind;
         self.state = TrackState::Tracked;
         self.is_activated = true;
         self.frame_id = frame_id;
@@ -358,6 +363,7 @@ impl BotSort {
                 score,
                 class_id,
                 feature,
+                det_ind: Some(i),
             };
             if det.score >= self.track_thresh {
                 dets_high.push(det);
@@ -566,7 +572,15 @@ impl PyBotSort {
             .update_with_camera_motion(detections, &embeddings, &cmc);
         Ok(tracks
             .into_iter()
-            .map(|t| (t.track_id, t.tlwh, t.score, t.class_id))
+            .map(|t| {
+                (
+                    t.track_id,
+                    t.tlwh,
+                    t.score,
+                    t.class_id,
+                    t.det_ind.map(|i| i as i64),
+                )
+            })
             .collect())
     }
 }
@@ -577,6 +591,26 @@ mod tests {
 
     fn det(x: f32, y: f32, w: f32, h: f32, s: f32) -> ([f32; 4], f32, i64) {
         ([x, y, w, h], s, 0)
+    }
+
+    #[test]
+    fn det_ind_reflects_input_detection_index() {
+        let mut tracker = BotSort::new(0.5, 30, 0.8, 0.6, 0.5, 0.25);
+        let out = tracker.update(
+            vec![
+                det(10.0, 10.0, 50.0, 100.0, 0.9),
+                det(400.0, 10.0, 50.0, 100.0, 0.9),
+            ],
+            &[],
+        );
+        assert_eq!(out.len(), 2);
+        let left = out.iter().find(|t| (t.tlwh[0] - 10.0).abs() < 1.0).unwrap();
+        let right = out
+            .iter()
+            .find(|t| (t.tlwh[0] - 400.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
     }
 
     #[test]

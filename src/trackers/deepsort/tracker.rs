@@ -53,6 +53,7 @@ impl DeepSortTracker {
             let track = &mut self.tracks[track_idx];
             let meas = Track::tlwh_to_xyah(&[tlwh.x, tlwh.y, tlwh.width, tlwh.height]);
             track.update(&self.kf, &meas, score, class_id, embedding.clone());
+            track.det_ind = Some(detection_idx);
         }
 
         // Mark missed tracks
@@ -70,6 +71,9 @@ impl DeepSortTracker {
                 class_id,
                 embedding.clone(),
             );
+            if let Some(t) = self.tracks.last_mut() {
+                t.det_ind = Some(detection_idx);
+            }
         }
 
         // Remove deleted tracks
@@ -319,6 +323,31 @@ mod tests {
     fn create_tracker() -> DeepSortTracker {
         let metric = NearestNeighborDistanceMetric::new(Metric::Cosine, 0.3, Some(100));
         DeepSortTracker::new(metric, 30, 3, 0.7)
+    }
+
+    #[test]
+    fn det_ind_reflects_input_detection_index() {
+        let mut tracker = create_tracker();
+        let dets = vec![
+            (BoundingBox::new(100.0, 100.0, 50.0, 100.0), 0.9, 0),
+            (BoundingBox::new(400.0, 400.0, 50.0, 100.0), 0.9, 1),
+        ];
+        let embs = vec![vec![1.0; 128], vec![2.0; 128]];
+        tracker.predict();
+        tracker.update(&dets, &embs);
+        assert_eq!(tracker.tracks.len(), 2);
+        let left = tracker
+            .tracks
+            .iter()
+            .find(|t| (t.to_tlwh()[0] - 100.0).abs() < 1.0)
+            .unwrap();
+        let right = tracker
+            .tracks
+            .iter()
+            .find(|t| (t.to_tlwh()[0] - 400.0).abs() < 1.0)
+            .unwrap();
+        assert_eq!(left.det_ind, Some(0));
+        assert_eq!(right.det_ind, Some(1));
     }
 
     #[test]
