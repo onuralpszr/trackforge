@@ -58,7 +58,7 @@ version = "0.17.2"
 optional = true
 
 [dependencies.opencv]
-version = "^0.99.0"
+version = "^0.100.1"
 optional = true
 
 [dependencies.ort]
