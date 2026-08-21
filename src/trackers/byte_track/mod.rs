@@ -308,7 +308,7 @@ impl ByteTrack {
         }
 
         // Pool: tracked tracks first, then lost tracks.
-        let mut pool: Vec<STrack> = self.tracked_stracks.drain(..).collect();
+        let mut pool: Vec<STrack> = std::mem::take(&mut self.tracked_stracks);
         let n_tracked = pool.len();
         pool.append(&mut self.lost_stracks);
 
