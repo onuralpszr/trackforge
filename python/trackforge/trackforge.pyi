@@ -1,6 +1,14 @@
 from typing import List, Optional, Tuple
 
-__all__ = ["BYTETRACK", "SORT", "OCSORT", "DEEPSORT", "DEEPOCSORT", "BOTSORT"]
+__all__ = [
+    "BYTETRACK",
+    "SORT",
+    "OCSORT",
+    "DEEPSORT",
+    "DEEPOCSORT",
+    "BOTSORT",
+    "TRACKTRACK",
+]
 
 class BYTETRACK:
     """
