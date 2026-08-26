@@ -17,9 +17,9 @@ from typing import Sequence
 import cv2
 import numpy as np
 import torch
-import torchvision.models as models
 import torchvision.transforms as T
 from PIL import Image
+from torchvision import models
 
 
 def get_embedder() -> tuple[torch.nn.Module, T.Compose]:

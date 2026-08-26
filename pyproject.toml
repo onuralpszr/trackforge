@@ -31,3 +31,12 @@ classifiers = [
 [tool.maturin]
 features = ["python"]
 python-source = "python"
+
+[tool.ruff]
+src = ["python", "examples/python", "scripts"]
+
+[tool.ruff.lint]
+extend-select = ["I", "RUF022", "PLR0402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["trackforge"]

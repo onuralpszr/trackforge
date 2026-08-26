@@ -1,8 +1,8 @@
 """Integration tests for the Python bindings — exercises Rust glue code."""
 
 import pytest
-import trackforge
 
+import trackforge
 
 # ---------------------------------------------------------------------------
 # OCSORT
