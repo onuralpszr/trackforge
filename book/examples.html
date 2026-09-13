@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-656da129.js";
+            window.path_to_searchindex_js = "searchindex-f877bbc7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -192,8 +192,10 @@ in the repository, with a Python and a Rust entry per tracker.</p>
 <tr><td>ByteTrack</td><td><code>byte_track_demo.py</code></td><td><code>byte_track_demo.rs</code></td></tr>
 <tr><td>DeepSORT</td><td><code>deepsort_demo.py</code></td><td><code>deepsort_simple.rs</code>, <code>deepsort_ort.rs</code></td></tr>
 <tr><td>OC-SORT</td><td><code>ocsort_demo.py</code></td><td>-</td></tr>
+<tr><td>Deep OC-SORT</td><td><code>deep_ocsort_demo.py</code></td><td>-</td></tr>
+<tr><td>BoT-SORT</td><td><code>botsort_demo.py</code></td><td><code>det_ind_demo.rs</code></td></tr>
 <tr><td>SORT</td><td><code>sort_yolo_demo.py</code>, <code>sort_rtdetr_demo.py</code></td><td>-</td></tr>
-<tr><td>All four</td><td><code>tracker_comparison.py</code></td><td>-</td></tr>
+<tr><td>TrackTrack</td><td>-</td><td>-</td></tr>
 </tbody>
 </table>
 </div>
@@ -202,12 +204,14 @@ python examples/python/byte_track_demo.py
 
 # Rust
 cargo run --example byte_track_demo
-cargo run --example deepsort_simple
+cargo run --example deepsort_simple --features reid-model
 cargo run --example deepsort_ort --features advanced_examples
+cargo run --example det_ind_demo
 </code></pre>
 <p>The Python demos use the usual detector stacks (<code>ultralytics</code>, <code>transformers</code> + <code>torch</code>,
-<code>torch</code> + <code>torchvision</code>); install what a given demo imports. The <code>deepsort_ort</code> Rust demo needs the
-<code>advanced_examples</code> feature (ONNX Runtime + OpenCV).</p>
+<code>torch</code> + <code>torchvision</code>); install what a given demo imports. The <code>deepsort_simple</code> Rust demo
+needs the <code>reid-model</code> feature and the <code>deepsort_ort</code> demo needs the <code>advanced_examples</code>
+feature (ONNX Runtime + OpenCV).</p>
 
                     </main>
 

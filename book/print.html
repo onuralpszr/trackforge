@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-656da129.js";
+            window.path_to_searchindex_js = "searchindex-f877bbc7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -180,7 +180,7 @@
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p>Trackforge is a unified, high-performance multi-object tracking library written in Rust and
-exposed to Python via PyO3. It implements four production-ready tracking algorithms on top of a
+exposed to Python via PyO3. It implements seven production-ready tracking algorithms on top of a
 shared Kalman filter, so you can swap trackers without changing your integration code.</p>
 <p>It is designed as the CPU “glue” between a GPU object detector and your application: you pass in
 detection boxes each frame and get back stable track identities.</p>
@@ -195,6 +195,9 @@ detection boxes each frame and get back stable track identities.</p>
 <tr><td>ByteTrack</td><td>None</td><td>IoU (two-stage)</td><td>Crowded scenes, low-confidence detections</td></tr>
 <tr><td>OC-SORT</td><td>None</td><td>IoU + velocity (OCM)</td><td>Frequent brief occlusions, no Re-ID available</td></tr>
 <tr><td>DeepSORT</td><td>Re-ID embeddings</td><td>Appearance + IoU</td><td>Long occlusions, identity-sensitive use cases</td></tr>
+<tr><td>Deep OC-SORT</td><td>Re-ID embeddings</td><td>IoU + velocity + appearance</td><td>Occlusions where Re-ID helps recover identities</td></tr>
+<tr><td>BoT-SORT</td><td>Re-ID embeddings</td><td>IoU + appearance + camera motion</td><td>Moving cameras, panning and zoom</td></tr>
+<tr><td>TrackTrack</td><td>Re-ID embeddings</td><td>Track-perspective association</td><td>Crowded scenes needing strong identity</td></tr>
 </tbody>
 </table>
 </div>
@@ -619,6 +622,9 @@ plain description of every parameter is on the
 <li><a href="#parameters-1">ByteTrack parameters</a></li>
 <li><a href="#parameters-2">OC-SORT parameters</a></li>
 <li><a href="#parameters-3">DeepSORT parameters</a></li>
+<li><a href="#parameters-4">Deep OC-SORT parameters</a></li>
+<li><a href="#parameters-5">BoT-SORT parameters</a></li>
+<li><a href="#parameters-6">TrackTrack parameters</a></li>
 </ul>
 <p>The same tables are also published on the
 <a href="https://onuralpszr.github.io/trackforge/parameters.html">documentation site</a>.</p>
@@ -635,8 +641,10 @@ in the repository, with a Python and a Rust entry per tracker.</p>
 <tr><td>ByteTrack</td><td><code>byte_track_demo.py</code></td><td><code>byte_track_demo.rs</code></td></tr>
 <tr><td>DeepSORT</td><td><code>deepsort_demo.py</code></td><td><code>deepsort_simple.rs</code>, <code>deepsort_ort.rs</code></td></tr>
 <tr><td>OC-SORT</td><td><code>ocsort_demo.py</code></td><td>-</td></tr>
+<tr><td>Deep OC-SORT</td><td><code>deep_ocsort_demo.py</code></td><td>-</td></tr>
+<tr><td>BoT-SORT</td><td><code>botsort_demo.py</code></td><td><code>det_ind_demo.rs</code></td></tr>
 <tr><td>SORT</td><td><code>sort_yolo_demo.py</code>, <code>sort_rtdetr_demo.py</code></td><td>-</td></tr>
-<tr><td>All four</td><td><code>tracker_comparison.py</code></td><td>-</td></tr>
+<tr><td>TrackTrack</td><td>-</td><td>-</td></tr>
 </tbody>
 </table>
 </div>
@@ -645,12 +653,14 @@ python examples/python/byte_track_demo.py
 
 # Rust
 cargo run --example byte_track_demo
-cargo run --example deepsort_simple
+cargo run --example deepsort_simple --features reid-model
 cargo run --example deepsort_ort --features advanced_examples
+cargo run --example det_ind_demo
 </code></pre>
 <p>The Python demos use the usual detector stacks (<code>ultralytics</code>, <code>transformers</code> + <code>torch</code>,
-<code>torch</code> + <code>torchvision</code>); install what a given demo imports. The <code>deepsort_ort</code> Rust demo needs the
-<code>advanced_examples</code> feature (ONNX Runtime + OpenCV).</p>
+<code>torch</code> + <code>torchvision</code>); install what a given demo imports. The <code>deepsort_simple</code> Rust demo
+needs the <code>reid-model</code> feature and the <code>deepsort_ort</code> demo needs the <code>advanced_examples</code>
+feature (ONNX Runtime + OpenCV).</p>
 
                     </main>
 

@@ -540,7 +540,7 @@
 <a href="https://onuralpszr.github.io/trackforge/book/"><img alt="Guide" src="https://img.shields.io/badge/Guide-mdBook-1F7087?logo=mdbook&amp;logoColor=white" /></a></p>
 <p>Trackforge is a unified, high-performance computer vision tracking library implemented in
 Rust and exposed as a Python package via PyO3.</p>
-<p>It provides five production-ready multi-object tracking algorithms built on a shared
+<p>It provides seven production-ready multi-object tracking algorithms built on a shared
 8-dimensional Kalman filter with state <code>[x, y, a, h, vx, vy, va, vh]</code>, where <code>(x, y)</code>
 is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> the height.</p>
 <h1 id="choose-a-tracker">Choose a Tracker</h1>
@@ -589,6 +589,12 @@ is the bounding-box centre, <code>a</code> the aspect ratio, and <code>h</code> 
 <td>Re-ID embeddings</td>
 <td>IoU + appearance + camera motion</td>
 <td>Moving cameras, dense crowds</td>
+</tr>
+<tr>
+<td><a href="trackers/tracktrack/index.html#tracktrack"><code>tracktrack</code></a></td>
+<td>Re-ID embeddings</td>
+<td>Track-perspective association</td>
+<td>Crowded scenes needing strong identity</td>
 </tr>
 </tbody>
 </table>
@@ -696,7 +702,40 @@ let detections = vec![
 for t in &amp;tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
 }
-```</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a># BoT-SORT
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Extends ByteTrack's two-stage cascade with camera motion compensation and an
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>optional appearance term fused into the high-confidence matching stage.
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>```rust
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>use trackforge::trackers::botsort::BotSort;
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>// track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6,
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>// proximity_thresh=0.5, appearance_thresh=0.25
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>let mut tracker = BotSort::new(0.5, 30, 0.8, 0.6, 0.5, 0.25);
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>let embeddings = vec![vec![0.1_f32, 0.2, 0.3]];
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>let tracks = tracker.update(detections, &amp;embeddings);
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>for t in &amp;tracks {
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>}
+</span></code></pre></div></p>
+<h1 id="tracktrack">TrackTrack</h1>
+<p>A track-perspective association where each track picks its own best detection and
+a pair matches only on mutual agreement, plus track-aware initialization that
+suppresses spurious new tracks. Appearance is optional; pass an empty slice to
+track on motion only.</p>
+<div class="language-rust highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">use</span><span class="w"> </span><span class="n">trackforge</span><span class="p">::</span><span class="n">trackers</span><span class="p">::</span><span class="n">tracktrack</span><span class="p">::</span><span class="n">TrackTrack</span><span class="p">;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">tracker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TrackTrack</span><span class="p">::</span><span class="n">new</span><span class="p">();</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">let</span><span class="w"> </span><span class="n">detections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[([</span><span class="mf">100.0_</span><span class="k">f32</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">50.0</span><span class="p">,</span><span class="w"> </span><span class="mf">100.0</span><span class="p">],</span><span class="w"> </span><span class="mf">0.9_</span><span class="k">f32</span><span class="p">,</span><span class="w"> </span><span class="mi">0_</span><span class="k">i64</span><span class="p">)];</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kd">let</span><span class="w"> </span><span class="n">tracks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tracker</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="p">[]);</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tracks</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">"ID: {}, Box: {:?}"</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">track_id</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tlwh</span><span class="p">);</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
+</span></code></pre></div>
 <h2 id="quick-reference">Quick Reference</h2>
 <table>
 <thead>
