@@ -1,6 +1,6 @@
 //! Greedy linear assignment shared by the trackers.
 //!
-//! All four trackers resolve a cost matrix into matches the same way: enumerate
+//! Every tracker resolves a cost matrix into matches the same way: enumerate
 //! every (row, column) cost, sort ascending, and greedily accept a pair when both
 //! its row and column are still free and the cost does not exceed the threshold.
 

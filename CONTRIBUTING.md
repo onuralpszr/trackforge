@@ -4,6 +4,8 @@ First off, thank you for considering contributing to Trackforge.
 
 If your contribution is not straightforward, please first discuss the change you wish to make by creating a new issue before making the change, or starting a discussion on GitHub.
 
+Adding a new tracker? See [`docs/adding-a-tracker.md`](docs/adding-a-tracker.md) for the full process and [`.github/TRACKER_TEMPLATE.md`](.github/TRACKER_TEMPLATE.md) for the module README template.
+
 ## AI Generated Content
 
 We welcome high quality PRs, whether they are human generated or made with the assistance of AI tools, but we ask that you follow these guidelines:
