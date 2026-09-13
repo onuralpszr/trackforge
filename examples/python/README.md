@@ -8,7 +8,7 @@ Runnable demos for every trackforge tracker. Each demo reads a video, runs a det
 # Core
 pip install trackforge
 
-# YOLO demos (SORT, ByteTrack, OC-SORT, Deep SORT, Deep OC-SORT, comparison)
+# YOLO demos (SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT)
 pip install ultralytics opencv-python
 
 # RT-DETR demo
@@ -28,7 +28,7 @@ pip install torch torchvision pillow
 | [`ocsort_demo.py`](ocsort_demo.py)               | `OCSORT`             | YOLO11n            | `output_ocsort.mp4`      |
 | [`deepsort_demo.py`](deepsort_demo.py)           | `DEEPSORT`           | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
 | [`deep_ocsort_demo.py`](deep_ocsort_demo.py)     | `DEEPOCSORT`         | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
-| [`tracker_comparison.py`](tracker_comparison.py) | `BYTETRACK` + `SORT` | YOLO11n            | `output_comparison.mp4`  |
+| [`botsort_demo.py`](botsort_demo.py)             | `BOTSORT`            | YOLO11n + ResNet18 | `output_botsort.mp4`     |
 
 Two shared modules back the demos (not runnable on their own):
 
@@ -74,6 +74,8 @@ trackforge.OCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=
 trackforge.DEEPSORT(max_age=70, n_init=3, max_iou_distance=0.7, max_cosine_distance=0.2, nn_budget=100)
 trackforge.DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, inertia=0.2,
                       appearance_weight=0.5, max_cosine_distance=0.2, nn_budget=100)
+trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6,
+                   proximity_thresh=0.5, appearance_thresh=0.25)
 ```
 
 `DEEPSORT` and `DEEPOCSORT` take a parallel list of appearance embeddings: `tracker.update(detections, embeddings)`. For `DEEPOCSORT` the embeddings are optional (omit them to track on motion only).
@@ -129,6 +131,17 @@ trackforge.DEEPOCSORT(max_age=30, min_hits=3, iou_threshold=0.3, delta_t=3, iner
 | `appearance_weight`   | float | 0.5     | Blend weight for the appearance cost (0 = off) |
 | `max_cosine_distance` | float | 0.2     | Gate above which appearance is ignored         |
 | `nn_budget`           | int   | 100     | Max appearance features stored per track       |
+
+### BOTSORT
+
+| Parameter           | Type  | Default | Description                                          |
+| ------------------- | ----- | ------- | ----------------------------------------------------- |
+| `track_thresh`      | float | 0.5     | High confidence detection threshold                    |
+| `track_buffer`      | int   | 30      | Frames to keep lost tracks alive                       |
+| `match_thresh`      | float | 0.8     | IoU threshold for matching                             |
+| `det_thresh`        | float | 0.6     | Threshold for new track initialization                 |
+| `proximity_thresh`  | float | 0.5     | IoU-distance gate above which appearance is ignored    |
+| `appearance_thresh` | float | 0.25    | Cosine-distance gate above which appearance is ignored |
 
 ## Output Format
 
