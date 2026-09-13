@@ -25,6 +25,20 @@ use crate::utils::geometry::xyah_to_tlwh;
 /// detection to, e.g., reuse the detection's Re-ID feature.
 #[cfg(feature = "python")]
 pub type PyTrackingResult = (u64, [f32; 4], f32, i64, Option<i64>);
+
+/// Cast each track's `det_ind` from `usize` to the `i64` PyO3 expects and collect the
+/// result. Every tracker's Python `update` maps its track rows to
+/// `(track_id, tlwh, score, class_id, det_ind)` and feeds them through this.
+#[cfg(feature = "python")]
+pub fn to_py_tracking_results(
+    rows: impl Iterator<Item = (u64, [f32; 4], f32, i64, Option<usize>)>,
+) -> Vec<PyTrackingResult> {
+    rows.map(|(track_id, tlwh, score, class_id, det_ind)| {
+        (track_id, tlwh, score, class_id, det_ind.map(|i| i as i64))
+    })
+    .collect()
+}
+
 use crate::utils::kalman::{CovarianceMatrix, KalmanFilter, MeasurementVector, StateVector};
 
 /// Lifecycle state of a track.

@@ -22,6 +22,9 @@ Each tracker's chapter documents its own parameters and tuning advice:
 - [ByteTrack parameters](./trackers/byte_track.md#parameters)
 - [OC-SORT parameters](./trackers/ocsort.md#parameters)
 - [DeepSORT parameters](./trackers/deepsort.md#parameters)
+- [Deep OC-SORT parameters](./trackers/deep_ocsort.md#parameters)
+- [BoT-SORT parameters](./trackers/botsort.md#parameters)
+- [TrackTrack parameters](./trackers/tracktrack.md#parameters)
 
 The same tables are also published on the
 [documentation site](https://onuralpszr.github.io/trackforge/parameters.html).

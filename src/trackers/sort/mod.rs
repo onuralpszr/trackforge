@@ -331,18 +331,11 @@ impl PySort {
     ///         (track_id, [x, y, w, h], score, class_id).
     fn update(&mut self, detections: Vec<([f32; 4], f32, i64)>) -> PyResult<Vec<PyTrackingResult>> {
         let tracks = self.inner.update(detections);
-        Ok(tracks
-            .into_iter()
-            .map(|t| {
-                (
-                    t.track_id,
-                    t.tlwh,
-                    t.score,
-                    t.class_id,
-                    t.det_ind.map(|i| i as i64),
-                )
-            })
-            .collect())
+        Ok(crate::trackers::common::to_py_tracking_results(
+            tracks
+                .into_iter()
+                .map(|t| (t.track_id, t.tlwh, t.score, t.class_id, t.det_ind)),
+        ))
     }
 }
 
