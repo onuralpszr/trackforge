@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-f877bbc7.js";
+            window.path_to_searchindex_js = "searchindex-da1eaee2.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -211,7 +211,7 @@ both Python and Rust.</p>
 <h2 id="install"><a class="header" href="#install">Install</a></h2>
 <h3 id="rust"><a class="header" href="#rust">Rust</a></h3>
 <pre><code class="language-toml">[dependencies]
-trackforge = "0.3"
+trackforge = "0.4"
 </code></pre>
 <p>The default build is light and pulls no image codecs. Every tracker runs on detections you pass in, and the appearance trackers run on embeddings you pass in. To have the library produce embeddings for you by running a model over a frame, enable the <code>reid-model</code> feature, which adds the <code>AppearanceExtractor</code> trait and the <code>DeepSort</code> and <code>DeepOcSort</code> wrappers along with the <code>image</code> crate.</p>
 <pre><code class="language-toml">[dependencies]
