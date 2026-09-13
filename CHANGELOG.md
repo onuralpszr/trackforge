@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-09-13
+
+### 🚀 Features
+
+- *(deep_ocsort)* Add Deep OC-SORT tracker by @onuralpszr
+- *(examples)* Add shared python demo helpers by @onuralpszr
+- *(botsort)* Add BoT-SORT tracker by @onuralpszr
+- *(features)* Add optional reid-model feature for the image extractor by @onuralpszr
+- *(params)* Unified parameter structs with shared CommonParams by @onuralpszr
+- *(tracktrack)* Add the TrackTrack tracker by @onuralpszr
+- Add det_ind track-to-detection mapping by @onuralpszr
+
+### 🐛 Bug Fixes
+
+- *(security)* Update crossbeam-epoch and ignore unmaintained ttf-parser by @onuralpszr
+- *(pypi)* Add python version classifiers for the pyversions badge by @onuralpszr
+- Use mem::take to silence clippy drain-collect lint by @onuralpszr
+- Python project layout by @e8035669
+- *(ci)* Rename misspelled codecov workflow file by @onuralpszr
+
+### 🚜 Refactor
+
+- *(trackers)* Share IoU association helper by @onuralpszr
+- *(trackers)* Add shared common module and migrate SORT by @onuralpszr
+- *(trackers)* Migrate OC-SORT and DeepSORT to shared state by @onuralpszr
+- *(trackers)* Add unified Tracker trait by @onuralpszr
+- *(examples)* Unify python demos on shared helpers by @onuralpszr
+- *(trackers)* Share observation-centric track and association by @onuralpszr
+- *(trackers)* Share appearance-feature helpers, dedup botsort by @onuralpszr
+- *(byte_track)* Use shared KalmanTrack and PyTrackingResult by @onuralpszr
+- *(cascade)* Share the two-stage cascade between ByteTrack and BoT-SORT by @onuralpszr
+- *(tracktrack)* Reuse shared geometry iou helpers by @onuralpszr
+- *(trackers)* Dedupe python tracking result mapping into shared common helper by @onuralpszr
+
+### 📚 Documentation
+
+- Add comma after e.g. in Rust install note by @onuralpszr
+- Parenthesize side-by-side benchmark note for consistency by @onuralpszr
+- *(examples)* Document unified demos and add python versions badge by @onuralpszr
+- Update the docs site for six trackers and fix markdownlint by @onuralpszr
+- Use emoji for the Re-ID column in the trackers table by @onuralpszr
+- Add TrackTrack quick start to the README by @onuralpszr
+- *(examples)* Drop tracker comparison demo and complete tracker coverage in example tables by @onuralpszr
+- Add missing bot-sort and tracktrack coverage across crate docs, book, and site by @onuralpszr
+- Add tracker template and adding-a-tracker guide, fix stale links and counts by @onuralpszr
+
+### 🎨 Styling
+
+- Apply cargo fmt and prettier by @onuralpszr
+- Apply prettier and markdownlint formatting to satisfy autofix.ci by @onuralpszr
+
+### 🧪 Testing
+
+- *(trackers)* Cover byte_track lost buffer and simplify ocsort assert by @onuralpszr
+- *(trackers)* Add leak and id stress tests, ungate deep_ocsort core tests by @onuralpszr
+- *(tracktrack)* Cover camera motion, aging, penalties and appearance by @onuralpszr
+
+### ⚙️ Miscellaneous Tasks
+
+- Update actions/checkout and other dependencies to latest versions by @onuralpszr
+- Update dependencies to latest versions in Cargo.lock by @onuralpszr
+- Update opencv and shlex dependencies to latest versions by @onuralpszr
+- Add governance files and repo metadata by @onuralpszr
+- Remove standalone python det_ind check script by @onuralpszr
+- *(ruff)* Add lint config and bump the pre-commit hook by @onuralpszr
+- Cargo lock file update by @onuralpszr
+- Cargo deny clean up for zero warnings by @onuralpszr
+
 ## [0.3.0] - 2026-06-08
 
 ### 🚜 Refactor

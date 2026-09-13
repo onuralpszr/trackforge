@@ -39,7 +39,7 @@ pip install trackforge
 
 ```toml
 [dependencies]
-trackforge = "0.3"
+trackforge = "0.4"
 ```
 
 To enable the Python bindings feature when building from source:
