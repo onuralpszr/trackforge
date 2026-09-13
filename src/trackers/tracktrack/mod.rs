@@ -642,18 +642,11 @@ impl PyTrackTrack {
         let tracks = self
             .inner
             .update_with_camera_motion(detections, &embeddings, &cmc);
-        Ok(tracks
-            .into_iter()
-            .map(|t| {
-                (
-                    t.track_id,
-                    t.tlwh,
-                    t.score,
-                    t.class_id,
-                    t.det_ind.map(|i| i as i64),
-                )
-            })
-            .collect())
+        Ok(crate::trackers::common::to_py_tracking_results(
+            tracks
+                .into_iter()
+                .map(|t| (t.track_id, t.tlwh, t.score, t.class_id, t.det_ind)),
+        ))
     }
 }
 
