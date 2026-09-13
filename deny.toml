@@ -13,7 +13,6 @@ yanked = "warn"
 ignore = [
     # Add advisory IDs or yanked crates to ignore here
     # { crate = "some-crate@1.0.0", reason = "explanation" },
-    { id = "RUSTSEC-2026-0192", reason = "ttf-parser is unmaintained but reached only through the optional usls example dependency, and the ab_glyph and imageproc chain has no maintained replacement to move to yet" },
 ]
 
 # This section is considered when running `cargo deny check licenses`
@@ -22,24 +21,8 @@ ignore = [
 [licenses]
 # Allow only OSI-approved and FSF Free licenses by default
 # See https://spdx.org/licenses/ for full list
-allow = [
-    "Apache-2.0",
-    "Apache-2.0 WITH LLVM-exception",
-    "MIT",
-    "BSD-2-Clause",
-    "BSD-3-Clause",
-    "ISC",
-    "Unicode-DFS-2016",
-    "Unicode-3.0",
-    "NCSA",
-    "Unlicense",
-    "Zlib",
-    "0BSD",
-    "MPL-2.0",
-    "CDLA-Permissive-2.0",
-    "AGPL-3.0-or-later",
-    "AGPL-3.0",
-]
+allow = ["Apache-2.0", "MIT", "Unicode-3.0", "Zlib"]
+
 confidence-threshold = 0.8
 exceptions = [
     # Add exceptions here for specific crates
@@ -79,7 +62,3 @@ deny = [
 unknown-registry = "warn"
 unknown-git = "warn"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = ["https://github.com/pykeio/ort.git"]
-
-[sources.allow-org]
-github = ["ultralytics"]
