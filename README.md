@@ -362,9 +362,9 @@ Runnable demos live under [`examples/`](examples/), with both a Python and a Rus
 | DeepSORT     | [`deepsort_demo.py`](examples/python/deepsort_demo.py) (YOLO + ResNet18)                                                                | [`deepsort_simple.rs`](examples/deepsort_simple.rs), [`deepsort_ort.rs`](examples/deepsort_ort.rs) (ONNX) |
 | OC-SORT      | [`ocsort_demo.py`](examples/python/ocsort_demo.py)                                                                                      | —                                                                                                         |
 | Deep OC-SORT | [`deep_ocsort_demo.py`](examples/python/deep_ocsort_demo.py) (YOLO + ResNet18)                                                          | —                                                                                                         |
-| BoT-SORT     | [`botsort_demo.py`](examples/python/botsort_demo.py) (YOLO + ResNet18)                                                                  | [`det_ind_demo.rs`](examples/rust/det_ind_demo.rs) (det_ind mapping)                                       |
+| BoT-SORT     | [`botsort_demo.py`](examples/python/botsort_demo.py) (YOLO + ResNet18)                                                                  | [`det_ind_demo.rs`](examples/rust/det_ind_demo.rs) (det_ind mapping)                                      |
 | SORT         | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
-| TrackTrack   | —                                                                                                                                        | —                                                                                                         |
+| TrackTrack   | —                                                                                                                                       | —                                                                                                         |
 
 ```bash
 # Python

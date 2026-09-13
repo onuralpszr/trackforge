@@ -9,10 +9,7 @@ See docs/adding-a-tracker.md for the full process.
 
 This module implements the <Tracker Name> algorithm.
 
-> **<Paper Title>**
-> <Author list>
-> <Venue and year>
-> [arXiv:<id>](https://arxiv.org/abs/<id>)
+> **<Paper Title>** > <Author list> > <Venue and year> > [arXiv:<id>](https://arxiv.org/abs/<id>)
 
 ## Algorithm overview
 

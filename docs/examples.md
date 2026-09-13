@@ -3,15 +3,15 @@
 Runnable demos live under [`examples/`](https://github.com/onuralpszr/trackforge/tree/main/examples)
 in the repository, with a Python and a Rust entry per tracker.
 
-| Tracker      | Python                                      | Rust                                    |
-| ------------ | -------------------------------------------- | ---------------------------------------- |
-| ByteTrack    | `byte_track_demo.py`                        | `byte_track_demo.rs`                    |
-| DeepSORT     | `deepsort_demo.py`                          | `deepsort_simple.rs`, `deepsort_ort.rs` |
-| OC-SORT      | `ocsort_demo.py`                            | -                                       |
-| Deep OC-SORT | `deep_ocsort_demo.py`                       | -                                       |
-| BoT-SORT     | `botsort_demo.py`                           | `det_ind_demo.rs`                       |
-| SORT         | `sort_yolo_demo.py`, `sort_rtdetr_demo.py`  | -                                       |
-| TrackTrack   | -                                            | -                                       |
+| Tracker      | Python                                     | Rust                                    |
+| ------------ | ------------------------------------------ | --------------------------------------- |
+| ByteTrack    | `byte_track_demo.py`                       | `byte_track_demo.rs`                    |
+| DeepSORT     | `deepsort_demo.py`                         | `deepsort_simple.rs`, `deepsort_ort.rs` |
+| OC-SORT      | `ocsort_demo.py`                           | -                                       |
+| Deep OC-SORT | `deep_ocsort_demo.py`                      | -                                       |
+| BoT-SORT     | `botsort_demo.py`                          | `det_ind_demo.rs`                       |
+| SORT         | `sort_yolo_demo.py`, `sort_rtdetr_demo.py` | -                                       |
+| TrackTrack   | -                                          | -                                       |
 
 ```bash
 # Python

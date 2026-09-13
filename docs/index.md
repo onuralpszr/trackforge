@@ -393,16 +393,16 @@ applied before association.
 
 ### Configuration
 
-| Parameter             | Type    | Default | Description                                                   |
-| ---------------------- | ------- | ------- | --------------------------------------------------------------- |
+| Parameter             | Type    | Default | Description                                                     |
+| --------------------- | ------- | ------- | --------------------------------------------------------------- |
 | `max_age`             | `usize` | `30`    | Frames a lost track survives before deletion                    |
 | `min_hits`            | `usize` | `3`     | Consecutive matched frames required to confirm a track          |
-| `iou_threshold`       | `f32`   | `0.3`   | Minimum IoU to associate a detection with a track                |
-| `delta_t`             | `usize` | `3`     | Observation window (frames) used to compute velocity (OCV)       |
-| `inertia`             | `f32`   | `0.2`   | Weight of the direction-consistency cost bonus (OCM)              |
+| `iou_threshold`       | `f32`   | `0.3`   | Minimum IoU to associate a detection with a track               |
+| `delta_t`             | `usize` | `3`     | Observation window (frames) used to compute velocity (OCV)      |
+| `inertia`             | `f32`   | `0.2`   | Weight of the direction-consistency cost bonus (OCM)            |
 | `appearance_weight`   | `f32`   | `0.5`   | Blend weight for the appearance cost, scaled by detection score |
-| `max_cosine_distance` | `f32`   | `0.2`   | Cosine distance gate above which appearance is ignored           |
-| `nn_budget`           | `usize` | `100`   | Maximum appearance features stored per track                     |
+| `max_cosine_distance` | `f32`   | `0.2`   | Cosine distance gate above which appearance is ignored          |
+| `nn_budget`           | `usize` | `100`   | Maximum appearance features stored per track                    |
 
 #### Tuning tips
 
@@ -462,15 +462,15 @@ ByteTrack with camera motion, so appearance is a strict add-on.
 
 ### Configuration
 
-| Parameter            | Type    | Default | Description                                                    |
-| ---------------------- | ------- | ------- | ----------------------------------------------------------------- |
-| `track_thresh`        | `f32`   | `0.5`   | Confidence split between high- and low-score detections            |
-| `track_buffer`        | `usize` | `30`    | Frames a lost track is kept alive before removal                   |
-| `match_thresh`        | `f32`   | `0.8`   | Maximum cost for a first-stage (high-confidence) match              |
-| `det_thresh`          | `f32`   | `0.6`   | Minimum score to start a new track                                  |
-| `second_match_thresh` | `f32`   | `0.5`   | Stage-2 match cutoff for recovering low-confidence detections       |
-| `proximity_thresh`    | `f32`   | `0.5`   | IoU-distance gate above which appearance is ignored                 |
-| `appearance_thresh`   | `f32`   | `0.25`  | Cosine-distance gate above which appearance is ignored              |
+| Parameter             | Type    | Default | Description                                                   |
+| --------------------- | ------- | ------- | ------------------------------------------------------------- |
+| `track_thresh`        | `f32`   | `0.5`   | Confidence split between high- and low-score detections       |
+| `track_buffer`        | `usize` | `30`    | Frames a lost track is kept alive before removal              |
+| `match_thresh`        | `f32`   | `0.8`   | Maximum cost for a first-stage (high-confidence) match        |
+| `det_thresh`          | `f32`   | `0.6`   | Minimum score to start a new track                            |
+| `second_match_thresh` | `f32`   | `0.5`   | Stage-2 match cutoff for recovering low-confidence detections |
+| `proximity_thresh`    | `f32`   | `0.5`   | IoU-distance gate above which appearance is ignored           |
+| `appearance_thresh`   | `f32`   | `0.25`  | Cosine-distance gate above which appearance is ignored        |
 
 #### Tuning tips
 
@@ -530,16 +530,16 @@ for the Re-ID term, or an empty list to track on motion only.
 
 ### Configuration
 
-| Parameter      | Type    | Default | Description                                                        |
-| -------------- | ------- | ------- | ---------------------------------------------------------------------- |
-| `det_thresh`   | `f32`   | `0.6`   | Score above which a detection is high confidence                       |
-| `match_thresh` | `f32`   | `0.7`   | Association cost gate, lower is stricter                               |
-| `track_buffer` | `usize` | `30`    | Frames a lost track is kept alive                                       |
-| `min_hits`     | `usize` | `3`     | Matched frames in a row before a new track is confirmed                 |
-| `init_thresh`  | `f32`   | `0.7`   | Smallest score a leftover detection needs to start a new track         |
-| `tai_thresh`   | `f32`   | `0.55`  | Overlap gate for track-aware initialization, a maximum IoU              |
-| `penalty_low`  | `f32`   | `0.2`   | Extra cost added to low confidence detections during association       |
-| `reduce_step`  | `f32`   | `0.05`  | How much the cost gate tightens per matching round                     |
+| Parameter      | Type    | Default | Description                                                      |
+| -------------- | ------- | ------- | ---------------------------------------------------------------- |
+| `det_thresh`   | `f32`   | `0.6`   | Score above which a detection is high confidence                 |
+| `match_thresh` | `f32`   | `0.7`   | Association cost gate, lower is stricter                         |
+| `track_buffer` | `usize` | `30`    | Frames a lost track is kept alive                                |
+| `min_hits`     | `usize` | `3`     | Matched frames in a row before a new track is confirmed          |
+| `init_thresh`  | `f32`   | `0.7`   | Smallest score a leftover detection needs to start a new track   |
+| `tai_thresh`   | `f32`   | `0.55`  | Overlap gate for track-aware initialization, a maximum IoU       |
+| `penalty_low`  | `f32`   | `0.2`   | Extra cost added to low confidence detections during association |
+| `reduce_step`  | `f32`   | `0.05`  | How much the cost gate tightens per matching round               |
 
 ### Python
 

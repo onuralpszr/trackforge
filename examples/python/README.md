@@ -20,15 +20,15 @@ pip install torch torchvision pillow
 
 ## Examples
 
-| Example                                          | Tracker              | Detector           | Output                   |
-| ------------------------------------------------ | -------------------- | ------------------ | ------------------------ |
-| [`sort_yolo_demo.py`](sort_yolo_demo.py)         | `SORT`               | YOLO11n            | `output_sort_yolo.mp4`   |
-| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py)     | `SORT`               | RT-DETR            | `output_sort_rtdetr.mp4` |
-| [`byte_track_demo.py`](byte_track_demo.py)       | `BYTETRACK`          | YOLO11n            | `output_bytetrack.mp4`   |
-| [`ocsort_demo.py`](ocsort_demo.py)               | `OCSORT`             | YOLO11n            | `output_ocsort.mp4`      |
-| [`deepsort_demo.py`](deepsort_demo.py)           | `DEEPSORT`           | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
-| [`deep_ocsort_demo.py`](deep_ocsort_demo.py)     | `DEEPOCSORT`         | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
-| [`botsort_demo.py`](botsort_demo.py)             | `BOTSORT`            | YOLO11n + ResNet18 | `output_botsort.mp4`     |
+| Example                                      | Tracker      | Detector           | Output                   |
+| -------------------------------------------- | ------------ | ------------------ | ------------------------ |
+| [`sort_yolo_demo.py`](sort_yolo_demo.py)     | `SORT`       | YOLO11n            | `output_sort_yolo.mp4`   |
+| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py) | `SORT`       | RT-DETR            | `output_sort_rtdetr.mp4` |
+| [`byte_track_demo.py`](byte_track_demo.py)   | `BYTETRACK`  | YOLO11n            | `output_bytetrack.mp4`   |
+| [`ocsort_demo.py`](ocsort_demo.py)           | `OCSORT`     | YOLO11n            | `output_ocsort.mp4`      |
+| [`deepsort_demo.py`](deepsort_demo.py)       | `DEEPSORT`   | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
+| [`deep_ocsort_demo.py`](deep_ocsort_demo.py) | `DEEPOCSORT` | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
+| [`botsort_demo.py`](botsort_demo.py)         | `BOTSORT`    | YOLO11n + ResNet18 | `output_botsort.mp4`     |
 
 Two shared modules back the demos (not runnable on their own):
 
@@ -134,8 +134,8 @@ trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thre
 
 ### BOTSORT
 
-| Parameter           | Type  | Default | Description                                          |
-| ------------------- | ----- | ------- | ----------------------------------------------------- |
+| Parameter           | Type  | Default | Description                                            |
+| ------------------- | ----- | ------- | ------------------------------------------------------ |
 | `track_thresh`      | float | 0.5     | High confidence detection threshold                    |
 | `track_buffer`      | int   | 30      | Frames to keep lost tracks alive                       |
 | `match_thresh`      | float | 0.8     | IoU threshold for matching                             |
