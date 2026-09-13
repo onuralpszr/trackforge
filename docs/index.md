@@ -1,8 +1,8 @@
 <p align="center">
     <picture>
-        <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-dark.png" media="(prefers-color-scheme: dark)" />
-        <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-transparent.png" media="(prefers-color-scheme: light)" />
-        <img src="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-transparent.png" alt="Trackforge logo" width="auto" />
+        <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-dark-transparent.png" media="(prefers-color-scheme: dark)" />
+        <source srcset="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-light-transparent.png" media="(prefers-color-scheme: light)" />
+        <img src="https://raw.githubusercontent.com/onuralpszr/trackforge/main/assets/track-forge-light-transparent.png" alt="Trackforge logo" width="auto" />
     </picture>
 </p>
 
@@ -378,6 +378,193 @@ let detections = vec![
 let tracks = tracker.update(&frame, &detections).unwrap();
 for t in &tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
+}
+```
+
+---
+
+## Deep OC-SORT
+
+**Deep OC-SORT** ([arXiv 2302.11813](https://arxiv.org/abs/2302.11813), ICIP 2023).
+Extends OC-SORT with appearance: a cosine distance to each track's feature gallery is blended into
+the motion cost, scaled by detector confidence. With `appearance_weight = 0` it reduces to plain
+OC-SORT, so appearance is a strict add-on. Also accepts a caller-supplied camera-motion affine,
+applied before association.
+
+### Configuration
+
+| Parameter             | Type    | Default | Description                                                   |
+| ---------------------- | ------- | ------- | --------------------------------------------------------------- |
+| `max_age`             | `usize` | `30`    | Frames a lost track survives before deletion                    |
+| `min_hits`            | `usize` | `3`     | Consecutive matched frames required to confirm a track          |
+| `iou_threshold`       | `f32`   | `0.3`   | Minimum IoU to associate a detection with a track                |
+| `delta_t`             | `usize` | `3`     | Observation window (frames) used to compute velocity (OCV)       |
+| `inertia`             | `f32`   | `0.2`   | Weight of the direction-consistency cost bonus (OCM)              |
+| `appearance_weight`   | `f32`   | `0.5`   | Blend weight for the appearance cost, scaled by detection score |
+| `max_cosine_distance` | `f32`   | `0.2`   | Cosine distance gate above which appearance is ignored           |
+| `nn_budget`           | `usize` | `100`   | Maximum appearance features stored per track                     |
+
+#### Tuning tips
+
+- Raise `appearance_weight` when the Re-ID model is reliable and identities matter; lower it
+  toward 0 to fall back to plain OC-SORT motion.
+- Tighten `max_cosine_distance` to only trust strong appearance matches.
+- The motion parameters (`max_age`, `min_hits`, `iou_threshold`, `delta_t`, `inertia`) behave as
+  in OC-SORT.
+
+### Python
+
+```python
+import trackforge
+
+tracker = trackforge.DEEPOCSORT(
+    max_age=30,
+    min_hits=3,
+    iou_threshold=0.3,
+    delta_t=3,
+    inertia=0.2,
+    appearance_weight=0.5,
+    max_cosine_distance=0.2,
+    nn_budget=100,
+)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
+
+tracks = tracker.update(detections, embeddings)
+for track_id, tlwh, score, class_id, det_ind in tracks:
+    print(f"ID={track_id}  box={tlwh}")
+```
+
+### Rust
+
+```rust,ignore
+use trackforge::trackers::deep_ocsort::DeepOcSort;
+
+// `extractor` implements AppearanceExtractor (plug in any Re-ID model).
+let mut tracker = DeepOcSort::new(extractor, 30, 3, 0.3, 3, 0.2, 0.5, 0.2, 100);
+
+let tracks = tracker.update(&frame, detections).unwrap();
+for t in &tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
+
+---
+
+## BoT-SORT
+
+**BoT-SORT** ([arXiv 2206.14651](https://arxiv.org/abs/2206.14651)).
+Extends ByteTrack's two-stage cascade with camera motion compensation, which warps each track's
+Kalman prediction by a caller-supplied affine transform before association, and an optional
+appearance term fused with IoU in the high-confidence stage. With no embeddings it reduces to
+ByteTrack with camera motion, so appearance is a strict add-on.
+
+### Configuration
+
+| Parameter            | Type    | Default | Description                                                    |
+| ---------------------- | ------- | ------- | ----------------------------------------------------------------- |
+| `track_thresh`        | `f32`   | `0.5`   | Confidence split between high- and low-score detections            |
+| `track_buffer`        | `usize` | `30`    | Frames a lost track is kept alive before removal                   |
+| `match_thresh`        | `f32`   | `0.8`   | Maximum cost for a first-stage (high-confidence) match              |
+| `det_thresh`          | `f32`   | `0.6`   | Minimum score to start a new track                                  |
+| `second_match_thresh` | `f32`   | `0.5`   | Stage-2 match cutoff for recovering low-confidence detections       |
+| `proximity_thresh`    | `f32`   | `0.5`   | IoU-distance gate above which appearance is ignored                 |
+| `appearance_thresh`   | `f32`   | `0.25`  | Cosine-distance gate above which appearance is ignored              |
+
+#### Tuning tips
+
+- Supply a camera-motion affine on moving-camera footage; leave it out for a static camera.
+- Provide embeddings when a Re-ID model is available, and tighten `appearance_thresh` to only
+  trust strong appearance matches.
+- The two-stage thresholds behave as in ByteTrack.
+
+### Python
+
+```python
+import trackforge
+
+tracker = trackforge.BOTSORT(
+    track_thresh=0.5,
+    track_buffer=30,
+    match_thresh=0.8,
+    det_thresh=0.6,
+    proximity_thresh=0.5,
+    appearance_thresh=0.25,
+)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+embeddings = [[0.1, 0.2, 0.3]]  # one appearance vector per detection
+
+# Moving camera: pass a [a, b, tx, c, d, ty] affine mapping the previous frame to the current one.
+tracks = tracker.update(detections, embeddings, [1.0, 0.0, 12.0, 0.0, 1.0, -4.0])
+for track_id, tlwh, score, class_id, det_ind in tracks:
+    print(f"ID={track_id}  box={tlwh}")
+```
+
+### Rust
+
+```rust
+use trackforge::trackers::botsort::BotSort;
+
+let mut tracker = BotSort::new(0.5, 30, 0.8, 0.6, 0.5, 0.25);
+
+let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+let embeddings = vec![vec![0.1_f32, 0.2, 0.3]];
+let tracks = tracker.update(detections, &embeddings);
+for t in &tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+}
+```
+
+---
+
+## TrackTrack
+
+**TrackTrack** ([CVPR 2025](https://openaccess.thecvf.com/content/CVPR2025/html/Shim_Focusing_on_Tracks_for_Online_Multi-Object_Tracking_CVPR_2025_paper.html)).
+A track-centric tracker built on a ByteTrack-style two-stage lifecycle. Each track picks its own
+best detection and a pair matches only when the choice is mutual, with a cost gate that tightens
+each round; a leftover detection starts a new track only if it clears an init threshold and does
+not overlap an existing track by more than `tai_thresh`. Appearance is optional: pass embeddings
+for the Re-ID term, or an empty list to track on motion only.
+
+### Configuration
+
+| Parameter      | Type    | Default | Description                                                        |
+| -------------- | ------- | ------- | ---------------------------------------------------------------------- |
+| `det_thresh`   | `f32`   | `0.6`   | Score above which a detection is high confidence                       |
+| `match_thresh` | `f32`   | `0.7`   | Association cost gate, lower is stricter                               |
+| `track_buffer` | `usize` | `30`    | Frames a lost track is kept alive                                       |
+| `min_hits`     | `usize` | `3`     | Matched frames in a row before a new track is confirmed                 |
+| `init_thresh`  | `f32`   | `0.7`   | Smallest score a leftover detection needs to start a new track         |
+| `tai_thresh`   | `f32`   | `0.55`  | Overlap gate for track-aware initialization, a maximum IoU              |
+| `penalty_low`  | `f32`   | `0.2`   | Extra cost added to low confidence detections during association       |
+| `reduce_step`  | `f32`   | `0.05`  | How much the cost gate tightens per matching round                     |
+
+### Python
+
+```python
+import trackforge
+
+tracker = trackforge.TRACKTRACK(det_thresh=0.6, match_thresh=0.7, track_buffer=30, min_hits=3)
+
+detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
+tracks = tracker.update(detections)
+for track_id, tlwh, score, class_id, det_ind in tracks:
+    print(f"ID={track_id}  box={tlwh}")
+```
+
+### Rust
+
+```rust
+use trackforge::trackers::tracktrack::TrackTrack;
+
+let mut tracker = TrackTrack::new();
+
+let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+let tracks = tracker.update(detections, &[]);
+for t in &tracks {
+    println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
 }
 ```
 

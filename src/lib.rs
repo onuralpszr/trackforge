@@ -9,7 +9,7 @@
 //! Trackforge is a unified, high-performance computer vision tracking library implemented in
 //! Rust and exposed as a Python package via PyO3.
 //!
-//! It provides five production-ready multi-object tracking algorithms built on a shared
+//! It provides seven production-ready multi-object tracking algorithms built on a shared
 //! 8-dimensional Kalman filter with state `[x, y, a, h, vx, vy, va, vh]`, where `(x, y)`
 //! is the bounding-box centre, `a` the aspect ratio, and `h` the height.
 //!
@@ -23,6 +23,7 @@
 //! | [`deepsort`] | Re-ID embeddings | Appearance + IoU | Long occlusions, dense crowds |
 //! | [`deep_ocsort`] | Re-ID embeddings | IoU + velocity + appearance | Occlusions with re-identification |
 //! | [`botsort`] | Re-ID embeddings | IoU + appearance + camera motion | Moving cameras, dense crowds |
+//! | [`tracktrack`] | Re-ID embeddings | Track-perspective association | Crowded scenes needing strong identity |
 //!
 //! # SORT
 //!
@@ -153,12 +154,52 @@
 //! }
 //! ```
 //!
+//! # BoT-SORT
+//!
+//! Extends ByteTrack's two-stage cascade with camera motion compensation and an
+//! optional appearance term fused into the high-confidence matching stage.
+//!
+//! ```rust
+//! use trackforge::trackers::botsort::BotSort;
+//!
+//! // track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thresh=0.6,
+//! // proximity_thresh=0.5, appearance_thresh=0.25
+//! let mut tracker = BotSort::new(0.5, 30, 0.8, 0.6, 0.5, 0.25);
+//!
+//! let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+//! let embeddings = vec![vec![0.1_f32, 0.2, 0.3]];
+//! let tracks = tracker.update(detections, &embeddings);
+//! for t in &tracks {
+//!     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+//! }
+//! ```
+//!
+//! # TrackTrack
+//!
+//! A track-perspective association where each track picks its own best detection and
+//! a pair matches only on mutual agreement, plus track-aware initialization that
+//! suppresses spurious new tracks. Appearance is optional; pass an empty slice to
+//! track on motion only.
+//!
+//! ```rust
+//! use trackforge::trackers::tracktrack::TrackTrack;
+//!
+//! let mut tracker = TrackTrack::new();
+//!
+//! let detections = vec![([100.0_f32, 100.0, 50.0, 100.0], 0.9_f32, 0_i64)];
+//! let tracks = tracker.update(detections, &[]);
+//! for t in &tracks {
+//!     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
+//! }
+//! ```
+//!
 //! [`sort`]: trackers::sort
 //! [`byte_track`]: trackers::byte_track
 //! [`ocsort`]: trackers::ocsort
 //! [`deepsort`]: trackers::deepsort
 //! [`deep_ocsort`]: trackers::deep_ocsort
 //! [`botsort`]: trackers::botsort
+//! [`tracktrack`]: trackers::tracktrack
 
 pub mod trackers;
 pub mod traits;
