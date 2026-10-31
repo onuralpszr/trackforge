@@ -64,14 +64,14 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-trackforge = "0.4.0"
+trackforge = "0.5.0"
 ```
 
 To build the Python bindings from source (e.g., via `maturin develop`), enable the `python` feature:
 
 ```toml
 [dependencies]
-trackforge = { version = "0.4.0", features = ["python"] }
+trackforge = { version = "0.5.0", features = ["python"] }
 ```
 
 #### Cargo features
@@ -88,7 +88,7 @@ Enable the image based extractor when you want the library to produce embeddings
 
 ```toml
 [dependencies]
-trackforge = { version = "0.4.0", features = ["reid-model"] }
+trackforge = { version = "0.5.0", features = ["reid-model"] }
 ```
 
 Without it, produce embeddings yourself (any model, any runtime) and drive `DeepSortTracker` or `DeepOcSortTracker` directly.
