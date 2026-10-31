@@ -133,6 +133,31 @@ jobs:
           name: wheels-linux-${{ matrix.target }}
           path: dist
 
+  musllinux:
+    # Same i386 container networking issue as the linux job (actions/runner-images#14790)
+    runs-on: ${{ matrix.target == 'x86' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [x86_64, x86, aarch64, armv7]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.10"
+      - name: Build wheels
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist --find-interpreter
+          sccache: "true"
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: wheels-musllinux-${{ matrix.target }}
+          path: dist
+
   windows:
     runs-on: windows-latest
     strategy:
@@ -203,7 +228,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    needs: [linux, windows, macos, sdist]
+    needs: [linux, musllinux, windows, macos, sdist]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@stable
