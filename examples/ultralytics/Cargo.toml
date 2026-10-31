@@ -1,0 +1,21 @@
+# Standalone example: Ultralytics YOLO inference in Rust feeding trackforge trackers.
+#
+# It lives in its own workspace and is never published, so the AGPL-3.0
+# `ultralytics-inference` dependency stays out of the MIT trackforge crate.
+[package]
+name = "trackforge-ultralytics-example"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.92"
+license = "AGPL-3.0"
+publish = false
+
+[workspace]
+
+[dependencies]
+trackforge = { path = "../.." }
+ultralytics-inference = { version = "0.0.54", default-features = false }
+
+[features]
+# Read video files, webcams and streams through FFmpeg (needs the FFmpeg dev libraries).
+video = ["ultralytics-inference/video"]

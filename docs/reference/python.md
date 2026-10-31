@@ -22,6 +22,8 @@ trackforge.BOTSORT
 trackforge.TRACKTRACK
 ```
 
+Two helpers connect the trackers to [Ultralytics](https://github.com/ultralytics/ultralytics) models; see [Ultralytics helpers](#ultralytics-helpers).
+
 ---
 
 ## `BYTETRACK`
@@ -410,6 +412,47 @@ tracks = tracker.update(
 ```
 
 Same input and output format as `BOTSORT.update`.
+
+---
+
+## Ultralytics helpers
+
+Both helpers only read Ultralytics result objects and never import `ultralytics`, so it stays an optional dependency.
+
+### `from_ultralytics`
+
+```python
+trackforge.from_ultralytics(result) -> List[Tuple[List[float], float, int]]
+```
+
+Converts one `Results` object (or the one-element list `model(frame)` returns) into `(tlwh, score, class_id)` detections in the order of `result.boxes`, so a track's `det_ind` indexes into `result.boxes`. Raises `ValueError` for a list with more than one result.
+
+```python
+detections = trackforge.from_ultralytics(model(frame, verbose=False))
+tracks = tracker.update(detections)
+```
+
+### `track_ultralytics`
+
+```python
+trackforge.track_ultralytics(model, source, tracker, embedder=None, **predict_kwargs)
+```
+
+Runs `model.predict(source, stream=True, verbose=False, **predict_kwargs)` and yields `(result, tracks)` for every frame.
+
+| Parameter          | Description                                                                                                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `model`            | A loaded `ultralytics.YOLO` or RT-DETR model                                                                                                                |
+| `source`           | Anything `model.predict` accepts: video path, webcam index, stream URL, image folder                                                                        |
+| `tracker`          | Any trackforge tracker instance                                                                                                                             |
+| `embedder`         | Optional `embedder(frame, tlwh_boxes) -> embeddings` for appearance trackers. `DEEPSORT` needs one; `DEEPOCSORT`, `BOTSORT`, `TRACKTRACK` use it when given |
+| `**predict_kwargs` | Passed to `model.predict`, for example `classes=[0]` or `conf=0.3`                                                                                          |
+
+```python
+for result, tracks in trackforge.track_ultralytics(model, "people.mp4", trackforge.BYTETRACK(), classes=[0]):
+    for track_id, tlwh, score, class_id, det_ind in tracks:
+        print(track_id, result.names[class_id], tlwh)
+```
 
 ---
 

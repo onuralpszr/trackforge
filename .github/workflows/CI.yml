@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           python-version: "3.12"
@@ -55,6 +55,22 @@ jobs:
           maturin develop
       - name: Run pytest
         run: pytest tests
+
+  ultralytics-example:
+    name: Ultralytics example
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: examples/ultralytics
+      - name: cargo fmt
+        run: cargo fmt --manifest-path examples/ultralytics/Cargo.toml -- --check
+      - name: cargo clippy
+        run: cargo clippy --manifest-path examples/ultralytics/Cargo.toml -- -D warnings
 
   lint:
     name: Lint (fmt + clippy)

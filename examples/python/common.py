@@ -7,7 +7,7 @@ functions here factor out that shared plumbing so each demo only has to wire up
 its detector and tracker.
 
 Requirements:
-    pip install opencv-python
+    pip install opencv-python trackforge
 """
 
 from __future__ import annotations
@@ -16,6 +16,8 @@ import time
 from typing import NamedTuple, Optional, Sequence
 
 import cv2
+
+import trackforge
 
 # BGR palette cycled by track id so the same id keeps a stable color.
 PALETTE: list[tuple[int, int, int]] = [
@@ -132,15 +134,7 @@ def yolo_detections(
         A list of ``(tlwh, score, class_id)`` detections.
     """
     results = model.predict(frame, verbose=False, classes=classes)
-    detections: list[Detection] = []
-    for result in results:
-        for box in result.boxes:
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
-            tlwh = [float(x1), float(y1), float(x2 - x1), float(y2 - y1)]
-            score = float(box.conf[0].cpu().numpy())
-            class_id = int(box.cls[0].cpu().numpy())
-            detections.append((tlwh, score, class_id))
-    return detections
+    return trackforge.from_ultralytics(results)
 
 
 def draw_track(

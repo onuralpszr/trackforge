@@ -3,6 +3,9 @@
 //! This module provides common mathematical and geometric tools used by the trackers.
 
 pub mod assignment;
+pub mod detections;
 pub mod features;
 pub mod geometry;
 pub mod kalman;
+
+pub use detections::detections_from_xyxy_rows;
