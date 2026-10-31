@@ -8,4 +8,4 @@ pub mod features;
 pub mod geometry;
 pub mod kalman;
 
-pub use detections::detections_from_xyxy_rows;
+pub use detections::detections_from_xyxy;

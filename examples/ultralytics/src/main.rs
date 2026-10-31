@@ -19,14 +19,14 @@ use trackforge::trackers::byte_track::{ByteTrack, ByteTrackParams};
 use trackforge::trackers::ocsort::{OcSort, OcSortParams};
 use trackforge::trackers::sort::{Sort, SortParams};
 use trackforge::trackers::tracktrack::{TrackTrack, TrackTrackParams};
-use trackforge::utils::detections_from_xyxy_rows;
+use trackforge::utils::detections_from_xyxy;
 use ultralytics_inference::YOLOModel;
 use ultralytics_inference::source::{Source, SourceIterator};
 
 type Detections = Vec<([f32; 4], f32, i64)>;
 
-/// One tracker output row: `(track_id, tlwh, score, class_id)`.
-type TrackRow = (u64, [f32; 4], f32, i64);
+/// One tracked object: `(track_id, tlwh, score, class_id)`.
+type TrackOutput = (u64, [f32; 4], f32, i64);
 
 /// The motion trackers, behind one `update` so the tracker can be picked at runtime.
 enum Tracker {
@@ -49,8 +49,8 @@ impl Tracker {
         })
     }
 
-    fn update(&mut self, dets: Detections) -> Vec<TrackRow> {
-        macro_rules! rows {
+    fn update(&mut self, dets: Detections) -> Vec<TrackOutput> {
+        macro_rules! collect_tracks {
             ($tracks:expr) => {
                 $tracks
                     .into_iter()
@@ -59,12 +59,12 @@ impl Tracker {
             };
         }
         match self {
-            Self::Sort(t) => rows!(t.update(dets)),
-            Self::ByteTrack(t) => rows!(t.update(dets)),
-            Self::OcSort(t) => rows!(t.update(dets)),
+            Self::Sort(t) => collect_tracks!(t.update(dets)),
+            Self::ByteTrack(t) => collect_tracks!(t.update(dets)),
+            Self::OcSort(t) => collect_tracks!(t.update(dets)),
             // No Re-ID model here, so the appearance trackers run on motion alone.
-            Self::BotSort(t) => rows!(t.update(dets, &[])),
-            Self::TrackTrack(t) => rows!(t.update(dets, &[])),
+            Self::BotSort(t) => collect_tracks!(t.update(dets, &[])),
+            Self::TrackTrack(t) => collect_tracks!(t.update(dets, &[])),
         }
     }
 }
@@ -118,14 +118,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         let (image, meta) = frame?;
         let results = model.predict_image(&image, meta.path.clone())?;
 
-        // Ultralytics `Boxes::data` holds one `[x1, y1, x2, y2, conf, cls]` row per box.
+        // Ultralytics `Boxes::data` holds one `[x1, y1, x2, y2, conf, cls]` entry per box.
         let mut dets = Vec::new();
         for result in &results {
             if let Some(boxes) = &result.boxes {
                 let data = boxes.data.as_standard_layout();
-                dets.extend(detections_from_xyxy_rows(
-                    data.as_slice().unwrap_or_default(),
-                ));
+                dets.extend(detections_from_xyxy(data.as_slice().unwrap_or_default()));
             }
         }
         if let Some(keep) = &args.classes {

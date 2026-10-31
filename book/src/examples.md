@@ -42,7 +42,7 @@ for result, tracks in trackforge.track_ultralytics(YOLO("yolo11n.pt"), "people.m
     print(len(tracks))
 ```
 
-Rust: `trackforge::utils::detections_from_xyxy_rows` turns the `[x1, y1, x2, y2, conf, cls]` rows of
+Rust: `trackforge::utils::detections_from_xyxy` turns the `[x1, y1, x2, y2, conf, cls]` box data of
 [`ultralytics-inference`](https://crates.io/crates/ultralytics-inference) boxes into tracker input. The
 [`examples/ultralytics`](https://github.com/onuralpszr/trackforge/tree/main/examples/ultralytics)
 crate tracks a video or image folder with any motion tracker. It is a separate crate because

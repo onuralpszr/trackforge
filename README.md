@@ -385,11 +385,11 @@ Appearance trackers take an `embedder(frame, tlwh_boxes)` callable: `track_ultra
 
 ### Rust
 
-[`ultralytics-inference`](https://crates.io/crates/ultralytics-inference) runs YOLO in Rust, and `detections_from_xyxy_rows` turns its boxes into tracker input:
+[`ultralytics-inference`](https://crates.io/crates/ultralytics-inference) runs YOLO in Rust, and `detections_from_xyxy` turns its boxes into tracker input:
 
 ```rust,ignore
 use trackforge::trackers::byte_track::{ByteTrack, ByteTrackParams};
-use trackforge::utils::detections_from_xyxy_rows;
+use trackforge::utils::detections_from_xyxy;
 use ultralytics_inference::YOLOModel;
 
 let mut model = YOLOModel::load("yolo26n.onnx")?;
@@ -398,7 +398,7 @@ let mut tracker = ByteTrack::from_params(ByteTrackParams::default());
 for result in model.predict("frame.jpg")? {
     if let Some(boxes) = &result.boxes {
         let data = boxes.data.as_standard_layout();
-        let tracks = tracker.update(detections_from_xyxy_rows(data.as_slice().unwrap()));
+        let tracks = tracker.update(detections_from_xyxy(data.as_slice().unwrap()));
     }
 }
 ```
