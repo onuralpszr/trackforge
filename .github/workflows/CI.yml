@@ -91,7 +91,8 @@ jobs:
       - run: cargo check --all-targets
 
   linux:
-    runs-on: ubuntu-latest
+    # Docker on ubuntu 26.04 breaks networking in i386 containers (actions/runner-images#14790)
+    runs-on: ${{ matrix.target == 'x86' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
