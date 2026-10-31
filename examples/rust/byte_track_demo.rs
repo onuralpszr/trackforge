@@ -4,7 +4,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize ByteTrack
     // track_thresh = 0.5: Threshold for high confidence detections
     // track_buffer = 30: Frames to keep lost tracks alive
-    // match_thresh = 0.8: IoU threshold for matching
+    // match_thresh = 0.8: max IoU distance (1 - IoU) for matching
     // det_thresh = 0.6: Threshold for detection initialization
     let mut tracker = ByteTrack::new(0.5, 30, 0.8, 0.6);
 

@@ -1,13 +1,13 @@
 # Parameters
 
-Every tracker takes the same parameters in Python and Rust. In Python they are keyword arguments to the tracker class. In Rust they are positional arguments to `Tracker::new(...)`, or fields on a params struct passed to `Tracker::from_params(...)`. The defaults are identical across both languages.
+Every tracker takes the same parameters in Python and Rust. In Python they are keyword arguments to the tracker class. In Rust they are positional arguments to `Tracker::new(...)`, or fields on a params struct passed to `Tracker::from_params(...)`. Parameters not in `new` (TrackTrack's, and `second_match_thresh`) are set through `from_params`. The defaults are identical across both languages.
 
 ## Two ideas that show up everywhere
 
 Two settings mean the same thing in almost every tracker, even though the names differ.
 
-- Lost track survival. How many frames a track stays alive after it stops matching any detection. If an object is missed or hidden for up to this many frames, the track keeps its id and can be picked back up. Past that it is dropped. Larger rides out longer occlusions but risks handing an old id to a new object. It is called `max_age` in SORT, OC-SORT, DeepSORT, and Deep OC-SORT, and `track_buffer` in ByteTrack and BoT-SORT.
-- Confirmation. How many matched frames in a row a new track needs before it is reported. Larger hides flickering false tracks but delays real ones. It is called `min_hits` in SORT, OC-SORT, and Deep OC-SORT, and `n_init` in DeepSORT. ByteTrack and BoT-SORT confirm on the first high confidence match, so they have no such setting.
+- Lost track survival. How many frames a track stays alive after it stops matching any detection. If an object is missed or hidden for up to this many frames, the track keeps its id and can be picked back up. Past that it is dropped. Larger rides out longer occlusions but risks handing an old id to a new object. It is called `max_age` in SORT, OC-SORT, DeepSORT, and Deep OC-SORT, and `track_buffer` in ByteTrack, BoT-SORT, and TrackTrack.
+- Confirmation. How many matched frames in a row a new track needs before it is reported. Larger hides flickering false tracks but delays real ones. It is called `min_hits` in SORT, OC-SORT, Deep OC-SORT, and TrackTrack, and `n_init` in DeepSORT. ByteTrack and BoT-SORT confirm on the first high confidence match, so they have no such setting.
 
 In Rust these two live together in `CommonParams { max_age, min_hits }`, which every tracker's params struct embeds as `common`.
 

@@ -8,13 +8,13 @@ Runnable demos for every trackforge tracker. Each demo reads a video, runs a det
 # Core
 pip install trackforge
 
-# YOLO demos (SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT)
+# YOLO demos (SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, TrackTrack)
 pip install ultralytics opencv-python
 
 # RT-DETR demo
 pip install transformers torch pillow
 
-# Appearance demos (Deep SORT, Deep OC-SORT) need a Re-ID backbone
+# Appearance demos (DeepSORT, Deep OC-SORT, BoT-SORT, TrackTrack) need a Re-ID backbone
 pip install torch torchvision pillow
 ```
 
@@ -29,11 +29,12 @@ pip install torch torchvision pillow
 | [`deepsort_demo.py`](deepsort_demo.py)       | `DEEPSORT`   | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
 | [`deep_ocsort_demo.py`](deep_ocsort_demo.py) | `DEEPOCSORT` | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
 | [`botsort_demo.py`](botsort_demo.py)         | `BOTSORT`    | YOLO11n + ResNet18 | `output_botsort.mp4`     |
+| [`tracktrack_demo.py`](tracktrack_demo.py)   | `TRACKTRACK` | YOLO11n + ResNet18 | `output_tracktrack.mp4`  |
 
 Two shared modules back the demos (not runnable on their own):
 
 - [`common.py`](common.py) - video load, MP4 writer, YOLO-to-`tlwh` conversion, color palette, box/label drawing, progress logging.
-- [`reid.py`](reid.py) - ResNet18 appearance embedder shared by the Deep SORT and Deep OC-SORT demos.
+- [`reid.py`](reid.py) - ResNet18 appearance embedder shared by the DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack demos.
 
 ## Running
 
@@ -43,7 +44,7 @@ Every demo takes the same options and defaults to `people.mp4`:
 python sort_yolo_demo.py --video people.mp4 --output tracked.mp4 --model yolo11n.pt
 ```
 
-`deep_ocsort_demo.py` also accepts `--no-reid` to track on motion alone (pure OC-SORT behavior). `sort_rtdetr_demo.py` takes a Hugging Face model id via `--model` (default `PekingU/rtdetr_r50vd`).
+`deep_ocsort_demo.py`, `botsort_demo.py`, and `tracktrack_demo.py` also accept `--no-reid` to track on motion alone. `sort_rtdetr_demo.py` takes a Hugging Face model id via `--model` (default `PekingU/rtdetr_r50vd`).
 
 ## Quick Start
 
@@ -78,18 +79,19 @@ trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thre
                    proximity_thresh=0.5, appearance_thresh=0.25)
 ```
 
-`DEEPSORT` and `DEEPOCSORT` take a parallel list of appearance embeddings: `tracker.update(detections, embeddings)`. For `DEEPOCSORT` the embeddings are optional (omit them to track on motion only).
+`DEEPSORT`, `DEEPOCSORT`, `BOTSORT`, and `TRACKTRACK` take a parallel list of appearance embeddings: `tracker.update(detections, embeddings)`. For `DEEPOCSORT`, `BOTSORT`, and `TRACKTRACK` the embeddings are optional (omit them to track on motion only).
 
 ## API Reference
 
 ### BYTETRACK
 
-| Parameter      | Type  | Default | Description                            |
-| -------------- | ----- | ------- | -------------------------------------- |
-| `track_thresh` | float | 0.5     | High confidence detection threshold    |
-| `track_buffer` | int   | 30      | Frames to keep lost tracks alive       |
-| `match_thresh` | float | 0.8     | IoU threshold for matching             |
-| `det_thresh`   | float | 0.6     | Threshold for new track initialization |
+| Parameter             | Type  | Default | Description                                   |
+| --------------------- | ----- | ------- | --------------------------------------------- |
+| `track_thresh`        | float | 0.5     | High confidence detection threshold           |
+| `track_buffer`        | int   | 30      | Frames to keep lost tracks alive              |
+| `match_thresh`        | float | 0.8     | Max IoU distance (1 - IoU) for matching       |
+| `det_thresh`          | float | 0.6     | Threshold for new track initialization        |
+| `second_match_thresh` | float | 0.5     | Max IoU distance for the low confidence stage |
 
 ### SORT
 
@@ -115,7 +117,7 @@ trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thre
 | --------------------- | ----- | ------- | -------------------------------------------- |
 | `max_age`             | int   | 70      | Max frames without detection before deletion |
 | `n_init`              | int   | 3       | Min consecutive hits to confirm track        |
-| `max_iou_distance`    | float | 0.7     | Max IoU distance for cascade matching        |
+| `max_iou_distance`    | float | 0.7     | Max IoU distance for the IoU fallback stage  |
 | `max_cosine_distance` | float | 0.2     | Max cosine distance for appearance matching  |
 | `nn_budget`           | int   | 100     | Max appearance features stored per track     |
 
@@ -134,14 +136,28 @@ trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thre
 
 ### BOTSORT
 
-| Parameter           | Type  | Default | Description                                            |
-| ------------------- | ----- | ------- | ------------------------------------------------------ |
-| `track_thresh`      | float | 0.5     | High confidence detection threshold                    |
-| `track_buffer`      | int   | 30      | Frames to keep lost tracks alive                       |
-| `match_thresh`      | float | 0.8     | IoU threshold for matching                             |
-| `det_thresh`        | float | 0.6     | Threshold for new track initialization                 |
-| `proximity_thresh`  | float | 0.5     | IoU-distance gate above which appearance is ignored    |
-| `appearance_thresh` | float | 0.25    | Cosine-distance gate above which appearance is ignored |
+| Parameter             | Type  | Default | Description                                            |
+| --------------------- | ----- | ------- | ------------------------------------------------------ |
+| `track_thresh`        | float | 0.5     | High confidence detection threshold                    |
+| `track_buffer`        | int   | 30      | Frames to keep lost tracks alive                       |
+| `match_thresh`        | float | 0.8     | Max IoU distance (1 - IoU) for matching                |
+| `det_thresh`          | float | 0.6     | Threshold for new track initialization                 |
+| `proximity_thresh`    | float | 0.5     | IoU-distance gate above which appearance is ignored    |
+| `appearance_thresh`   | float | 0.25    | Cosine-distance gate above which appearance is ignored |
+| `second_match_thresh` | float | 0.5     | Max IoU distance for the low confidence stage          |
+
+### TRACKTRACK
+
+| Parameter      | Type  | Default | Description                                                    |
+| -------------- | ----- | ------- | -------------------------------------------------------------- |
+| `det_thresh`   | float | 0.6     | Score above which a detection is high confidence               |
+| `match_thresh` | float | 0.7     | Association cost gate, lower is stricter                       |
+| `track_buffer` | int   | 30      | Frames to keep lost tracks alive                               |
+| `min_hits`     | int   | 3       | Matched frames in a row before a new track is confirmed        |
+| `init_thresh`  | float | 0.7     | Smallest score a leftover detection needs to start a new track |
+| `tai_thresh`   | float | 0.55    | Overlap gate for track-aware initialization, a maximum IoU     |
+| `penalty_low`  | float | 0.2     | Extra cost added to low confidence detections                  |
+| `reduce_step`  | float | 0.05    | How much the cost gate tightens per matching round             |
 
 ## Output Format
 

@@ -331,7 +331,7 @@ impl AppearanceExtractor for MyExtractor {
 
 ### Python
 
-The Python `DeepSort` class accepts embeddings directly, so you can bring your own Re-ID model:
+The Python `DEEPSORT` class accepts embeddings directly, so you can bring your own Re-ID model:
 
 ```python
 import numpy as np
@@ -375,7 +375,7 @@ let detections = vec![
     (BoundingBox { x: 100.0, y: 100.0, width: 50.0, height: 100.0 }, 0.9_f32, 0_i64),
 ];
 
-let tracks = tracker.update(&frame, &detections).unwrap();
+let tracks = tracker.update(&frame, detections).unwrap();
 for t in &tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
 }
@@ -586,7 +586,5 @@ All trackers use the same detection tuple format:
 ## Links
 
 - [Python API Reference](reference/python.md)
-- [Rust API Reference](/api/trackforge/index.html)
+- [Rust API Reference](https://docs.rs/trackforge)
 - [Examples](examples.md)
-  </content>
-  </invoke>

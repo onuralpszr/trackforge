@@ -5,7 +5,7 @@ tracker class. In Rust they are positional arguments to `Tracker::new(...)`, or 
 struct passed to `Tracker::from_params(...)`.
 
 Two settings recur in almost every tracker. How many frames a lost track survives before it is
-dropped, called `max_age` in most trackers and `track_buffer` in ByteTrack and BoT-SORT. And how
+dropped, called `max_age` in most trackers and `track_buffer` in ByteTrack, BoT-SORT, and TrackTrack. And how
 many matched frames in a row confirm a new track, called `min_hits` in most and `n_init` in
 DeepSORT. In Rust these two live in `CommonParams`, which each tracker's params struct embeds as
 `common`.

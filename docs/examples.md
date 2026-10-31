@@ -11,7 +11,7 @@ in the repository, with a Python and a Rust entry per tracker.
 | Deep OC-SORT | `deep_ocsort_demo.py`                      | -                                       |
 | BoT-SORT     | `botsort_demo.py`                          | `det_ind_demo.rs`                       |
 | SORT         | `sort_yolo_demo.py`, `sort_rtdetr_demo.py` | -                                       |
-| TrackTrack   | -                                          | -                                       |
+| TrackTrack   | `tracktrack_demo.py`                       | -                                       |
 
 ```bash
 # Python

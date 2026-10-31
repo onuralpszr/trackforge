@@ -22,7 +22,7 @@ Name the key mechanisms (for example motion model, appearance, two-stage matchin
 - `utils::geometry` - <which IoU or conversion helpers>
 - `utils::assignment` - <greedy_match / iou_match>
 - `trackers::common` - shared track base and `TrackState`
-- <other reused modules, for example deepsort::nn_matching for appearance>
+- <other reused modules, for example deepsort::NearestNeighborDistanceMetric for appearance>
 
 ## Parameters
 
@@ -52,7 +52,7 @@ from trackforge import <PYNAME>
 tracker = <PYNAME>(<args>)
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
 tracks = tracker.update(detections)  # add embeddings for appearance trackers
-for track_id, tlwh, score, class_id in tracks:
+for track_id, tlwh, score, class_id, det_ind in tracks:
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 

@@ -58,7 +58,7 @@ impl PyDeepOcSort {
     ///         for moving-camera footage. Defaults to no camera motion.
     ///
     /// Returns:
-    ///     list: Confirmed tracks as (track_id, [x, y, w, h], score, class_id) tuples.
+    ///     list: Confirmed tracks as (track_id, [x, y, w, h], score, class_id, det_ind) tuples.
     #[pyo3(signature = (detections, embeddings=Vec::new(), camera_motion=None))]
     fn update(
         &mut self,

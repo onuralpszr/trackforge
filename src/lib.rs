@@ -101,7 +101,7 @@
 //!     (BoundingBox { x: 100.0, y: 100.0, width: 50.0, height: 100.0 }, 0.9_f32, 0_i64),
 //! ];
 //!
-//! let tracks = tracker.update(&frame, &detections).unwrap();
+//! let tracks = tracker.update(&frame, detections).unwrap();
 //! for t in &tracks {
 //!     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
 //! }

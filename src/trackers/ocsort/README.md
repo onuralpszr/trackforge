@@ -7,7 +7,7 @@ rather than Kalman filter predictions.
 ## Algorithm Overview
 
 SORT accumulates prediction errors during occlusions because its Kalman filter integrates
-noisy velocity estimates when no observation is available. OC-SORT corrects this with two
+noisy velocity estimates when no observation is available. OC-SORT corrects this with three
 complementary mechanisms:
 
 **Observation-Centric Velocity (OCV)**
@@ -45,6 +45,6 @@ This corrects the accumulated drift so that future predictions start from an acc
 ## References
 
 > **Observation-Centric SORT: Rethinking SORT for Robust Multi-Object Tracking**
-> Jinkun Cao, Xinshuo Weng, Rawal Khirodkar, Jiangmiao Pang, Kris Kitani
+> Jinkun Cao, Jiangmiao Pang, Xinshuo Weng, Rawal Khirodkar, Kris Kitani
 > CVPR 2023
 > [arXiv:2203.14360](https://arxiv.org/abs/2203.14360)

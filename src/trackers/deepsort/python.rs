@@ -37,7 +37,7 @@ impl PyDeepSort {
     ///     embeddings (`List[List[float]]`): List of appearance embeddings corresponding to detections.
     ///
     /// Returns:
-    ///     `List[Tuple[int, List[float], float, int]]`: List of (track_id, tlwh, score, class_id).
+    ///     `List[Tuple[int, List[float], float, int, Optional[int]]]`: List of (track_id, tlwh, score, class_id, det_ind).
     pub fn update(
         &mut self,
         detections: Vec<([f32; 4], f32, i64)>,

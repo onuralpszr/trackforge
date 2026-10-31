@@ -418,7 +418,7 @@ impl PyByteTrack {
     ///
     /// Returns:
     ///     list: A list of active tracks, where each track is a tuple of
-    ///         (track_id, [x, y, w, h], score, class_id).
+    ///         (track_id, [x, y, w, h], score, class_id, det_ind).
     fn update(
         &mut self,
         output_results: Vec<([f32; 4], f32, i64)>,
