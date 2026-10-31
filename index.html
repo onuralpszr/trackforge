@@ -1880,7 +1880,7 @@ use image::DynamicImage;</p>
 }
 <div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>### Python
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>The Python `DeepSort` class accepts embeddings directly, so you can bring your own Re-ID model:
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>The Python `DEEPSORT` class accepts embeddings directly, so you can bring your own Re-ID model:
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
 </span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>```python
 </span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>import numpy as np
@@ -1919,7 +1919,7 @@ use image::DynamicImage;</p>
 let detections = vec![
     (BoundingBox { x: 100.0, y: 100.0, width: 50.0, height: 100.0 }, 0.9_f32, 0_i64),
 ];</p>
-<p>let tracks = tracker.update(&amp;frame, &amp;detections).unwrap();
+<p>let tracks = tracker.update(&amp;frame, detections).unwrap();
 for t in &amp;tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
 }
@@ -2153,10 +2153,8 @@ for the Re-ID term, or an empty list to track on motion only.</p>
 <h2 id="links">Links</h2>
 <ul>
 <li><a href="reference/python.html">Python API Reference</a></li>
-<li><a href="/api/trackforge/index.html">Rust API Reference</a></li>
-<li><a href="examples.html">Examples</a>
-  </content>
-  </invoke></li>
+<li><a href="https://docs.rs/trackforge">Rust API Reference</a></li>
+<li><a href="examples.html">Examples</a></li>
 </ul>
 
 

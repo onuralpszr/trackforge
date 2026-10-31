@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-da1eaee2.js";
+            window.path_to_searchindex_js = "searchindex-e279edb1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -188,7 +188,7 @@ trackforge = "0.4"
 </code></pre>
 <p>The default build is light and pulls no image codecs. Every tracker runs on detections you pass in, and the appearance trackers run on embeddings you pass in. To have the library produce embeddings for you by running a model over a frame, enable the <code>reid-model</code> feature, which adds the <code>AppearanceExtractor</code> trait and the <code>DeepSort</code> and <code>DeepOcSort</code> wrappers along with the <code>image</code> crate.</p>
 <pre><code class="language-toml">[dependencies]
-trackforge = { version = "0.3", features = ["reid-model"] }
+trackforge = { version = "0.4", features = ["reid-model"] }
 </code></pre>
 <h3 id="python"><a class="header" href="#python">Python</a></h3>
 <pre><code class="language-bash">pip install trackforge
@@ -223,7 +223,7 @@ detections = [
     ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
 ]
 
-for track_id, tlwh, score, class_id in tracker.update(detections):
+for track_id, tlwh, score, class_id, det_ind in tracker.update(detections):
     print(f"ID: {track_id}, Box: {tlwh}")
 </code></pre>
 <p>Call <code>update</code> once per frame. Each tracker keeps its own state and returns the confirmed tracks

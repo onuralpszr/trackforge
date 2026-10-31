@@ -638,10 +638,10 @@ geometry, and assignment are already implemented and must be reused, not re-impl
 <li><code>trackers::common</code> - the shared track base (Kalman state plus lifecycle counters) and the
   shared <code>TrackState</code> enum. Compose these instead of declaring your own.</li>
 <li>For appearance-based trackers, reuse
-  <code>trackers::deepsort::nn_matching::NearestNeighborDistanceMetric</code> for the feature gallery.</li>
+  <code>trackers::deepsort::NearestNeighborDistanceMetric</code> for the feature gallery.</li>
 </ul>
 <h2 id="2-module-layout">2. Module layout</h2>
-<p>Create <code>src/trackers/&lt;tracker_name&gt;/</code> with the same layout every tracker uses:</p>
+<p>Create <code>src/trackers/&lt;tracker_name&gt;/</code> with a layout like the larger trackers (deepsort, deep_ocsort); small trackers may keep everything in <code>mod.rs</code>:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>src/trackers/&lt;tracker_name&gt;/
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  mod.rs        public tracker struct, re-exports, crate documentation
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  tracker.rs    core association and update loop
@@ -658,8 +658,8 @@ in <code>src/lib.rs</code>.</p>
 <li>Implement the <code>Tracker</code> trait so the tracker has the same <code>update</code> contract as the others.
   Appearance-based trackers that need the frame keep the image-plus-detections variant.</li>
 <li>The Python class name is the upper-case algorithm name (<code>SORT</code>, <code>BYTETRACK</code>, <code>OCSORT</code>,
-  <code>DEEPSORT</code>, <code>DEEPOCSORT</code>). Python <code>update</code> returns
-  <code>List[Tuple[int, List[float], float, int]]</code> = <code>(track_id, tlwh, score, class_id)</code>.</li>
+  <code>DEEPSORT</code>, <code>DEEPOCSORT</code>, <code>BOTSORT</code>, <code>TRACKTRACK</code>). Python <code>update</code> returns
+  <code>List[Tuple[int, List[float], float, int, Optional[int]]]</code> = <code>(track_id, tlwh, score, class_id, det_ind)</code>.</li>
 <li>Appearance-based Python bindings take embeddings directly (the detector-side feature
   extraction lives in the example, not in the binding).</li>
 </ul>

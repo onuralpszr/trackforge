@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-da1eaee2.js";
+            window.path_to_searchindex_js = "searchindex-e279edb1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -185,7 +185,7 @@
 tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params
 struct passed to <code>Tracker::from_params(...)</code>.</p>
 <p>Two settings recur in almost every tracker. How many frames a lost track survives before it is
-dropped, called <code>max_age</code> in most trackers and <code>track_buffer</code> in ByteTrack and BoT-SORT. And how
+dropped, called <code>max_age</code> in most trackers and <code>track_buffer</code> in ByteTrack, BoT-SORT, and TrackTrack. And how
 many matched frames in a row confirm a new track, called <code>min_hits</code> in most and <code>n_init</code> in
 DeepSORT. In Rust these two live in <code>CommonParams</code>, which each tracker’s params struct embeds as
 <code>common</code>.</p>

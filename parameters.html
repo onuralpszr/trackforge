@@ -796,12 +796,12 @@
 
 
 <h1 id="parameters">Parameters</h1>
-<p>Every tracker takes the same parameters in Python and Rust. In Python they are keyword arguments to the tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params struct passed to <code>Tracker::from_params(...)</code>. The defaults are identical across both languages.</p>
+<p>Every tracker takes the same parameters in Python and Rust. In Python they are keyword arguments to the tracker class. In Rust they are positional arguments to <code>Tracker::new(...)</code>, or fields on a params struct passed to <code>Tracker::from_params(...)</code>. Parameters not in <code>new</code> (TrackTrack's, and <code>second_match_thresh</code>) are set through <code>from_params</code>. The defaults are identical across both languages.</p>
 <h2 id="two-ideas-that-show-up-everywhere">Two ideas that show up everywhere</h2>
 <p>Two settings mean the same thing in almost every tracker, even though the names differ.</p>
 <ul>
-<li>Lost track survival. How many frames a track stays alive after it stops matching any detection. If an object is missed or hidden for up to this many frames, the track keeps its id and can be picked back up. Past that it is dropped. Larger rides out longer occlusions but risks handing an old id to a new object. It is called <code>max_age</code> in SORT, OC-SORT, DeepSORT, and Deep OC-SORT, and <code>track_buffer</code> in ByteTrack and BoT-SORT.</li>
-<li>Confirmation. How many matched frames in a row a new track needs before it is reported. Larger hides flickering false tracks but delays real ones. It is called <code>min_hits</code> in SORT, OC-SORT, and Deep OC-SORT, and <code>n_init</code> in DeepSORT. ByteTrack and BoT-SORT confirm on the first high confidence match, so they have no such setting.</li>
+<li>Lost track survival. How many frames a track stays alive after it stops matching any detection. If an object is missed or hidden for up to this many frames, the track keeps its id and can be picked back up. Past that it is dropped. Larger rides out longer occlusions but risks handing an old id to a new object. It is called <code>max_age</code> in SORT, OC-SORT, DeepSORT, and Deep OC-SORT, and <code>track_buffer</code> in ByteTrack, BoT-SORT, and TrackTrack.</li>
+<li>Confirmation. How many matched frames in a row a new track needs before it is reported. Larger hides flickering false tracks but delays real ones. It is called <code>min_hits</code> in SORT, OC-SORT, Deep OC-SORT, and TrackTrack, and <code>n_init</code> in DeepSORT. ByteTrack and BoT-SORT confirm on the first high confidence match, so they have no such setting.</li>
 </ul>
 <p>In Rust these two live together in <code>CommonParams { max_age, min_hits }</code>, which every tracker's params struct embeds as <code>common</code>.</p>
 <h2 id="a-note-on-iou-thresholds">A note on IoU thresholds</h2>

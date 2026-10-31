@@ -661,7 +661,7 @@ let mut tracker = DeepSort::new(MyExtractor, 70, 3, 0.7, 0.2, 100);</p>
 let detections = vec![
     (BoundingBox { x: 100.0, y: 100.0, width: 50.0, height: 100.0 }, 0.9_f32, 0_i64),
 ];</p>
-<p>let tracks = tracker.update(&amp;frame, &amp;detections).unwrap();
+<p>let tracks = tracker.update(&amp;frame, detections).unwrap();
 for t in &amp;tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.to_tlwh());
 }
