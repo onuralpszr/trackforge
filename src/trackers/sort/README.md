@@ -7,7 +7,7 @@ This module implements the SORT (Simple Online and Realtime Tracking) algorithm.
 SORT is a simple yet effective multi-object tracking algorithm that combines:
 
 - **Kalman Filtering** for motion prediction
-- **Hungarian Algorithm** for data association using IoU (Intersection over Union)
+- **Greedy assignment** for data association using IoU (Intersection over Union)
 
 ## Key Features
 

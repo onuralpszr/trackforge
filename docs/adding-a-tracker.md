@@ -19,11 +19,11 @@ geometry, and assignment are already implemented and must be reused, not re-impl
 - `trackers::common` - the shared track base (Kalman state plus lifecycle counters) and the
   shared `TrackState` enum. Compose these instead of declaring your own.
 - For appearance-based trackers, reuse
-  `trackers::deepsort::nn_matching::NearestNeighborDistanceMetric` for the feature gallery.
+  `trackers::deepsort::NearestNeighborDistanceMetric` for the feature gallery.
 
 ## 2. Module layout
 
-Create `src/trackers/<tracker_name>/` with the same layout every tracker uses:
+Create `src/trackers/<tracker_name>/` with a layout like the larger trackers (deepsort, deep_ocsort); small trackers may keep everything in `mod.rs`:
 
 ```text
 src/trackers/<tracker_name>/
@@ -44,8 +44,8 @@ in `src/lib.rs`.
 - Implement the `Tracker` trait so the tracker has the same `update` contract as the others.
   Appearance-based trackers that need the frame keep the image-plus-detections variant.
 - The Python class name is the upper-case algorithm name (`SORT`, `BYTETRACK`, `OCSORT`,
-  `DEEPSORT`, `DEEPOCSORT`). Python `update` returns
-  `List[Tuple[int, List[float], float, int]]` = `(track_id, tlwh, score, class_id)`.
+  `DEEPSORT`, `DEEPOCSORT`, `BOTSORT`, `TRACKTRACK`). Python `update` returns
+  `List[Tuple[int, List[float], float, int, Optional[int]]]` = `(track_id, tlwh, score, class_id, det_ind)`.
 - Appearance-based Python bindings take embeddings directly (the detector-side feature
   extraction lives in the example, not in the binding).
 

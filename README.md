@@ -133,7 +133,7 @@ tracker = DEEPSORT(
 )
 
 detections = [([100.0, 100.0, 50.0, 100.0], 0.9, 0)]
-embeddings = [[0.1, 0.2, 0.3, ...]]  # appearance feature vectors
+embeddings = [[0.1, 0.2, 0.3]]  # appearance feature vectors
 
 tracks = tracker.update(detections, embeddings)
 
@@ -259,6 +259,7 @@ for t in tracks {
 
 ```rust
 use trackforge::trackers::deepsort::DeepSort;
+use trackforge::types::BoundingBox;
 
 // `extractor` implements the AppearanceExtractor trait (plug in any Re-ID model).
 let mut tracker = DeepSort::new(extractor, 30, 3, 0.7, 0.2, 100);
@@ -364,7 +365,7 @@ Runnable demos live under [`examples/`](examples/), with both a Python and a Rus
 | Deep OC-SORT | [`deep_ocsort_demo.py`](examples/python/deep_ocsort_demo.py) (YOLO + ResNet18)                                                          | —                                                                                                         |
 | BoT-SORT     | [`botsort_demo.py`](examples/python/botsort_demo.py) (YOLO + ResNet18)                                                                  | [`det_ind_demo.rs`](examples/rust/det_ind_demo.rs) (det_ind mapping)                                      |
 | SORT         | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
-| TrackTrack   | —                                                                                                                                       | —                                                                                                         |
+| TrackTrack   | [`tracktrack_demo.py`](examples/python/tracktrack_demo.py) (YOLO + ResNet18)                                                            | —                                                                                                         |
 
 ```bash
 # Python
@@ -421,7 +422,7 @@ These mirror CI, run them before opening a PR:
 
 ```bash
 cargo fmt --all -- --check          # formatting
-cargo clippy --all-targets -- -D warnings   # lint, warnings are errors
+cargo clippy --all-targets --features python -- -D warnings   # lint, warnings are errors
 cargo test                          # unit, integration, and doc tests
 cargo llvm-cov --summary-only       # coverage (cargo install cargo-llvm-cov)
 prek run --all-files                # all pre-commit hooks at once
@@ -430,6 +431,7 @@ prek run --all-files                # all pre-commit hooks at once
 ### Feature flags
 
 - `python` builds the PyO3 bindings.
+- `reid-model` adds the `AppearanceExtractor` trait and the `DeepSort`/`DeepOcSort` wrappers (pulls `image`); required by `deepsort_simple`.
 - `advanced_examples` enables the ONNX/OpenCV-backed examples (`deepsort_ort`), which need
   ONNX Runtime and OpenCV on the system.
 
@@ -450,7 +452,7 @@ python examples/python/deepsort_demo.py --video your_video.mp4
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 - For major changes, open an issue first to discuss what you would like to change.
-- PRs should pass CI: `cargo fmt`, `cargo clippy -- -D warnings`, `cargo test`.
+- PRs should pass CI: `cargo fmt`, `cargo clippy --all-targets --features python -- -D warnings`, `cargo test`.
 - Use [Commitizen](https://commitizen-tools.github.io/commitizen/) for commit messages: `cz commit`.
 
 ## Roadmap
@@ -518,6 +520,14 @@ also cite the paper for the tracker you use:
   author={Aharon, Nir and Orfaig, Roy and Bobrovsky, Ben-Zion},
   journal={arXiv preprint arXiv:2206.14651},
   year={2022}
+}
+
+@inproceedings{shim2025tracktrack,
+  title={Focusing on Tracks for Online Multi-Object Tracking},
+  author={Shim, Kyujin and Ko, Kangwook and Yang, Yujin and Kim, Changick},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={11687--11696},
+  year={2025}
 }
 ```
 

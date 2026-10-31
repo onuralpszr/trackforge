@@ -1,6 +1,6 @@
 //! Implementation of various multi-object tracking (MOT) algorithms.
 //!
-//! This module contains the core tracking logic for algorithms like ByteTrack, SORT, DeepSORT, and OC-SORT.
+//! This module contains the core tracking logic for algorithms: SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack.
 
 pub mod botsort;
 pub mod byte_track;

@@ -623,7 +623,7 @@ impl PyTrackTrack {
     ///         mapping the previous frame to the current one. Defaults to none.
     ///
     /// Returns:
-    ///     list: Active tracks as (track_id, [x, y, w, h], score, class_id) tuples.
+    ///     list: Active tracks as (track_id, [x, y, w, h], score, class_id, det_ind) tuples.
     #[pyo3(signature = (detections, embeddings=Vec::new(), camera_motion=None))]
     fn update(
         &mut self,

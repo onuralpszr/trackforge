@@ -13,7 +13,7 @@ The default build is light and pulls no image codecs. Every tracker runs on dete
 
 ```toml
 [dependencies]
-trackforge = { version = "0.3", features = ["reid-model"] }
+trackforge = { version = "0.4", features = ["reid-model"] }
 ```
 
 ### Python
@@ -57,7 +57,7 @@ detections = [
     ([200.0, 200.0, 60.0, 120.0], 0.85, 0),
 ]
 
-for track_id, tlwh, score, class_id in tracker.update(detections):
+for track_id, tlwh, score, class_id, det_ind in tracker.update(detections):
     print(f"ID: {track_id}, Box: {tlwh}")
 ```
 

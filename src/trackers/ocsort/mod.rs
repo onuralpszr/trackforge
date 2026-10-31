@@ -355,7 +355,7 @@ impl PyOcSort {
     ///     detections (list): List of ([x, y, w, h], score, class_id) tuples.
     ///
     /// Returns:
-    ///     list: Confirmed tracks as (track_id, [x, y, w, h], score, class_id) tuples.
+    ///     list: Confirmed tracks as (track_id, [x, y, w, h], score, class_id, det_ind) tuples.
     fn update(
         &mut self,
         detections: Vec<([f32; 4], f32, i64)>,

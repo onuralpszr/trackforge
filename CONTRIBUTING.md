@@ -73,7 +73,7 @@ maturin develop
 ### Tests
 
 - **Rust**: Run `cargo test` to execute unit and integration tests.
-- **Python**: Run `pytest` (when available) to check Python bindings.
+- **Python**: Run `pytest tests/` after `maturin develop` to check Python bindings.
 
 ### Continuous Integration
 
@@ -88,7 +88,7 @@ You can check these locally:
 
 ```shell
 cargo fmt --all -- --check
-cargo clippy -- -D warnings
+cargo clippy --all-targets --features python -- -D warnings
 cargo test
 ```
 

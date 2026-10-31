@@ -20,7 +20,7 @@ use std::error::Error;
 
 struct MyExtractor;
 impl AppearanceExtractor for MyExtractor {
-    fn extract(&self, _img: &DynamicImage, bboxes: &[BoundingBox]) -> Result<Vec<Vec<f32>>, Box<dyn Error>> {
+    fn extract(&mut self, _img: &DynamicImage, bboxes: &[BoundingBox]) -> Result<Vec<Vec<f32>>, Box<dyn Error>> {
         // Run your ReID model here
         Ok(vec![vec![0.0; 128]; bboxes.len()])
     }

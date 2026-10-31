@@ -266,6 +266,36 @@ class BOTSORT:
     ) -> List[Tuple[int, List[float], float, int, Optional[int]]]: ...
 
 class TRACKTRACK:
+    """
+    TrackTrack tracker: track-perspective association with track-aware initialization.
+
+    Each track picks its own best detection and a pair matches only when the choice
+    is mutual, repeating with a cost gate that tightens each round. New tracks start
+    only from confident detections that do not overlap existing tracks. Pass
+    embeddings for appearance-aware tracking, or omit them to track on motion only.
+
+    **Usage Example:**
+
+    ```python
+    from trackforge import TRACKTRACK
+
+    tracker = TRACKTRACK(
+        det_thresh=0.6,
+        match_thresh=0.7,
+        track_buffer=30,
+        min_hits=3,
+    )
+
+    detections = [
+        ([100.0, 100.0, 50.0, 100.0], 0.9, 0),
+    ]
+
+    tracks = tracker.update(detections)
+    for track_id, box, score, class_id, det_ind in tracks:
+        print(f"Track ID: {track_id}, Box: {box}")
+    ```
+    """
+
     def __init__(
         self,
         det_thresh: float = 0.6,

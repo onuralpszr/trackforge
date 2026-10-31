@@ -218,13 +218,13 @@ trackforge.DEEPSORT(
 )
 ```
 
-| Parameter             | Type    | Default | Description                                                      |
-| --------------------- | ------- | ------- | ---------------------------------------------------------------- |
-| `max_age`             | `int`   | `70`    | Frames a track survives without a match                          |
-| `n_init`              | `int`   | `3`     | Consecutive detections required to confirm a track               |
-| `max_iou_distance`    | `float` | `0.7`   | IoU distance threshold for the fallback IoU stage                |
-| `max_cosine_distance` | `float` | `0.2`   | Cosine distance threshold for appearance matching                |
-| `nn_budget`           | `int`   | `100`   | Maximum embeddings stored per track (FIFO, `None` for unlimited) |
+| Parameter             | Type    | Default | Description                                        |
+| --------------------- | ------- | ------- | -------------------------------------------------- |
+| `max_age`             | `int`   | `70`    | Frames a track survives without a match            |
+| `n_init`              | `int`   | `3`     | Consecutive detections required to confirm a track |
+| `max_iou_distance`    | `float` | `0.7`   | IoU distance threshold for the fallback IoU stage  |
+| `max_cosine_distance` | `float` | `0.2`   | Cosine distance threshold for appearance matching  |
+| `nn_budget`           | `int`   | `100`   | Maximum embeddings stored per track (FIFO)         |
 
 ### `update`
 
