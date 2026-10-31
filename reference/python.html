@@ -905,6 +905,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ultralytics-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ultralytics helpers
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ultralytics helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from_ultralytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>from_ultralytics</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#track_ultralytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>track_ultralytics</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#detection-format" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1391,6 +1430,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ultralytics-helpers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ultralytics helpers
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ultralytics helpers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from_ultralytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>from_ultralytics</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#track_ultralytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>track_ultralytics</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#detection-format" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1441,6 +1519,7 @@ module after installing with <code>pip install trackforge</code>.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">BOTSORT</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">TRACKTRACK</span>
 </span></code></pre></div>
+<p>Two helpers connect the trackers to <a href="https://github.com/ultralytics/ultralytics">Ultralytics</a> models; see <a href="#ultralytics-helpers">Ultralytics helpers</a>.</p>
 <hr />
 <h2 id="bytetrack"><code>BYTETRACK</code></h2>
 <p>Two-stage IoU tracker. Associates high-confidence detections first, then attempts to recover
@@ -2042,9 +2121,57 @@ frame. Same format as all other trackers.</p>
 </span></code></pre></div>
 <p>Same input and output format as <code>BOTSORT.update</code>.</p>
 <hr />
+<h2 id="ultralytics-helpers">Ultralytics helpers</h2>
+<p>Both helpers only read Ultralytics result objects and never import <code>ultralytics</code>, so it stays an optional dependency.</p>
+<h3 id="from_ultralytics"><code>from_ultralytics</code></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">from_ultralytics</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+</span></code></pre></div>
+<p>Converts one <code>Results</code> object (or the one-element list <code>model(frame)</code> returns) into <code>(tlwh, score, class_id)</code> detections in the order of <code>result.boxes</code>, so a track's <code>det_ind</code> indexes into <code>result.boxes</code>. Raises <code>ValueError</code> for a list with more than one result.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">detections</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">from_ultralytics</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">tracks</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="track_ultralytics"><code>track_ultralytics</code></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">track_ultralytics</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">embedder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_kwargs</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Runs <code>model.predict(source, stream=True, verbose=False, **predict_kwargs)</code> and yields <code>(result, tracks)</code> for every frame.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model</code></td>
+<td>A loaded <code>ultralytics.YOLO</code> or RT-DETR model</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>Anything <code>model.predict</code> accepts: video path, webcam index, stream URL, image folder</td>
+</tr>
+<tr>
+<td><code>tracker</code></td>
+<td>Any trackforge tracker instance</td>
+</tr>
+<tr>
+<td><code>embedder</code></td>
+<td>Optional <code>embedder(frame, tlwh_boxes) -&gt; embeddings</code> for appearance trackers. <code>DEEPSORT</code> needs one; <code>DEEPOCSORT</code>, <code>BOTSORT</code>, <code>TRACKTRACK</code> use it when given</td>
+</tr>
+<tr>
+<td><code>**predict_kwargs</code></td>
+<td>Passed to <code>model.predict</code>, for example <code>classes=[0]</code> or <code>conf=0.3</code></td>
+</tr>
+</tbody>
+</table>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">for</span> <span class="n">result</span><span class="p">,</span> <span class="n">tracks</span> <span class="ow">in</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">track_ultralytics</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"people.mp4"</span><span class="p">,</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">BYTETRACK</span><span class="p">(),</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="k">for</span> <span class="n">track_id</span><span class="p">,</span> <span class="n">tlwh</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span><span class="p">,</span> <span class="n">det_ind</span> <span class="ow">in</span> <span class="n">tracks</span><span class="p">:</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">track_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">class_id</span><span class="p">],</span> <span class="n">tlwh</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
 <h2 id="detection-format">Detection Format</h2>
 <p>All trackers accept the same detection tuple format:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span><span class="p">)</span>
 </span></code></pre></div>
 <table>
 <thead>

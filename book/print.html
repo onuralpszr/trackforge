@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-e279edb1.js";
+            window.path_to_searchindex_js = "searchindex-352f20e0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -661,6 +661,22 @@ cargo run --example det_ind_demo
 <code>torch</code> + <code>torchvision</code>); install what a given demo imports. The <code>deepsort_simple</code> Rust demo
 needs the <code>reid-model</code> feature and the <code>deepsort_ort</code> demo needs the <code>advanced_examples</code>
 feature (ONNX Runtime + OpenCV).</p>
+<h2 id="ultralytics"><a class="header" href="#ultralytics">Ultralytics</a></h2>
+<p>Python: <code>trackforge.track_ultralytics(model, source, tracker)</code> runs an Ultralytics model over a video,
+webcam, stream or image folder and yields <code>(result, tracks)</code> per frame, and
+<code>trackforge.from_ultralytics(result)</code> converts a single result for your own loop. See
+<a href="https://github.com/onuralpszr/trackforge/blob/main/examples/python/ultralytics_track.py"><code>ultralytics_track.py</code></a>.</p>
+<pre><code class="language-python">for result, tracks in trackforge.track_ultralytics(YOLO("yolo11n.pt"), "people.mp4", trackforge.BYTETRACK(), classes=[0]):
+    print(len(tracks))
+</code></pre>
+<p>Rust: <code>trackforge::utils::detections_from_xyxy_rows</code> turns the <code>[x1, y1, x2, y2, conf, cls]</code> rows of
+<a href="https://crates.io/crates/ultralytics-inference"><code>ultralytics-inference</code></a> boxes into tracker input. The
+<a href="https://github.com/onuralpszr/trackforge/tree/main/examples/ultralytics"><code>examples/ultralytics</code></a>
+crate tracks a video or image folder with any motion tracker. It is a separate crate because
+<code>ultralytics-inference</code> is AGPL-3.0.</p>
+<pre><code class="language-bash">cd examples/ultralytics
+cargo run --release -- "frames/*.jpg" --tracker bytetrack --classes 0
+</code></pre>
 
                     </main>
 
