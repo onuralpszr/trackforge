@@ -365,7 +365,7 @@ Runnable demos live under [`examples/`](examples/), with both a Python and a Rus
 | Deep OC-SORT | [`deep_ocsort_demo.py`](examples/python/deep_ocsort_demo.py) (YOLO + ResNet18)                                                          | —                                                                                                         |
 | BoT-SORT     | [`botsort_demo.py`](examples/python/botsort_demo.py) (YOLO + ResNet18)                                                                  | [`det_ind_demo.rs`](examples/rust/det_ind_demo.rs) (det_ind mapping)                                      |
 | SORT         | [`sort_yolo_demo.py`](examples/python/sort_yolo_demo.py) (YOLO), [`sort_rtdetr_demo.py`](examples/python/sort_rtdetr_demo.py) (RT-DETR) | —                                                                                                         |
-| TrackTrack   | [`tracktrack_demo.py`](examples/python/tracktrack_demo.py) (YOLO + ResNet18)                                                            | —                                                                                                         |
+| TrackTrack   | [`tracktrack_demo.py`](examples/python/tracktrack_demo.py) (YOLO + ResNet18)                                                            | [`tracktrack_demo.rs`](examples/rust/tracktrack_demo.rs)                                                  |
 
 ```bash
 # Python
@@ -376,6 +376,7 @@ cargo run --example byte_track_demo
 cargo run --example deepsort_simple --features reid-model
 cargo run --example deepsort_ort --features advanced_examples
 cargo run --example det_ind_demo
+cargo run --example tracktrack_demo
 ```
 
 The Python demos use the usual detector stacks: `ultralytics` (YOLO), `transformers` + `torch`
