@@ -1580,7 +1580,7 @@ lost tracks using low-confidence detections.</p>
 </span></code></pre></div>
 <h4 id="parameters">Parameters</h4>
 <ul>
-<li><code>detections</code> — list of <code>([x, y, w, h], score, class_id)</code> tuples.</li>
+<li><code>detections</code>: list of <code>([x, y, w, h], score, class_id)</code> tuples.</li>
 </ul>
 <h4 id="returns">Returns</h4>
 <p>A list of <code>(track_id, tlwh, score, class_id, det_ind)</code> tuples for every active confirmed track in the
@@ -1840,8 +1840,8 @@ any Re-ID model.</p>
 </span></code></pre></div>
 <h4 id="parameters_1">Parameters</h4>
 <ul>
-<li><code>detections</code> — list of <code>([x, y, w, h], score, class_id)</code> tuples.</li>
-<li><code>embeddings</code> — list of appearance embedding vectors, one per detection. Length must equal
+<li><code>detections</code>: list of <code>([x, y, w, h], score, class_id)</code> tuples.</li>
+<li><code>embeddings</code>: list of appearance embedding vectors, one per detection. Length must equal
   <code>len(detections)</code>. Each embedding can be any length but must be consistent within a session.</li>
 </ul>
 <h4 id="returns_1">Returns</h4>
@@ -1864,7 +1864,7 @@ frame. Same format as all other trackers.</p>
 </span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    <span class="p">([</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">],</span> <span class="mf">0.87</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 </span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="p">]</span>
 </span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
-</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="c1"># Produce embeddings from your Re-ID model — here we use random vectors</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="c1"># Produce embeddings from your Re-ID model (random vectors here)</span>
 </span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="n">embeddings</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">]</span>
 </span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>
 </span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="n">tracks</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
@@ -1955,9 +1955,9 @@ frame. Same format as all other trackers.</p>
 </span></code></pre></div>
 <h4 id="parameters_2">Parameters</h4>
 <ul>
-<li><code>detections</code> — list of <code>([x, y, w, h], score, class_id)</code> tuples.</li>
-<li><code>embeddings</code> — appearance vectors, one per detection, or an empty list for motion only.</li>
-<li><code>camera_motion</code> — six affine coefficients <code>[a, b, tx, c, d, ty]</code> mapping the previous frame to the current one, or <code>None</code> for a static camera.</li>
+<li><code>detections</code>: list of <code>([x, y, w, h], score, class_id)</code> tuples.</li>
+<li><code>embeddings</code>: appearance vectors, one per detection, or an empty list for motion only.</li>
+<li><code>camera_motion</code>: six affine coefficients <code>[a, b, tx, c, d, ty]</code> mapping the previous frame to the current one, or <code>None</code> for a static camera.</li>
 </ul>
 <h4 id="returns_2">Returns</h4>
 <p>A list of <code>(track_id, tlwh, score, class_id, det_ind)</code> tuples for confirmed tracks matched in the current frame.</p>

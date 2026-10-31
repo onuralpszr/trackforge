@@ -765,6 +765,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -791,6 +808,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ultralytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ultralytics
+      </span>
+    </span>
+  </a>
   
 </li>
       
@@ -1362,6 +1390,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tuning-tips_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tuning tips
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1388,6 +1433,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ultralytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ultralytics
+      </span>
+    </span>
+  </a>
   
 </li>
       
@@ -1458,12 +1514,14 @@ exposed to Python via PyO3. It implements seven production-ready tracking algori
 shared Kalman filter, so you can swap trackers without changing your integration code.</p>
 <h2 id="features">Features</h2>
 <ul>
-<li><strong>High Performance</strong> — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.</li>
-<li><strong>Python Bindings</strong> — Install from PyPI, import, and track in three lines.</li>
-<li><strong>Seven Algorithms</strong> — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack cover the full speed-accuracy spectrum.</li>
-<li><strong>Unified API</strong> — All trackers accept <code>(tlwh, score, class_id)</code> detection tuples.</li>
+<li><strong>High Performance</strong>: Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.</li>
+<li><strong>Python Bindings</strong>: Install from PyPI, import, and track in three lines.</li>
+<li><strong>Seven Algorithms</strong>: SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack cover the full speed-accuracy spectrum.</li>
+<li><strong>Unified API</strong>: All trackers accept <code>(tlwh, score, class_id)</code> detection tuples.</li>
+<li><strong>Ultralytics Ready</strong>: Track straight from YOLO and RT-DETR models in Python and Rust; see <a href="#ultralytics">Ultralytics</a>.</li>
 </ul>
 <h2 id="installation">Installation</h2>
+<p>Requires Python 3.9+ for the Python package and Rust 1.92+ for the crate.</p>
 <h3 id="python">Python</h3>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>trackforge
 </span></code></pre></div>
@@ -1537,7 +1595,7 @@ shared Kalman filter, so you can swap trackers without changing your integration
 <hr />
 <h2 id="sort">SORT</h2>
 <p><strong>Simple Online and Realtime Tracking</strong> (<a href="https://arxiv.org/abs/1602.00763">arXiv 1602.00763</a>).
-Pairs a Kalman filter with greedy IoU matching. Designed for speed — ideal when objects rarely
+Pairs a Kalman filter with greedy IoU matching. Designed for speed, ideal when objects rarely
 overlap.</p>
 <h3 id="configuration">Configuration</h3>
 <table>
@@ -1616,7 +1674,7 @@ map a track back to its detection and reuse the detection's Re-ID embedding.</p>
 <hr />
 <h2 id="bytetrack">ByteTrack</h2>
 <p><strong>ByteTrack</strong> (<a href="https://arxiv.org/abs/2110.06864">arXiv 2110.06864</a>).
-A two-stage IoU tracker that associates <em>every</em> detection — not just high-confidence ones — to
+A two-stage IoU tracker that associates <em>every</em> detection, not just high-confidence ones, to
 recover objects that are temporarily occluded or partially off-screen. Provides a significant
 recall improvement over SORT with minimal added cost.</p>
 <h3 id="configuration_1">Configuration</h3>
@@ -1708,11 +1766,11 @@ recall improvement over SORT with minimal added cost.</p>
 <p><strong>OC-SORT</strong> (<a href="https://arxiv.org/abs/2203.14360">arXiv 2203.14360</a>, CVPR 2023).
 Extends SORT with three observation-centric mechanisms that reduce tracker drift during occlusions:</p>
 <ul>
-<li><strong>OCV</strong> — velocity is computed from consecutive detections, not from the Kalman filter state.</li>
-<li><strong>OCM</strong> — before matching, a direction-consistency bonus is added to each IoU score: pairs
+<li><strong>OCV</strong>: velocity is computed from consecutive detections, not from the Kalman filter state.</li>
+<li><strong>OCM</strong>: before matching, a direction-consistency bonus is added to each IoU score: pairs
   where the track's stored velocity direction aligns with the vector from the last observation to
   the candidate detection receive a higher effective IoU, improving association after missed frames.</li>
-<li><strong>ORU</strong> — when a lost track is re-matched, the Kalman filter is corrected by replaying
+<li><strong>ORU</strong>: when a lost track is re-matched, the Kalman filter is corrected by replaying
   linearly interpolated observations between the last seen position and the current detection.</li>
 </ul>
 <p>No appearance features are required, making it a strong upgrade over SORT when occlusions are
@@ -1766,7 +1824,7 @@ common but Re-ID is unavailable.</p>
 <li>Increase <code>delta_t</code> for smoother velocity at the cost of responsiveness to rapid direction changes.</li>
 <li>Increase <code>inertia</code> (up to <code>1.0</code>) when objects move at near-constant velocity; lower it for
   erratic or non-linear motion.</li>
-<li><code>min_hits=1</code> gives immediate track output — useful when detections are already filtered upstream.</li>
+<li><code>min_hits=1</code> gives immediate track output, useful when detections are already filtered upstream.</li>
 </ul>
 <h3 id="python_3">Python</h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
@@ -1854,7 +1912,7 @@ to IoU matching. Provides robust long-term identity maintenance.</p>
 </table>
 <h4 id="tuning-tips_3">Tuning tips</h4>
 <ul>
-<li>Lower <code>max_cosine_distance</code> (e.g. <code>0.15</code>) for stricter Re-ID — reduces ID switches at the cost
+<li>Lower <code>max_cosine_distance</code> (e.g. <code>0.15</code>) for stricter Re-ID, which reduces ID switches at the cost
   of more unmatched detections.</li>
 <li>Increase <code>nn_budget</code> if your objects undergo gradual appearance changes over many frames.</li>
 <li>Lower <code>n_init</code> to <code>1</code> if detections are reliable and you need tracks immediately.</li>
@@ -2118,6 +2176,13 @@ for the Re-ID term, or an empty list to track on motion only.</p>
 </tr>
 </tbody>
 </table>
+<h4 id="tuning-tips_4">Tuning tips</h4>
+<ul>
+<li>Raise <code>init_thresh</code> to start fewer tracks from weak detections; lower it when objects enter the scene with low scores.</li>
+<li>Lower <code>tai_thresh</code> to block duplicate tracks on top of existing ones in crowds, at the cost of missing new objects that appear right next to a tracked one.</li>
+<li>Raise <code>penalty_low</code> to make low confidence detections match only when nothing better is available.</li>
+<li>Pass embeddings from a Re-ID model when identities must survive long occlusions; the motion-only mode is enough for short ones.</li>
+</ul>
 <h3 id="python_4">Python</h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
@@ -2140,15 +2205,29 @@ for the Re-ID term, or an empty list to track on motion only.</p>
 </span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
+<h2 id="ultralytics">Ultralytics</h2>
+<p><code>track_ultralytics</code> runs an <a href="https://github.com/ultralytics/ultralytics">Ultralytics</a> model over a video, webcam, stream or image folder and yields the tracks for every frame:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trackforge</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ultralytics</span><span class="w"> </span><span class="kn">import</span> <span class="n">YOLO</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">model</span> <span class="o">=</span> <span class="n">YOLO</span><span class="p">(</span><span class="s2">"yolo11n.pt"</span><span class="p">)</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">tracker</span> <span class="o">=</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">BYTETRACK</span><span class="p">()</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">for</span> <span class="n">result</span><span class="p">,</span> <span class="n">tracks</span> <span class="ow">in</span> <span class="n">trackforge</span><span class="o">.</span><span class="n">track_ultralytics</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"people.mp4"</span><span class="p">,</span> <span class="n">tracker</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="k">for</span> <span class="n">track_id</span><span class="p">,</span> <span class="n">tlwh</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">class_id</span><span class="p">,</span> <span class="n">det_ind</span> <span class="ow">in</span> <span class="n">tracks</span><span class="p">:</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">track_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">class_id</span><span class="p">],</span> <span class="n">tlwh</span><span class="p">)</span>
+</span></code></pre></div>
+<p>For your own loop, <code>trackforge.from_ultralytics(result)</code> converts one result into detections. In Rust, <code>trackforge::utils::detections_from_xyxy</code> turns the box data of <a href="https://crates.io/crates/ultralytics-inference"><code>ultralytics-inference</code></a> into tracker input; see the <a href="examples.html#ultralytics">examples</a> and the <a href="reference/python.html#ultralytics-helpers">Python API reference</a>.</p>
+<hr />
 <h2 id="detection-format">Detection Format</h2>
 <p>All trackers use the same detection tuple format:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>([x, y, w, h], score, class_id)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>([x, y, w, h], score, class_id)
 </span></code></pre></div>
 <ul>
-<li><code>x</code>, <code>y</code> — top-left corner in pixels</li>
-<li><code>w</code>, <code>h</code> — width and height in pixels</li>
-<li><code>score</code> — detector confidence in <code>[0.0, 1.0]</code></li>
-<li><code>class_id</code> — integer class label from your detector</li>
+<li><code>x</code>, <code>y</code>: top-left corner in pixels</li>
+<li><code>w</code>, <code>h</code>: width and height in pixels</li>
+<li><code>score</code>: detector confidence in <code>[0.0, 1.0]</code></li>
+<li><code>class_id</code>: integer class label from your detector</li>
 </ul>
 <h2 id="links">Links</h2>
 <ul>
