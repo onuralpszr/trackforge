@@ -38,6 +38,24 @@ jobs:
       - name: Run tests (python feature)
         run: cargo test --features python
 
+  python-test:
+    name: Python tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          python-version: "3.12"
+          activate-environment: "true"
+      - name: Build and install bindings
+        run: |
+          uv pip install maturin pytest
+          maturin develop
+      - name: Run pytest
+        run: pytest tests
+
   lint:
     name: Lint (fmt + clippy)
     runs-on: ubuntu-latest
