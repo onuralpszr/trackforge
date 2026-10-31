@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-10-31
+
+### 🚀 Features
+
+- *(ultralytics)* Add Ultralytics integration for Python and Rust with docs and examples by @onuralpszr
+- *(wheels)* Build musllinux wheels for Alpine and other musl based distros by @onuralpszr
+- *(wheels)* Build Windows ARM64 wheels on the windows-11-arm runner by @onuralpszr
+- *(wheels)* Build macOS x86_64 wheels natively on the macos-15-intel runner by @onuralpszr
+
+### 🐛 Bug Fixes
+
+- *(ci)* Build x86 Linux wheels on ubuntu-24.04 to avoid broken i386 container networking by @onuralpszr
+
+### 📚 Documentation
+
+- Fix outdated docs and add TrackTrack demo, docstring and citation by @onuralpszr
+- *(examples)* Add a TrackTrack Rust example by @onuralpszr
+
+### ⚙️ Miscellaneous Tasks
+
+- [**breaking**] Raise minimum Python to 3.9 to match pyo3 0.30 by @onuralpszr
+- [**breaking**] Raise minimum supported Rust version to 1.92 by @onuralpszr
+- *(ci)* Run Python binding tests in CI by @onuralpszr
+
+### 🛡️ Security
+
+- Bump rustls and webpki crates to fix security advisories by @onuralpszr
+
 ## [0.4.0] - 2026-09-13
 
 ### 🚀 Features
