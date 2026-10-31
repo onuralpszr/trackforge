@@ -819,6 +819,7 @@ crate tracks a video or image folder with any motion tracker. It is a separate c
 <code>ultralytics-inference</code> is AGPL-3.0.</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>examples/ultralytics
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cargo<span class="w"> </span>run<span class="w"> </span>--release<span class="w"> </span>--<span class="w"> </span><span class="s2">"frames/*.jpg"</span><span class="w"> </span>--tracker<span class="w"> </span>bytetrack<span class="w"> </span>--classes<span class="w"> </span><span class="m">0</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cargo<span class="w"> </span>run<span class="w"> </span>--release<span class="w"> </span>--features<span class="w"> </span>video<span class="w"> </span>--<span class="w"> </span>people.mp4<span class="w"> </span>--classes<span class="w"> </span><span class="m">0</span><span class="w"> </span>--save<span class="w"> </span>tracked.mp4
 </span></code></pre></div>
 <h2 id="quick-start">Quick Start</h2>
 <h3 id="rust-bytetrack">Rust - ByteTrack</h3>

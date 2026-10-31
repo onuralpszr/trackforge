@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-fc09e37f.js";
+            window.path_to_searchindex_js = "searchindex-b845e880.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ccffaf3c.js"></script>
@@ -677,6 +677,7 @@ crate tracks a video or image folder with any motion tracker. It is a separate c
 <code>ultralytics-inference</code> is AGPL-3.0.</p>
 <pre><code class="language-bash">cd examples/ultralytics
 cargo run --release -- "frames/*.jpg" --tracker bytetrack --classes 0
+cargo run --release --features video -- people.mp4 --classes 0 --save tracked.mp4
 </code></pre>
 
                     </main>
