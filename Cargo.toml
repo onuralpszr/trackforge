@@ -45,6 +45,10 @@ name = "det_ind_demo"
 path = "examples/rust/det_ind_demo.rs"
 
 [[example]]
+name = "tracktrack_demo"
+path = "examples/rust/tracktrack_demo.rs"
+
+[[example]]
 name = "deepsort_ort"
 path = "examples/deepsort_ort.rs"
 required-features = ["advanced_examples"]

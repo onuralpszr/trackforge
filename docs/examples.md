@@ -11,7 +11,7 @@ in the repository, with a Python and a Rust entry per tracker.
 | Deep OC-SORT | `deep_ocsort_demo.py`                      | -                                       |
 | BoT-SORT     | `botsort_demo.py`                          | `det_ind_demo.rs`                       |
 | SORT         | `sort_yolo_demo.py`, `sort_rtdetr_demo.py` | -                                       |
-| TrackTrack   | `tracktrack_demo.py`                       | -                                       |
+| TrackTrack   | `tracktrack_demo.py`                       | `tracktrack_demo.rs`                    |
 
 ```bash
 # Python
@@ -22,6 +22,7 @@ cargo run --example byte_track_demo
 cargo run --example deepsort_simple --features reid-model
 cargo run --example deepsort_ort --features advanced_examples
 cargo run --example det_ind_demo
+cargo run --example tracktrack_demo
 ```
 
 The Python demos use the usual detector stacks (`ultralytics`, `transformers` + `torch`,
