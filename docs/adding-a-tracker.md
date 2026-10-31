@@ -61,7 +61,7 @@ in `src/lib.rs`.
 ## 5. Documentation and examples
 
 - Fill in `src/trackers/<tracker_name>/README.md` from
-  [`.github/TRACKER_TEMPLATE.md`](../.github/TRACKER_TEMPLATE.md).
+  [`.github/TRACKER_TEMPLATE.md`](https://github.com/onuralpszr/trackforge/blob/main/.github/TRACKER_TEMPLATE.md).
 - Add a crate-level doc section in `src/lib.rs` (tracker table row plus a runnable example).
 - Add a guide page `book/src/trackers/<tracker_name>.md` and link it from
   `book/src/trackers/index.md` and `book/src/SUMMARY.md`.
@@ -81,5 +81,5 @@ Every tracker must credit its source:
 
 ## 7. Commit and PR rules
 
-Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md). Commit with `git commit -sm`, use a
+Follow [`CONTRIBUTING.md`](https://github.com/onuralpszr/trackforge/blob/main/CONTRIBUTING.md). Commit with `git commit -sm`, use a
 tracker scope (for example `feat(deep_ocsort): ...`), and keep the PR focused.

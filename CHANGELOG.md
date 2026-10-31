@@ -138,7 +138,7 @@ All notable changes to this project will be documented in this file.
 - 🐞 update domain-specific tokens in typos configuration for clarity by @onuralpszr
 - 🐞 update clippy hook arguments to improve compatibility with fresh dev environments by @onuralpszr
 - 🐞 update bounding box feature vector creation and tracker update calls for consistency by @onuralpszr
-- *(deepsort)* Rename _n_init/_max_age fields — they are actively used, not dead code by @onuralpszr
+- *(deepsort)* Rename _n_init/_max_age fields, they are actively used, not dead code by @onuralpszr
 - *(deepsort)* Replace bare .unwrap() in cascade matching with .expect() by @onuralpszr
 - 🐞 correct terminology from OUR to ORU in documentation and code comments by @onuralpszr
 - 🐞 replace deprecated pyo3::prepare_freethreaded_python() with pyo3::Python::initialize() in tests by @onuralpszr

@@ -59,7 +59,7 @@ tracks = tracker.update(detections: list[tuple[list[float], float, int]]) -> lis
 
 #### Parameters
 
-- `detections` — list of `([x, y, w, h], score, class_id)` tuples.
+- `detections`: list of `([x, y, w, h], score, class_id)` tuples.
 
 #### Returns
 
@@ -239,8 +239,8 @@ tracks = tracker.update(
 
 #### Parameters
 
-- `detections` — list of `([x, y, w, h], score, class_id)` tuples.
-- `embeddings` — list of appearance embedding vectors, one per detection. Length must equal
+- `detections`: list of `([x, y, w, h], score, class_id)` tuples.
+- `embeddings`: list of appearance embedding vectors, one per detection. Length must equal
   `len(detections)`. Each embedding can be any length but must be consistent within a session.
 
 #### Returns
@@ -267,7 +267,7 @@ detections = [
     ([200.0, 150.0, 60.0, 120.0], 0.87, 0),
 ]
 
-# Produce embeddings from your Re-ID model — here we use random vectors
+# Produce embeddings from your Re-ID model (random vectors here)
 embeddings = [np.random.rand(128).tolist() for _ in detections]
 
 tracks = tracker.update(detections, embeddings)
@@ -319,9 +319,9 @@ tracks = tracker.update(
 
 #### Parameters
 
-- `detections` — list of `([x, y, w, h], score, class_id)` tuples.
-- `embeddings` — appearance vectors, one per detection, or an empty list for motion only.
-- `camera_motion` — six affine coefficients `[a, b, tx, c, d, ty]` mapping the previous frame to the current one, or `None` for a static camera.
+- `detections`: list of `([x, y, w, h], score, class_id)` tuples.
+- `embeddings`: appearance vectors, one per detection, or an empty list for motion only.
+- `camera_motion`: six affine coefficients `[a, b, tx, c, d, ty]` mapping the previous frame to the current one, or `None` for a static camera.
 
 #### Returns
 
