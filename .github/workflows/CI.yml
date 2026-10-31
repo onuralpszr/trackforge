@@ -70,7 +70,7 @@ jobs:
       - name: cargo fmt
         run: cargo fmt --manifest-path examples/ultralytics/Cargo.toml -- --check
       - name: cargo clippy
-        run: cargo clippy --manifest-path examples/ultralytics/Cargo.toml -- -D warnings
+        run: cargo clippy --manifest-path examples/ultralytics/Cargo.toml --all-targets -- -D warnings
 
   lint:
     name: Lint (fmt + clippy)

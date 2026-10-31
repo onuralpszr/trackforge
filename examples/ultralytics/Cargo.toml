@@ -13,8 +13,11 @@ publish = false
 [workspace]
 
 [dependencies]
+ab_glyph = "0.2"
+image = { version = "0.25", default-features = false }
+imageproc = { version = "0.27", default-features = false, features = ["text"] }
 trackforge = { path = "../.." }
-ultralytics-inference = { version = "0.0.54", default-features = false }
+ultralytics-inference = { version = "0.0.54", default-features = false, features = ["annotate"] }
 
 [features]
 # Read video files, webcams and streams through FFmpeg (needs the FFmpeg dev libraries).
