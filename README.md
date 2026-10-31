@@ -47,7 +47,7 @@
 
 <!-- prettier-ignore -->
 > [!IMPORTANT]
-> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.89.
+> **Under active development.** APIs and features are subject to change. MSRV: Rust 1.92.
 
 ## Installation
 
@@ -398,7 +398,7 @@ Each tracker's parameters and defaults (identical across Python and Rust) are do
 
 ### Prerequisites
 
-- Rust 1.89+ (MSRV)
+- Rust 1.92+ (MSRV)
 - Python 3.9+ and [`maturin`](https://github.com/pyo3/maturin) for the bindings
 - [`prek`](https://github.com/j178/prek) for git hooks (optional but recommended)
 
