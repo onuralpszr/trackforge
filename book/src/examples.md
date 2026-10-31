@@ -51,4 +51,5 @@ crate tracks a video or image folder with any motion tracker. It is a separate c
 ```bash
 cd examples/ultralytics
 cargo run --release -- "frames/*.jpg" --tracker bytetrack --classes 0
+cargo run --release --features video -- people.mp4 --classes 0 --save tracked.mp4
 ```

@@ -409,6 +409,10 @@ A full video example with a tracker switch lives in [`examples/ultralytics`](exa
 cd examples/ultralytics
 cargo run --release -- "frames/*.jpg" --tracker bytetrack --classes 0
 cargo run --release --features video -- people.mp4 --tracker botsort   # needs FFmpeg dev libraries
+# annotated video with track ids and motion trails
+cargo run --release --features video -- people.mp4 --classes 0 --save tracked.mp4
+# the whole loop in one short file
+cargo run --release --features video --example minimal -- people.mp4
 ```
 
 ## Examples
