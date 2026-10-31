@@ -43,6 +43,7 @@
 - 🐍 **Python Bindings** First-class `pip install trackforge` support via PyO3
 - 🎯 **Multi-Algorithm** ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, TrackTrack, and SORT with a unified API
 - 🔌 **Pluggable Re-ID** The appearance matching is always available; you pass in embeddings. The image based extractor that runs a model over a frame is an opt-in `reid-model` feature, so the base build stays light
+- 🧩 **Ultralytics Ready** One call turns YOLO results into tracks in Python, and a helper plus a standalone example cover `ultralytics-inference` in Rust
 - 📐 **Generic Kalman Filter** Configurable position/velocity weighting, gating distance computation
 
 <!-- prettier-ignore -->
@@ -351,6 +352,63 @@ let tracks = tracker.update(detections, &[]);
 for t in &tracks {
     println!("ID: {}, Box: {:?}", t.track_id, t.tlwh);
 }
+```
+
+## Ultralytics
+
+trackforge plugs straight into [Ultralytics](https://github.com/ultralytics/ultralytics) YOLO and RT-DETR models.
+
+### Python
+
+`track_ultralytics` runs the model over any source Ultralytics reads (video, webcam, stream, image folder) and yields the tracks for every frame:
+
+```python
+import trackforge
+from ultralytics import YOLO
+
+model = YOLO("yolo11n.pt")
+tracker = trackforge.BYTETRACK()
+
+for result, tracks in trackforge.track_ultralytics(model, "people.mp4", tracker, classes=[0]):
+    for track_id, tlwh, score, class_id, det_ind in tracks:
+        print(track_id, result.names[class_id], tlwh)
+```
+
+To keep your own loop, `from_ultralytics` converts one result into detections:
+
+```python
+detections = trackforge.from_ultralytics(model(frame, verbose=False))
+tracks = tracker.update(detections)
+```
+
+Appearance trackers take an `embedder(frame, tlwh_boxes)` callable: `track_ultralytics(model, source, trackforge.DEEPSORT(), embedder=my_reid)`. Neither helper imports `ultralytics`, so it stays an optional dependency.
+
+### Rust
+
+[`ultralytics-inference`](https://crates.io/crates/ultralytics-inference) runs YOLO in Rust, and `detections_from_xyxy_rows` turns its boxes into tracker input:
+
+```rust,ignore
+use trackforge::trackers::byte_track::{ByteTrack, ByteTrackParams};
+use trackforge::utils::detections_from_xyxy_rows;
+use ultralytics_inference::YOLOModel;
+
+let mut model = YOLOModel::load("yolo26n.onnx")?;
+let mut tracker = ByteTrack::from_params(ByteTrackParams::default());
+
+for result in model.predict("frame.jpg")? {
+    if let Some(boxes) = &result.boxes {
+        let data = boxes.data.as_standard_layout();
+        let tracks = tracker.update(detections_from_xyxy_rows(data.as_slice().unwrap()));
+    }
+}
+```
+
+A full video example with a tracker switch lives in [`examples/ultralytics`](examples/ultralytics). It is a separate crate because `ultralytics-inference` is AGPL-3.0, so trackforge itself stays MIT with no extra dependencies:
+
+```bash
+cd examples/ultralytics
+cargo run --release -- "frames/*.jpg" --tracker bytetrack --classes 0
+cargo run --release --features video -- people.mp4 --tracker botsort   # needs FFmpeg dev libraries
 ```
 
 ## Examples

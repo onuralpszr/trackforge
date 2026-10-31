@@ -28,3 +28,26 @@ The Python demos use the usual detector stacks (`ultralytics`, `transformers` + 
 `torch` + `torchvision`); install what a given demo imports. The `deepsort_simple` Rust demo
 needs the `reid-model` feature and the `deepsort_ort` demo needs the `advanced_examples`
 feature (ONNX Runtime + OpenCV).
+
+## Ultralytics
+
+Python: `trackforge.track_ultralytics(model, source, tracker)` runs an Ultralytics model over a video,
+webcam, stream or image folder and yields `(result, tracks)` per frame, and
+`trackforge.from_ultralytics(result)` converts a single result for your own loop. See
+[`ultralytics_track.py`](https://github.com/onuralpszr/trackforge/blob/main/examples/python/ultralytics_track.py).
+
+```python
+for result, tracks in trackforge.track_ultralytics(YOLO("yolo11n.pt"), "people.mp4", trackforge.BYTETRACK(), classes=[0]):
+    print(len(tracks))
+```
+
+Rust: `trackforge::utils::detections_from_xyxy_rows` turns the `[x1, y1, x2, y2, conf, cls]` rows of
+[`ultralytics-inference`](https://crates.io/crates/ultralytics-inference) boxes into tracker input. The
+[`examples/ultralytics`](https://github.com/onuralpszr/trackforge/tree/main/examples/ultralytics)
+crate tracks a video or image folder with any motion tracker. It is a separate crate because
+`ultralytics-inference` is AGPL-3.0.
+
+```bash
+cd examples/ultralytics
+cargo run --release -- "frames/*.jpg" --tracker bytetrack --classes 0
+```

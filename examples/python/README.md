@@ -20,16 +20,17 @@ pip install torch torchvision pillow
 
 ## Examples
 
-| Example                                      | Tracker      | Detector           | Output                   |
-| -------------------------------------------- | ------------ | ------------------ | ------------------------ |
-| [`sort_yolo_demo.py`](sort_yolo_demo.py)     | `SORT`       | YOLO11n            | `output_sort_yolo.mp4`   |
-| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py) | `SORT`       | RT-DETR            | `output_sort_rtdetr.mp4` |
-| [`byte_track_demo.py`](byte_track_demo.py)   | `BYTETRACK`  | YOLO11n            | `output_bytetrack.mp4`   |
-| [`ocsort_demo.py`](ocsort_demo.py)           | `OCSORT`     | YOLO11n            | `output_ocsort.mp4`      |
-| [`deepsort_demo.py`](deepsort_demo.py)       | `DEEPSORT`   | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
-| [`deep_ocsort_demo.py`](deep_ocsort_demo.py) | `DEEPOCSORT` | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
-| [`botsort_demo.py`](botsort_demo.py)         | `BOTSORT`    | YOLO11n + ResNet18 | `output_botsort.mp4`     |
-| [`tracktrack_demo.py`](tracktrack_demo.py)   | `TRACKTRACK` | YOLO11n + ResNet18 | `output_tracktrack.mp4`  |
+| Example                                        | Tracker           | Detector           | Output                   |
+| ---------------------------------------------- | ----------------- | ------------------ | ------------------------ |
+| [`sort_yolo_demo.py`](sort_yolo_demo.py)       | `SORT`            | YOLO11n            | `output_sort_yolo.mp4`   |
+| [`sort_rtdetr_demo.py`](sort_rtdetr_demo.py)   | `SORT`            | RT-DETR            | `output_sort_rtdetr.mp4` |
+| [`byte_track_demo.py`](byte_track_demo.py)     | `BYTETRACK`       | YOLO11n            | `output_bytetrack.mp4`   |
+| [`ocsort_demo.py`](ocsort_demo.py)             | `OCSORT`          | YOLO11n            | `output_ocsort.mp4`      |
+| [`deepsort_demo.py`](deepsort_demo.py)         | `DEEPSORT`        | YOLO11n + ResNet18 | `output_deepsort.mp4`    |
+| [`deep_ocsort_demo.py`](deep_ocsort_demo.py)   | `DEEPOCSORT`      | YOLO11n + ResNet18 | `output_deep_ocsort.mp4` |
+| [`botsort_demo.py`](botsort_demo.py)           | `BOTSORT`         | YOLO11n + ResNet18 | `output_botsort.mp4`     |
+| [`tracktrack_demo.py`](tracktrack_demo.py)     | `TRACKTRACK`      | YOLO11n + ResNet18 | `output_tracktrack.mp4`  |
+| [`ultralytics_track.py`](ultralytics_track.py) | any (`--tracker`) | YOLO11n            | printed tracks           |
 
 Two shared modules back the demos (not runnable on their own):
 
@@ -55,16 +56,27 @@ from ultralytics import YOLO
 model = YOLO("yolo11n.pt")
 tracker = trackforge.SORT(max_age=30, min_hits=3, iou_threshold=0.3)
 
-results = model.predict(frame, verbose=False, classes=[0])
-detections = []
-for box in results[0].boxes:
-    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
-    detections.append(([float(x1), float(y1), float(x2 - x1), float(y2 - y1)],
-                       float(box.conf[0]), int(box.cls[0])))
+for result, tracks in trackforge.track_ultralytics(model, "people.mp4", tracker, classes=[0]):
+    for track_id, tlwh, score, class_id, det_ind in tracks:
+        print(f"ID {track_id}: {tlwh}")
+```
 
-tracks = tracker.update(detections)
-for track_id, tlwh, score, class_id, det_ind in tracks:
-    print(f"ID {track_id}: {tlwh}")
+To drive the loop yourself, convert one result at a time with `from_ultralytics`:
+
+```python
+results = model.predict(frame, verbose=False, classes=[0])
+tracks = tracker.update(trackforge.from_ultralytics(results))
+```
+
+Appearance trackers take an `embedder(frame, tlwh_boxes)` callable, for example with the ResNet18 helper in `reid.py`:
+
+```python
+from reid import extract_features, get_embedder
+
+net, transform = get_embedder()
+embedder = lambda frame, boxes: extract_features(net, transform, frame, boxes)
+for result, tracks in trackforge.track_ultralytics(model, "people.mp4", trackforge.DEEPSORT(), embedder=embedder):
+    ...
 ```
 
 Swap the tracker line for any of the others:
