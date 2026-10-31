@@ -134,27 +134,56 @@ jobs:
           path: dist
 
   windows:
-    runs-on: windows-latest
+    name: windows (${{ matrix.platform.target }})
+    runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
       matrix:
-        target: [x64, x86]
+        platform:
+          - runner: windows-latest
+            target: x64
+            python_arch: x64
+            python_versions: |
+              3.9
+              3.10
+              3.11
+              3.12
+              3.13
+              3.14
+          - runner: windows-latest
+            target: x86
+            python_arch: x86
+            python_versions: |
+              3.9
+              3.10
+              3.11
+              3.12
+              3.13
+              3.14
+          - runner: windows-11-arm
+            target: aarch64
+            python_arch: arm64
+            python_versions: |
+              3.11
+              3.12
+              3.13
+              3.14
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.10"
-          architecture: ${{ matrix.target }}
+          python-version: ${{ matrix.platform.python_versions }}
+          architecture: ${{ matrix.platform.python_arch }}
       - name: Build wheels
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: wheels-windows-${{ matrix.target }}
+          name: wheels-windows-${{ matrix.platform.target }}
           path: dist
 
   macos:
