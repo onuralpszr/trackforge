@@ -36,7 +36,7 @@ repos:
       - id: fmt
         args: [--all, --]
       - id: clippy
-        # Note: skips `advanced_examples` feature — it pulls opencv/ort which
+        # Note: skips `advanced_examples` feature because it pulls opencv/ort which
         # require LLVM + libclang system packages and makes this hook
         # unusable on a fresh dev box or in CI without extra setup.
         args: [--all-targets, --features, python, --, -D, warnings]

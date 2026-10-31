@@ -40,7 +40,7 @@ This corrects the accumulated drift so that future predictions start from an acc
 - Increase `max_age` (e.g. 60) when objects undergo long occlusions.
 - Increase `delta_t` for smoother velocity at the cost of responsiveness to rapid direction changes.
 - Increase `inertia` (max 1.0) if objects move at near-constant velocity; lower it for erratic motion.
-- `min_hits=1` gives immediate track output — useful when detections are already filtered upstream.
+- `min_hits=1` gives immediate track output, useful when detections are already filtered upstream.
 
 ## References
 

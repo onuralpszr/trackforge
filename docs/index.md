@@ -22,12 +22,15 @@ shared Kalman filter, so you can swap trackers without changing your integration
 
 ## Features
 
-- **High Performance** — Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.
-- **Python Bindings** — Install from PyPI, import, and track in three lines.
-- **Seven Algorithms** — SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack cover the full speed-accuracy spectrum.
-- **Unified API** — All trackers accept `(tlwh, score, class_id)` detection tuples.
+- **High Performance**: Native Rust implementation; ByteTrack runs in under 1 ms/frame on typical hardware.
+- **Python Bindings**: Install from PyPI, import, and track in three lines.
+- **Seven Algorithms**: SORT, ByteTrack, OC-SORT, DeepSORT, Deep OC-SORT, BoT-SORT, and TrackTrack cover the full speed-accuracy spectrum.
+- **Unified API**: All trackers accept `(tlwh, score, class_id)` detection tuples.
+- **Ultralytics Ready**: Track straight from YOLO and RT-DETR models in Python and Rust; see [Ultralytics](#ultralytics).
 
 ## Installation
+
+Requires Python 3.9+ for the Python package and Rust 1.92+ for the crate.
 
 ### Python
 
@@ -75,7 +78,7 @@ where `tlwh` is `[top-left-x, top-left-y, width, height]`.
 ## SORT
 
 **Simple Online and Realtime Tracking** ([arXiv 1602.00763](https://arxiv.org/abs/1602.00763)).
-Pairs a Kalman filter with greedy IoU matching. Designed for speed — ideal when objects rarely
+Pairs a Kalman filter with greedy IoU matching. Designed for speed, ideal when objects rarely
 overlap.
 
 ### Configuration
@@ -141,7 +144,7 @@ for t in &tracks {
 ## ByteTrack
 
 **ByteTrack** ([arXiv 2110.06864](https://arxiv.org/abs/2110.06864)).
-A two-stage IoU tracker that associates _every_ detection — not just high-confidence ones — to
+A two-stage IoU tracker that associates _every_ detection, not just high-confidence ones, to
 recover objects that are temporarily occluded or partially off-screen. Provides a significant
 recall improvement over SORT with minimal added cost.
 
@@ -209,11 +212,11 @@ for t in &tracks {
 **OC-SORT** ([arXiv 2203.14360](https://arxiv.org/abs/2203.14360), CVPR 2023).
 Extends SORT with three observation-centric mechanisms that reduce tracker drift during occlusions:
 
-- **OCV** — velocity is computed from consecutive detections, not from the Kalman filter state.
-- **OCM** — before matching, a direction-consistency bonus is added to each IoU score: pairs
+- **OCV**: velocity is computed from consecutive detections, not from the Kalman filter state.
+- **OCM**: before matching, a direction-consistency bonus is added to each IoU score: pairs
   where the track's stored velocity direction aligns with the vector from the last observation to
   the candidate detection receive a higher effective IoU, improving association after missed frames.
-- **ORU** — when a lost track is re-matched, the Kalman filter is corrected by replaying
+- **ORU**: when a lost track is re-matched, the Kalman filter is corrected by replaying
   linearly interpolated observations between the last seen position and the current detection.
 
 No appearance features are required, making it a strong upgrade over SORT when occlusions are
@@ -235,7 +238,7 @@ common but Re-ID is unavailable.
 - Increase `delta_t` for smoother velocity at the cost of responsiveness to rapid direction changes.
 - Increase `inertia` (up to `1.0`) when objects move at near-constant velocity; lower it for
   erratic or non-linear motion.
-- `min_hits=1` gives immediate track output — useful when detections are already filtered upstream.
+- `min_hits=1` gives immediate track output, useful when detections are already filtered upstream.
 
 ### Python
 
@@ -299,7 +302,7 @@ to IoU matching. Provides robust long-term identity maintenance.
 
 #### Tuning tips
 
-- Lower `max_cosine_distance` (e.g. `0.15`) for stricter Re-ID — reduces ID switches at the cost
+- Lower `max_cosine_distance` (e.g. `0.15`) for stricter Re-ID, which reduces ID switches at the cost
   of more unmatched detections.
 - Increase `nn_budget` if your objects undergo gradual appearance changes over many frames.
 - Lower `n_init` to `1` if detections are reliable and you need tracks immediately.
@@ -541,6 +544,13 @@ for the Re-ID term, or an empty list to track on motion only.
 | `penalty_low`  | `f32`   | `0.2`   | Extra cost added to low confidence detections during association |
 | `reduce_step`  | `f32`   | `0.05`  | How much the cost gate tightens per matching round               |
 
+#### Tuning tips
+
+- Raise `init_thresh` to start fewer tracks from weak detections; lower it when objects enter the scene with low scores.
+- Lower `tai_thresh` to block duplicate tracks on top of existing ones in crowds, at the cost of missing new objects that appear right next to a tracked one.
+- Raise `penalty_low` to make low confidence detections match only when nothing better is available.
+- Pass embeddings from a Re-ID model when identities must survive long occlusions; the motion-only mode is enough for short ones.
+
 ### Python
 
 ```python
@@ -570,6 +580,26 @@ for t in &tracks {
 
 ---
 
+## Ultralytics
+
+`track_ultralytics` runs an [Ultralytics](https://github.com/ultralytics/ultralytics) model over a video, webcam, stream or image folder and yields the tracks for every frame:
+
+```python
+import trackforge
+from ultralytics import YOLO
+
+model = YOLO("yolo11n.pt")
+tracker = trackforge.BYTETRACK()
+
+for result, tracks in trackforge.track_ultralytics(model, "people.mp4", tracker, classes=[0]):
+    for track_id, tlwh, score, class_id, det_ind in tracks:
+        print(track_id, result.names[class_id], tlwh)
+```
+
+For your own loop, `trackforge.from_ultralytics(result)` converts one result into detections. In Rust, `trackforge::utils::detections_from_xyxy` turns the box data of [`ultralytics-inference`](https://crates.io/crates/ultralytics-inference) into tracker input; see the [examples](examples.md#ultralytics) and the [Python API reference](reference/python.md#ultralytics-helpers).
+
+---
+
 ## Detection Format
 
 All trackers use the same detection tuple format:
@@ -578,10 +608,10 @@ All trackers use the same detection tuple format:
 ([x, y, w, h], score, class_id)
 ```
 
-- `x`, `y` — top-left corner in pixels
-- `w`, `h` — width and height in pixels
-- `score` — detector confidence in `[0.0, 1.0]`
-- `class_id` — integer class label from your detector
+- `x`, `y`: top-left corner in pixels
+- `w`, `h`: width and height in pixels
+- `score`: detector confidence in `[0.0, 1.0]`
+- `class_id`: integer class label from your detector
 
 ## Links
 

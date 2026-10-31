@@ -1,4 +1,4 @@
-"""Integration tests for the Python bindings — exercises Rust glue code."""
+"""Integration tests for the Python bindings, exercising the Rust glue code."""
 
 import pytest
 
@@ -56,7 +56,7 @@ def test_ocsort_round2_rematch_fast_moving():
     )
     # Frame 1: establish track at x=0
     t.update([([0.0, 0.0, 50.0, 100.0], 0.9, 0)])
-    # Frame 2: large jump to x=200 — Kalman learns a strong rightward velocity
+    # Frame 2: large jump to x=200, so Kalman learns a strong rightward velocity
     t.update([([200.0, 0.0, 50.0, 100.0], 0.9, 0)])
     # Frame 3: detection reappears at x=200 (last observed), not at Kalman prediction ~x=400.
     # Round-1 IoU(predicted≈[400,0,50,100], det=[200,0,50,100]) = 0 → unmatched.

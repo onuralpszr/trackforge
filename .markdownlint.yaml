@@ -1,6 +1,6 @@
 default: true
 
-# Line length — tables and code blocks get long; let prettier handle wrapping.
+# Line length: tables and code blocks get long; let prettier handle wrapping.
 MD013: false
 
 # Allow inline HTML (the README uses <p align="center"> + <picture>).
