@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-11-01
+
+### 📚 Documentation
+
+- Remove em dashes and update the docs home page by @onuralpszr
+- *(examples)* Add annotated video output and a minimal example to the Ultralytics Rust example by @onuralpszr
+
+### ⚙️ Miscellaneous Tasks
+
+- *(build)* Allow maturin versions up to 2.0 in the build requirements by @onuralpszr
+
 ## [0.5.0] - 2026-10-31
 
 ### 🚀 Features
