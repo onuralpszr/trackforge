@@ -40,7 +40,7 @@ registration), keeping the core free of heavy computer-vision dependencies.
 | `max_age`             | 30      | Frames a lost track survives before deletion               |
 | `min_hits`            | 3       | Consecutive matches required to confirm a track            |
 | `iou_threshold`       | 0.3     | Minimum IoU to associate a detection with a track          |
-| `delta_t`             | 3       | Observation window (frames) used to compute velocity (OCM) |
+| `delta_t`             | 3       | Observation window (frames) used to compute velocity (OCV) |
 | `inertia`             | 0.2     | Weight of the direction-consistency cost bonus (OCM)       |
 | `appearance_weight`   | 0.5     | Blend weight of the appearance cost, scaled by det. score  |
 | `max_cosine_distance` | 0.2     | Maximum cosine distance for the appearance term to apply   |

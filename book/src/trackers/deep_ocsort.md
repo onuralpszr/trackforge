@@ -36,7 +36,7 @@ for track_id, tlwh, score, class_id, det_ind in tracks:
 | `max_age`             | 30      | Frames to keep a lost track alive before deletion          |
 | `min_hits`            | 3       | Consecutive matched frames required to confirm a track     |
 | `iou_threshold`       | 0.3     | Minimum IoU to associate a detection with a track          |
-| `delta_t`             | 3       | Observation window (frames) used to compute velocity (OCM) |
+| `delta_t`             | 3       | Observation window (frames) used to compute velocity (OCV) |
 | `inertia`             | 0.2     | Weight of the direction-consistency cost bonus (OCM)       |
 | `appearance_weight`   | 0.5     | Blend weight of the appearance cost, scaled by det. score  |
 | `max_cosine_distance` | 0.2     | Maximum cosine distance for the appearance term to apply   |

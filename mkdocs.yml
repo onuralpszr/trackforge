@@ -59,5 +59,7 @@ nav:
   - Examples: examples.md
   - Parameters: parameters.md
   - Roadmap: roadmap.md
+  - Adding a tracker: adding-a-tracker.md
+  - Commit guidelines: COMMIT_GUIDELINES.md
   - Python API: reference/python.md
   - Rust API: api/
