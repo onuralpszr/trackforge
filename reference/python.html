@@ -1703,9 +1703,10 @@ current frame.</p>
 </span></code></pre></div>
 <hr />
 <h2 id="ocsort"><code>OCSORT</code></h2>
-<p>Observation-Centric SORT. Extends SORT with velocity-based prediction correction (OCM) and
-Kalman filter re-update on re-association (ORU). More robust than SORT in scenes with brief
-occlusions without requiring appearance features.</p>
+<p>Observation-Centric SORT. Extends SORT with three observation-centric mechanisms: velocity
+estimated from consecutive detections (OCV), a direction-consistency bonus before matching
+(OCM), and a Kalman filter re-update when a lost track is re-associated (ORU). More robust
+than SORT in scenes with brief occlusions without requiring appearance features.</p>
 <h3 id="constructor_2">Constructor</h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">trackforge</span><span class="o">.</span><span class="n">OCSORT</span><span class="p">(</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">max_age</span><span class="p">:</span> <span class="nb">int</span>        <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
