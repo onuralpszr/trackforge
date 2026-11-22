@@ -120,7 +120,7 @@ trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thre
 | `max_age`       | int   | 30      | Max frames without detection before deletion |
 | `min_hits`      | int   | 3       | Min consecutive hits to confirm track        |
 | `iou_threshold` | float | 0.3     | IoU threshold for matching                   |
-| `delta_t`       | int   | 3       | Frame window for velocity direction (OCM)    |
+| `delta_t`       | int   | 3       | Frame window for velocity direction (OCV)    |
 | `inertia`       | float | 0.2     | Weight of the velocity-direction bonus       |
 
 ### DEEPSORT
@@ -140,7 +140,7 @@ trackforge.BOTSORT(track_thresh=0.5, track_buffer=30, match_thresh=0.8, det_thre
 | `max_age`             | int   | 30      | Max frames without detection before deletion   |
 | `min_hits`            | int   | 3       | Min consecutive hits to confirm track          |
 | `iou_threshold`       | float | 0.3     | IoU threshold for matching                     |
-| `delta_t`             | int   | 3       | Frame window for velocity direction (OCM)      |
+| `delta_t`             | int   | 3       | Frame window for velocity direction (OCV)      |
 | `inertia`             | float | 0.2     | Weight of the velocity-direction bonus         |
 | `appearance_weight`   | float | 0.5     | Blend weight for the appearance cost (0 = off) |
 | `max_cosine_distance` | float | 0.2     | Gate above which appearance is ignored         |
